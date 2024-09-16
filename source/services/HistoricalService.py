@@ -7,7 +7,7 @@ class HistoricalService:
         self.cursor = cursor
 
     def getMaxDate(self, stock:StockModel):
-        return datetime.datetime.now() - datetime.timedelta(days=20)
+        return datetime.datetime.now() - datetime.timedelta(days=2*365)
         query = f"SELECT MAX(date) FROM historical WHERE stock_id = ?"
         self.cursor.execute(query, stock.id)
         last_date = self.cursor.fetchone()[0]

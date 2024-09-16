@@ -26,6 +26,6 @@ for stock in stocks:
                 item.Close,
                 item.Volume
             )
-            print(item)
+        conn.commit()
 
 conn.close()
