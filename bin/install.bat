@@ -1,7 +1,11 @@
 cd ..\
 
-call .\Scripts\activate.bat
+python -m venv virtualized
 
-pip install -r requirements.txt
+call .\virtualized\Scripts\activate.bat
+
+pip install -r .\bin\requirements.txt
+
+copy /y .\bin\fix\forecaster.py virtualized\Lib\site-packages\prophet\
 
 deactivate
