@@ -1,8 +1,6 @@
-import pandas as pd
 import sqlite3
 import datetime
 import yfinance
-from pandas_datareader import data
 from source.services.StockService import StockService
 from source.services.HistoricalService import HistoricalService
 
@@ -12,11 +10,22 @@ cursor = conn.cursor()
 stockService = StockService(cursor)
 historicalService = HistoricalService(cursor)
 
-symbols = stockService.getSymbols()
-for symbol in symbols:
+stocks = stockService.getAll()
+for stock in stocks:
     end = datetime.datetime.now().strftime('%Y-%m-%d')
-    start = historicalService.getMaxDate(symbol).strftime('%Y-%m-%d')
-    print(yfinance.download(symbol, start=start, end=end))
-    #print(data.get_data_yahoo(symbol, start=start, end=end))
+    start = historicalService.getMaxDate(stock).strftime('%Y-%m-%d')
+    response = yfinance.download(stock.symbol, start=start, end=end)
+    if not response.empty:
+        for item in response.itertuples():
+            historicalService.add(
+                stock,
+                item.Index,
+                item.Open,
+                item.High,
+                item.Low,
+                item.Close,
+                item.Volume
+            )
+            print(item)
 
 conn.close()
