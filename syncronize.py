@@ -10,11 +10,15 @@ cursor = conn.cursor()
 stockService = StockService(cursor)
 historicalService = HistoricalService(cursor)
 
+end = datetime.datetime.now().strftime('%Y-%m-%d')
 stocks = stockService.getAll()
 for stock in stocks:
-    end = datetime.datetime.now().strftime('%Y-%m-%d')
     start = historicalService.getMaxDate(stock).strftime('%Y-%m-%d')
-    response = yfinance.download(stock.symbol, start=start, end=end)
+    response = yfinance.download(
+        stock.symbol,
+        start=start,
+        end=end
+    )
     if not response.empty:
         for item in response.itertuples():
             historicalService.add(
