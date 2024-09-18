@@ -15,7 +15,7 @@ stocks = stockService.getAll()
 for stock in stocks:
     start = historicalService.getMaxDate(stock).strftime('%Y-%m-%d')
     response = yfinance.download(
-        stock.symbol,
+        stock.getSymbol(),
         start=start,
         end=end
     )
