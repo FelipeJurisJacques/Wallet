@@ -24,7 +24,9 @@ for stock in stocks:
         data.loc[len(data)] = [historic.date, historic.close]
     model = Prophet()
     model.fit(data)
-    future = model.make_future_dataframe(periods=30)
+    future = model.make_future_dataframe(periods=1)
     forecast = model.predict(future)
     model.plot(forecast)
-    print(forecast.tail(30))
+    date = forecast.tail(1)
+    for item in date:
+        print(item)
