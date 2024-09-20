@@ -17,5 +17,7 @@ for stock in stocks:
     print('processando ' + stock.symbol + ' de ' + stock.name)
     historical = historicalService.getAllFromStock(stock)
     prophet = ProphetService(historical)
-    prophet.handle(10)
-    prophet.result()
+    prophet.handle(60)
+    items = prophet.result()
+    for item in items:
+        print(item.date.strftime('%Y-%m-%d') + ': ' + str(item.yhat))

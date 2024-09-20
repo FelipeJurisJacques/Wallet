@@ -3,8 +3,11 @@ from ..entities.Entity import Entity
 
 # MODELO PROFETIZADO DAS ACOES
 class ProphesiedModel:
-    def __init__(self, historic: Entity = Entity):
-        self._entity = historic
+    def __init__(self, entity: Entity = None):
+        if entity is None:
+            self._entity = Entity()
+        else:
+            self._entity = entity
 
     @property
     def id(self) -> int:
