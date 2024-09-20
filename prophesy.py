@@ -2,6 +2,7 @@ import pandas
 import sqlite3
 from prophet import Prophet
 from source.services.StockService import StockService
+from source.services.ProphetService import ProphetService
 from source.services.HistoricalService import HistoricalService
 
 conn = sqlite3.connect('./storage/wallet.db')
@@ -13,20 +14,8 @@ historicalService = HistoricalService(cursor)
 stocks = stockService.getAll()
 
 for stock in stocks:
+    print('processando ' + stock.symbol + ' de ' + stock.name)
     historical = historicalService.getAllFromStock(stock)
-    # y: dados
-    # ds: data
-    # cap: limite superior
-    # floor: limite inferior
-    # holiday: datas de feriados ou eventos
-    data = pandas.DataFrame(columns=['ds', 'y'])
-    for historic in historical:
-        data.loc[len(data)] = [historic.date, historic.close]
-    model = Prophet()
-    model.fit(data)
-    future = model.make_future_dataframe(periods=1)
-    forecast = model.predict(future)
-    model.plot(forecast)
-    date = forecast.tail(1)
-    for item in date:
-        print(item)
+    prophet = ProphetService(historical)
+    prophet.handle(10)
+    prophet.result()

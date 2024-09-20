@@ -1,8 +1,9 @@
 import datetime
-from ..entities.ProphesiedEntity import ProphesiedEntity
+from ..entities.Entity import Entity
 
-class ProphesiedEntity:
-    def __init__(self, historic: ProphesiedEntity):
+# MODELO PROFETIZADO DAS ACOES
+class ProphesiedModel:
+    def __init__(self, historic: Entity = Entity):
         self._entity = historic
 
     @property
@@ -74,7 +75,7 @@ class ProphesiedEntity:
         return self._entity.additive_terms
 
     @additiveTerms.setter
-    def additive_terms(self, value: float):
+    def additiveTerms(self, value: float):
         self._entity.additive_terms = value
 
     @property
@@ -82,7 +83,7 @@ class ProphesiedEntity:
         return self._entity.additive_terms_lower
 
     @additiveTermsLower.setter
-    def additive_terms_lower(self, value: float):
+    def additiveTermsLower(self, value: float):
         self._entity.additive_terms_lower = value
 
     @property
@@ -90,7 +91,7 @@ class ProphesiedEntity:
         return self._entity.additive_terms_upper
 
     @additiveTermsUpper.setter
-    def additive_terms_upper(self, value: float):
+    def additiveTermsUpper(self, value: float):
         self._entity.additive_terms_upper = value
 
     @property
@@ -130,7 +131,7 @@ class ProphesiedEntity:
         return self._entity.multiplicative_terms_lower
 
     @multiplicativeTermsLower.setter
-    def multiplicative_terms_lower(self, value: float):
+    def multiplicativeTermsLower(self, value: float):
         self._entity.multiplicative_terms_lower = value
 
     @property
@@ -138,7 +139,7 @@ class ProphesiedEntity:
         return self._entity.multiplicative_terms_upper
 
     @multiplicativeTermsUpper.setter
-    def multiplicative_terms_upper(self, value: float):
+    def multiplicativeTermsUpper(self, value: float):
         self._entity.multiplicative_terms_upper = value
 
     @property

@@ -11,7 +11,7 @@ class HistoricalService:
     def getAllFromStock(self, stock:StockModel) -> list[HistoricModel]:
         self.cursor.execute(
             "SELECT id, stock_id, date, open, high, low, close, volume FROM historical WHERE stock_id = ?",
-            (stock.getId(),)
+            (stock.id,)
         )
         list = []
         rows = self.cursor.fetchall()
@@ -42,5 +42,5 @@ class HistoricalService:
     def add(self, stock:StockModel, date, open, high, low, close, volume):
         self.cursor.execute(
             "INSERT INTO historical (stock_id, date, open, high, low, close, volume) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (stock.getId(), date.timestamp(), open, high, low, close, volume)
+            (stock.id, date.timestamp(), open, high, low, close, volume)
         )

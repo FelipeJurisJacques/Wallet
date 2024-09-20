@@ -1,20 +1,26 @@
 from ..entities.StockEntity import StockEntity
 
+# MODELO DA ACAO
 class StockModel:
     def __init__(self, stock: StockEntity):
         self._entity = stock
 
-    def getId(self):
+    @property
+    def id(self) -> int:
         return self._entity.id
 
-    def getName(self):
+    @property
+    def name(self) -> str:
         return self._entity.name
 
-    def getSymbol(self):
+    @property
+    def symbol(self) -> str:
         return self._entity.symbol
 
-    def getCurrency(self):
+    @property
+    def currency(self) -> str:
         return self._entity.currency
 
-    def getIndustry(self):
+    @property
+    def industry(self) -> str:
         return self._entity.industry
