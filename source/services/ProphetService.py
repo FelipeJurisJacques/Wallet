@@ -1,5 +1,4 @@
 import pandas
-import datetime
 from prophet import Prophet
 from ..model.HistoricModel import HistoricModel
 from ..model.ProphesiedModel import ProphesiedModel
@@ -16,6 +15,7 @@ class ProphetService(Prophet):
         for historic in historical:
             data.loc[len(data)] = [historic.date, historic.close]
         self._data = data
+        self._max = historical.pop().date
 
     def handle(self, periods: int):
         super().fit(self._data)
@@ -69,5 +69,6 @@ class ProphetService(Prophet):
                         model.multiplicativeTermsUpper = value
                     case 'yhat':
                         model.yhat = value
-            result.append(model)
+            if model.date > self._max:
+                result.append(model)
         return result
