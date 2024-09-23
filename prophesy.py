@@ -1,8 +1,6 @@
-import pandas
 import sqlite3
-from prophet import Prophet
+from source.libraries import ProphetLib
 from source.services.StockService import StockService
-from source.services.ProphetService import ProphetService
 from source.services.HistoricalService import HistoricalService
 
 conn = sqlite3.connect('./storage/wallet.db')
@@ -16,7 +14,7 @@ stocks = stockService.getAll()
 for stock in stocks:
     print('processando ' + stock.symbol + ' de ' + stock.name)
     historical = historicalService.getAllFromStock(stock)
-    prophet = ProphetService(historical)
+    prophet = ProphetLib(historical)
     prophet.handle(60)
     items = prophet.result()
     for item in items:

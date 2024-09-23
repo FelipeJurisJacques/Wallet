@@ -3,7 +3,7 @@ from prophet import Prophet
 from ..model.HistoricModel import HistoricModel
 from ..model.ProphesiedModel import ProphesiedModel
 
-class ProphetService(Prophet):
+class ProphetLib(Prophet):
     def __init__(self, historical: list[HistoricModel]):
         super().__init__()
         # y: dados
