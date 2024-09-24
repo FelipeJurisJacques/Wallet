@@ -1,5 +1,5 @@
 import sqlite3
-from source.libraries import ProphetLib
+from source.libraries.ProphetLib import ProphetLib
 from source.services.StockService import StockService
 from source.services.HistoricalService import HistoricalService
 
@@ -14,6 +14,7 @@ stocks = stockService.getAll()
 for stock in stocks:
     print('processando ' + stock.symbol + ' de ' + stock.name)
     historical = historicalService.getAllFromStock(stock)
+    end = historical.pop()
     prophet = ProphetLib(historical)
     prophet.handle(60)
     items = prophet.result()

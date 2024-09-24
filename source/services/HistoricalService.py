@@ -28,6 +28,26 @@ class HistoricalService:
             )))
         return list
 
+    def getPeriodFromStock(self, stock:StockModel, limit:int, offset:int) -> list[HistoricModel]:
+        self.cursor.execute(
+            "SELECT id, stock_id, date, open, high, low, close, volume FROM historical WHERE stock_id = ? LIMIT ? OFFSET ? ",
+            (stock.id, limit, offset, )
+        )
+        list = []
+        rows = self.cursor.fetchall()
+        for row in rows:
+            list.append(HistoricModel(HistoricEntity(
+                row[0],
+                row[1],
+                row[2],
+                row[3],
+                row[4],
+                row[5],
+                row[6],
+                row[7]
+            )))
+        return list
+
     def getMaxDate(self, stock:StockModel) -> datetime.date:
         self.cursor.execute(
             "SELECT MAX(date) FROM historical WHERE stock_id = ?",
