@@ -16,7 +16,7 @@ class DriveLib:
 
     def getUserWallet(self) -> UserWalletModel:
         # teste em memoria
-        if self._userStock is None:
+        if self._userWallet is None:
             self._userWallet = UserWalletModel()
         return self._userWallet
     

@@ -5,7 +5,9 @@ from ..entities.Entity import Entity
 class UserStockModel:
     def __init__(self, entity: Entity = None):
         if entity is None:
-            self._entity = Entity()
+            self._entity = Entity(
+                value=0
+            )
         else:
             self._entity = entity
 

@@ -16,21 +16,23 @@ stocks = stockService.getAll()
 for stock in stocks:
     print('processando ' + stock.symbol + ' de ' + stock.name)
     i = 0
+    end = None
     drive = DriveLib()
-    wallet = drive.getUserWallet()
-    wallet.value = 1000.0
+    drive.getUserWallet().value = 1000.0
+    print('Valor inicial R$ ' + str(drive.getUserWallet().value))
     strategy = StrategyLib()
-    while i < 1:
+    while i < 5:
         historical = historicalService.getPeriodFromStock(stock, 366, i)
         i += 1
+        end = historical.pop()
         prophet = ProphetLib(historical)
         prophet.handle(60)
         forecast = prophet.result()
-        strategy.handle(wallet, drive.getUserStock(), historical, forecast)
+        strategy.handle(drive.getUserWallet(), drive.getUserStock(), historical, forecast)
         decision = strategy.result
-        if decision == 0:
-            print('Não fazer nada')
         if decision > 0:
-            print('Comprar as ações')
+            drive.buy(end.close, decision)
         if decision < 0:
-            print('Vender as ações')
+            drive.sell(end.close, decision * -1)
+    drive.sell(end.close, drive.sellable())
+    print('Valor total R$ ' + str(drive.getUserWallet().value))
