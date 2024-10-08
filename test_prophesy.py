@@ -22,18 +22,26 @@ for stock in stocks:
     print('Valor inicial R$ ' + str(drive.getUserWallet().value))
     strategy = StrategyLib()
     while i < 20:
-        historical = historicalService.getPeriodFromStock(stock, 366, i)
+        historical = historicalService.getPeriodFromStock(stock, 40, i)
         i += 1
         future = historical.pop()
         prophet = ProphetLib(historical)
         prophet.handle(60)
         forecast = prophet.result()
-        strategy.handle(drive.getUserWallet(), drive.getUserStock(), historical, forecast)
-        decision = strategy.result
-        if decision > 0:
-            drive.buy(historical[-1].close, decision)
-        if decision < 0:
-            drive.sell(historical[-1].close, decision * -1)
-        print('Percentual verdadeiro ' + str(round(strategy.estimatePercent(historical[-1].close, future.close))) + '%')
+        if len(forecast) == 0:
+            print('Sem previsao')
+        else:
+            strategy.handle(
+                drive.getUserWallet(),
+                drive.getUserStock(),
+                historical[-1],
+                forecast[0],
+                future
+            )
+            decision = strategy.result
+            if decision > 0:
+                drive.buy(historical[-1].close, decision)
+            if decision < 0:
+                drive.sell(historical[-1].close, decision * -1)
     drive.sell(future.close, drive.sellable())
     print('Valor total R$ ' + str(drive.getUserWallet().value))

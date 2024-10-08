@@ -1,6 +1,5 @@
-from ..entities.StockEntity import StockEntity
+from ..entities.stock import StockEntity
 
-# MODELO DA ACAO
 class StockModel:
     def __init__(self, stock: StockEntity):
         self._entity = stock
