@@ -1,66 +1,39 @@
-import sqlite3
 import datetime
-from ..model.StockModel import StockModel
-from ..model.HistoricModel import HistoricModel
-from ..entities.HistoricEntity import HistoricEntity
+from django.db.models import Max
+from ..models.stock import StockModel
+from ..models.historic import HistoricModel
+from ..entities.historic import HistoricEntity
 
 class HistoricalService:
-    def __init__(self, cursor:sqlite3.Cursor):
-        self.cursor = cursor
 
-    def getAllFromStock(self, stock:StockModel) -> list[HistoricModel]:
-        self.cursor.execute(
-            "SELECT id, stock_id, date, open, high, low, close, volume FROM historical WHERE stock_id = ?",
-            (stock.id,)
-        )
+    def get_all_from_stock(self, stock:StockModel) -> list[HistoricModel]:
+        entities = HistoricEntity.objects.filter(stock_id=stock.id)
         list = []
-        rows = self.cursor.fetchall()
-        for row in rows:
-            list.append(HistoricModel(HistoricEntity(
-                row[0],
-                row[1],
-                row[2],
-                row[3],
-                row[4],
-                row[5],
-                row[6],
-                row[7]
-            )))
+        for entity in entities:
+            list.append(HistoricModel(entity))
         return list
 
-    def getPeriodFromStock(self, stock:StockModel, limit:int, offset:int) -> list[HistoricModel]:
-        self.cursor.execute(
-            "SELECT id, stock_id, date, open, high, low, close, volume FROM historical WHERE stock_id = ? LIMIT ? OFFSET ? ",
-            (stock.id, limit, offset, )
-        )
+    def get_period_from_stock(self, stock:StockModel, limit:int, offset:int) -> list[HistoricModel]:
+        entities = HistoricEntity.objects.filter(stock_id=stock.id)[offset:limit]
         list = []
-        rows = self.cursor.fetchall()
-        for row in rows:
-            list.append(HistoricModel(HistoricEntity(
-                row[0],
-                row[1],
-                row[2],
-                row[3],
-                row[4],
-                row[5],
-                row[6],
-                row[7]
-            )))
+        for entity in entities:
+            list.append(HistoricModel(entity))
         return list
 
-    def getMaxDate(self, stock:StockModel) -> datetime.date:
-        self.cursor.execute(
-            "SELECT MAX(date) FROM historical WHERE stock_id = ?",
-            (stock.getId(),)
-        )
-        row = self.cursor.fetchone()
-        if row[0]:
-            return datetime.date.fromtimestamp(row[0])
+    def get_max_date(self, stock:StockModel) -> datetime.date:
+        rows = HistoricEntity.objects.filter(stock_id=stock.id).aggregate(max_date=Max('date'))[:1]
+        if rows[0]:
+            return datetime.date.fromtimestamp(rows[0].max_date)
         else:
-            return datetime.date.now() - datetime.timedelta(days=2*365)
+            return datetime.date.now() - datetime.timedelta(days=5*365)
 
     def add(self, stock:StockModel, date, open, high, low, close, volume):
-        self.cursor.execute(
-            "INSERT INTO historical (stock_id, date, open, high, low, close, volume) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (stock.id, date.timestamp(), open, high, low, close, volume)
-        )
+        entity = HistoricEntity()
+        entity.low = low
+        entity.date = date.timestamp()
+        entity.open = open
+        entity.high = high
+        entity.close = close
+        entity.volume = volume
+        entity.stock_id = stock.id
+        entity.save()

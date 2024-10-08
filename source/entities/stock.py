@@ -6,3 +6,6 @@ class StockEntity(models.Model):
     symbol = models.CharField(max_length=255, unique=True)
     industry = models.CharField(max_length=255)
     currency = models.CharField(max_length=255)
+
+    class Meta:
+        db_table = 'stocks'

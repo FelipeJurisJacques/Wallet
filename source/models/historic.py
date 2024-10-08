@@ -1,7 +1,6 @@
 import datetime
-from ..entities.HistoricEntity import HistoricEntity
+from ..entities.historic import HistoricEntity
 
-# MODELO DE HISTORICO DAS ACOES
 class HistoricModel:
     def __init__(self, historic: HistoricEntity):
         self._entity = historic
