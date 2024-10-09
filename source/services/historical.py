@@ -21,11 +21,10 @@ class HistoricalService:
         return list
 
     def get_max_date(self, stock:StockModel) -> datetime.date:
-        rows = HistoricEntity.objects.filter(stock_id=stock.id).aggregate(max_date=Max('date'))[:1]
-        if rows[0]:
-            return datetime.date.fromtimestamp(rows[0].max_date)
-        else:
-            return datetime.date.now() - datetime.timedelta(days=5*365)
+        row = HistoricEntity.objects.filter(stock_id=stock.id).aggregate(max_date=Max('date'))
+        if row['max_date']:
+            return datetime.date.fromtimestamp(row['max_date'])
+        return datetime.date.today() - datetime.timedelta(days=5*365)
 
     def add(self, stock:StockModel, date, open, high, low, close, volume):
         entity = HistoricEntity()

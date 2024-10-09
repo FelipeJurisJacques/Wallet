@@ -34,7 +34,6 @@ class Command(BaseCommand):
                 self.stdout.write(stock.name + ' adicionado')
         file.close()
 
-
         end = datetime.datetime.now().strftime('%Y-%m-%d')
         stocks = stock_service.all()
         for stock in stocks:
