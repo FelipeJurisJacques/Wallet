@@ -4,6 +4,7 @@ from django.conf import settings
 from source.enumerators.api import ApiEnum
 from source.models.stock import StockModel
 from source.services.stock import StockService
+from source.models.historic import HistoricModel
 from django.core.management.base import BaseCommand
 from source.services.historical import HistoricalService
 
@@ -45,6 +46,7 @@ class Command(BaseCommand):
             )
             if not response.empty:
                 for item in response.itertuples():
+                    historic = HistoricModel()
                     historicalService.add(
                         stock,
                         item.Index,
