@@ -1,2 +1,4 @@
 virtualized/
 **/__pycache__/**
+storage/django_cache/**
+storage/yfinance_cache/**
