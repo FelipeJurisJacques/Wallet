@@ -16,7 +16,7 @@ class Command(BaseCommand):
         historicalService = HistoricalService()
         yfinance.set_tz_cache_location(settings.YFINANCE_CACHE_DIR)
 
-        self.stdout.write('Verificando asções cadastradas')
+        self.stdout.write('Verificando ações cadastradas')
         file = open('bin\stocks.txt', 'r')
         for line in file:
             symbol = line.strip()
@@ -35,6 +35,7 @@ class Command(BaseCommand):
                 self.stdout.write(stock.name + ' adicionado')
         file.close()
 
+        self.stdout.write('Baixando ações')
         end = datetime.datetime.now().strftime('%Y-%m-%d')
         stocks = stock_service.all()
         for stock in stocks:
