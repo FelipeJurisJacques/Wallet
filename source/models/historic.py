@@ -27,7 +27,7 @@ class HistoricModel(Model):
 
     @date.setter
     def date(self, value: datetime.date):
-        self._entity.date = value.timestamp
+        self._entity.date = value.timestamp()
 
     @property
     def high(self) -> float:

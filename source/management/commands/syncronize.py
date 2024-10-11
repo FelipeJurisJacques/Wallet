@@ -39,6 +39,8 @@ class Command(BaseCommand):
         stocks = stock_service.all()
         for stock in stocks:
             start = historicalService.get_max_date(stock).strftime('%Y-%m-%d')
+            if end == start:
+                continue
             response = yfinance.download(
                 stock.symbol,
                 start=start,
@@ -47,12 +49,11 @@ class Command(BaseCommand):
             if not response.empty:
                 for item in response.itertuples():
                     historic = HistoricModel()
-                    historicalService.add(
-                        stock,
-                        item.Index,
-                        item.Open,
-                        item.High,
-                        item.Low,
-                        item.Close,
-                        item.Volume
-                    )
+                    historic.low = item.Low
+                    historic.date = item.Index
+                    historic.high = item.High
+                    historic.open = item.Open
+                    historic.close = item.Close
+                    historic.volume = item.Volume
+                    historic.stock_id = stock.id
+                    historic.save()

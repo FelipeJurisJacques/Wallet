@@ -25,14 +25,3 @@ class HistoricalService:
         if row['max_date']:
             return datetime.date.fromtimestamp(row['max_date'])
         return datetime.date.today() - datetime.timedelta(days=5*365)
-
-    def add(self, stock:StockModel, date, open, high, low, close, volume):
-        entity = HistoricEntity()
-        entity.low = low
-        entity.date = date.timestamp()
-        entity.open = open
-        entity.high = high
-        entity.close = close
-        entity.volume = volume
-        entity.stock_id = stock.id
-        entity.save()
