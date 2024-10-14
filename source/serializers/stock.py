@@ -17,7 +17,7 @@ class StockSerializer(Serializer):
                 'symbol': entity.symbol,
                 'currency': entity.currency,
                 'industry': entity.industry,
-                'fingerprint': entity.fingerprint,
+                # 'fingerprint': entity.fingerprint,
                 'created': entity.created,
                 'updated': entity.updated,
             })
