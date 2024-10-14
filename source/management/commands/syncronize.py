@@ -1,6 +1,7 @@
 import datetime
 import yfinance
 from django.conf import settings
+from django.db import transaction
 from source.enumerators.api import ApiEnum
 from source.models.stock import StockModel
 from source.services.stock import StockService
@@ -48,13 +49,20 @@ class Command(BaseCommand):
                 end=end
             )
             if not response.empty:
-                for item in response.itertuples():
-                    historic = HistoricModel()
-                    historic.low = item.Low
-                    historic.date = item.Index
-                    historic.high = item.High
-                    historic.open = item.Open
-                    historic.close = item.Close
-                    historic.volume = item.Volume
-                    historic.stock_id = stock.id
-                    historic.save()
+                transaction.set_autocommit(False)
+                try:
+                    for item in response.itertuples():
+                        historic = HistoricModel()
+                        historic.low = item.Low
+                        historic.date = item.Index
+                        historic.high = item.High
+                        historic.open = item.Open
+                        historic.close = item.Close
+                        historic.volume = item.Volume
+                        historic.stock_id = stock.id
+                        historic.save()
+                    transaction.commit()
+                except Exception:
+                    transaction.rollback()
+                finally:
+                    transaction.set_autocommit(True)
