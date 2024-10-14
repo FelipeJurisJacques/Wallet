@@ -14,7 +14,7 @@ class Command(BaseCommand):
     
     def handle(self, *args, **options):
         stock_service = StockService()
-        historicalService = HistoricalService()
+        historical_service = HistoricalService()
         yfinance.set_tz_cache_location(settings.YFINANCE_CACHE_DIR)
 
         self.stdout.write('Verificando ações cadastradas')
@@ -40,7 +40,7 @@ class Command(BaseCommand):
         end = datetime.datetime.now().strftime('%Y-%m-%d')
         stocks = stock_service.all()
         for stock in stocks:
-            start = historicalService.get_max_date(stock).strftime('%Y-%m-%d')
+            start = historical_service.get_max_date(stock).strftime('%Y-%m-%d')
             if end == start:
                 continue
             response = yfinance.download(

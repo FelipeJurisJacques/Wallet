@@ -1,7 +1,6 @@
 import datetime
 from ..entities.Entity import Entity
 
-# MODELO PROFETIZADO DAS ACOES
 class ProphesiedModel:
     def __init__(self, entity: Entity = None):
         if entity is None:
@@ -13,16 +12,12 @@ class ProphesiedModel:
     def id(self) -> int:
         return self._entity.id
 
-    @id.setter
-    def id(self, value: int):
-        self._entity.id = value
-
     @property
-    def stockId(self) -> int:
+    def stock_id(self) -> int:
         return self._entity.stock_id
 
-    @stockId.setter
-    def stockId(self, value: int):
+    @stock_id.setter
+    def stock_id(self, value: int):
         self._entity.stock_id = value
 
     @property
@@ -42,59 +37,59 @@ class ProphesiedModel:
         self._entity.trend = value
 
     @property
-    def yhatLower(self) -> float:
+    def yhat_lower(self) -> float:
         return self._entity.yhat_lower
 
-    @yhatLower.setter
-    def yhatLower(self, value: float):
+    @yhat_lower.setter
+    def yhat_lower(self, value: float):
         self._entity.yhat_lower = value
 
     @property
-    def yhatUpper(self) -> float:
+    def yhat_upper(self) -> float:
         return self._entity.yhat_upper
 
-    @yhatUpper.setter
-    def yhatUpper(self, value: float):
+    @yhat_upper.setter
+    def yhat_upper(self, value: float):
         self._entity.yhat_upper = value
 
     @property
-    def trendLower(self) -> float:
+    def trend_lower(self) -> float:
         return self._entity.trend_lower
 
-    @trendLower.setter
-    def trendLower(self, value: float):
+    @trend_lower.setter
+    def trend_lower(self, value: float):
         self._entity.trend_lower = value
 
     @property
-    def trendUpper(self) -> float:
+    def trend_upper(self) -> float:
         return self._entity.trend_upper
 
-    @trendUpper.setter
-    def trendUpper(self, value: float):
+    @trend_upper.setter
+    def trend_upper(self, value: float):
         self._entity.trend_upper = value
 
     @property
-    def additiveTerms(self) -> float:
+    def additive_terms(self) -> float:
         return self._entity.additive_terms
 
-    @additiveTerms.setter
-    def additiveTerms(self, value: float):
+    @additive_terms.setter
+    def additive_terms(self, value: float):
         self._entity.additive_terms = value
 
     @property
-    def additiveTermsLower(self) -> float:
+    def additive_terms_lower(self) -> float:
         return self._entity.additive_terms_lower
 
-    @additiveTermsLower.setter
-    def additiveTermsLower(self, value: float):
+    @additive_terms_lower.setter
+    def additive_terms_lower(self, value: float):
         self._entity.additive_terms_lower = value
 
     @property
-    def additiveTermsUpper(self) -> float:
+    def additive_terms_upper(self) -> float:
         return self._entity.additive_terms_upper
 
-    @additiveTermsUpper.setter
-    def additiveTermsUpper(self, value: float):
+    @additive_terms_upper.setter
+    def additive_terms_upper(self, value: float):
         self._entity.additive_terms_upper = value
 
     @property
@@ -106,43 +101,43 @@ class ProphesiedModel:
         self._entity.weekly = value
 
     @property
-    def weeklyLower(self) -> float:
+    def weekly_lower(self) -> float:
         return self._entity.weekly_lower
 
-    @weeklyLower.setter
-    def weeklyLower(self, value: float):
+    @weekly_lower.setter
+    def weekly_lower(self, value: float):
         self._entity.weekly_lower = value
 
     @property
-    def weeklyUpper(self) -> float:
+    def weekly_upper(self) -> float:
         return self._entity.weekly_upper
 
-    @weeklyUpper.setter
-    def weeklyUpper(self, value: float):
+    @weekly_upper.setter
+    def weekly_upper(self, value: float):
         self._entity.weekly_upper = value
 
     @property
-    def multiplicativeTerms(self) -> float:
+    def multiplicative_terms(self) -> float:
         return self._entity.multiplicative_terms
 
-    @multiplicativeTerms.setter
-    def multiplicativeTerms(self, value: float):
+    @multiplicative_terms.setter
+    def multiplicative_terms(self, value: float):
         self._entity.multiplicative_terms = value
 
     @property
-    def multiplicativeTermsLower(self) -> float:
+    def multiplicative_terms_lower(self) -> float:
         return self._entity.multiplicative_terms_lower
 
-    @multiplicativeTermsLower.setter
-    def multiplicativeTermsLower(self, value: float):
+    @multiplicative_terms_lower.setter
+    def multiplicative_terms_lower(self, value: float):
         self._entity.multiplicative_terms_lower = value
 
     @property
-    def multiplicativeTermsUpper(self) -> float:
+    def multiplicative_terms_upper(self) -> float:
         return self._entity.multiplicative_terms_upper
 
-    @multiplicativeTermsUpper.setter
-    def multiplicativeTermsUpper(self, value: float):
+    @multiplicative_terms_upper.setter
+    def multiplicative_terms_upper(self, value: float):
         self._entity.multiplicative_terms_upper = value
 
     @property
@@ -152,3 +147,19 @@ class ProphesiedModel:
     @yhat.setter
     def yhat(self, value: float):
         self._entity.yhat = value
+
+    @property
+    def created(self) -> float:
+        return self._entity.created
+
+    @created.setter
+    def created(self, value: float):
+        self._entity.created = value
+
+    @property
+    def umpdated(self) -> float:
+        return self._entity.umpdated
+
+    @umpdated.setter
+    def umpdated(self, value: float):
+        self._entity.umpdated = value
