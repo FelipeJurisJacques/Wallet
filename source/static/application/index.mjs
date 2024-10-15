@@ -9,6 +9,9 @@ fetch('/api/stocks').then(async response => {
             <td>${stock.symbol}</td>
             <td>${stock.name}</td>
             <td>${stock.currency}</td>
+            <td>
+                <a href="historical.html?stock=${stock.id}"><i class="fa-solid fa-table"></i></a>
+            </td>
         `
         table.append(tr)
     }
