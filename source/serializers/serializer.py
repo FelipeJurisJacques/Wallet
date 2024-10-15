@@ -1,11 +1,10 @@
 class Serializer:
 
     def __init__(self):
-        self._data = {}
-        self.handle()
+        self._data = self.handle()
 
-    def handle(self):
-        pass
+    def handle(self) -> str:
+        return {}
 
     @property
     def data(self):

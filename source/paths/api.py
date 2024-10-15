@@ -1,6 +1,8 @@
 from django.urls import path
-from source.views.api import ApiView
+from source.views.api.stocks import StocksView
+from source.views.api.historical import HistoricalView
 
 urlpatterns = [
-    path('stocks/', ApiView.as_view()),
+    path('stocks/', StocksView.as_view()),
+    path('historical/<int:stock>/', HistoricalView.as_view()),
 ]

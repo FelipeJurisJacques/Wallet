@@ -7,7 +7,7 @@ from ..entities.historic import HistoricEntity
 class HistoricalService:
 
     def get_all_from_stock(self, stock:StockModel) -> list[HistoricModel]:
-        entities = HistoricEntity.objects.filter(stock_id=stock.id)
+        entities = HistoricEntity.objects.filter(stock_id=stock.id).order_by('date')
         list = []
         for entity in entities:
             list.append(HistoricModel(entity))

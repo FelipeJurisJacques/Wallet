@@ -1,7 +1,7 @@
 from .serializer import Serializer
 from source.models.stock import StockModel
 
-class StockSerializer(Serializer):
+class StocksSerializer(Serializer):
 
     def __init__(self, entities: list[StockModel]):
         self._entities = entities
@@ -18,9 +18,9 @@ class StockSerializer(Serializer):
                 'currency': entity.currency,
                 'industry': entity.industry,
                 # 'fingerprint': entity.fingerprint,
-                'created': entity.created,
-                'updated': entity.updated,
+                'created': entity.created.isoformat(),
+                'updated': entity.updated.isoformat(),
             })
-        self._data = {
+        return {
             'stocks': list,
         }

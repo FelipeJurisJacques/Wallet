@@ -5,6 +5,15 @@ from ..enumerators.api import ApiEnum
 from ..entities.stock import StockEntity
 
 class StockModel(Model):
+
+    @staticmethod
+    def find(id:int) -> StockEntity:
+        result = StockEntity.objects.filter(pk=id)
+        if result.exists():
+            return StockModel(result[0])
+        else:
+            return None
+
     def __init__(self, entity: StockEntity = None):
         if entity is None:
             self._entity = StockEntity()

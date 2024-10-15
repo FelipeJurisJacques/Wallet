@@ -1,11 +1,11 @@
 from django.views import View
 from django.http import JsonResponse
 from source.services.stock import StockService
-from source.serializers.stock import StockSerializer
+from source.serializers.stocks import StocksSerializer
 
-class ApiView(View):
+class StocksView(View):
     def get(self, request):
-        stock_service = StockService()
-        stocks = stock_service.all()
-        serializer = StockSerializer(stocks)
+        service = StockService()
+        entities = service.all()
+        serializer = StocksSerializer(entities)
         return JsonResponse(serializer.data, safe=False)
