@@ -10,7 +10,7 @@ from django.core.management.base import BaseCommand
 from source.services.historical import HistoricalService
 
 class Command(BaseCommand):
-    help = 'Carregar informações das APÌs'
+    help = 'Carregar informações das APIs'
     
     def handle(self, *args, **options):
         stock_service = StockService()
