@@ -6,7 +6,7 @@ fetch(`/api/historical/${location.search.split('=')[1]}/`).then(async response =
         let historic = json.historical[json.historical.length - i]
         let tr = document.createElement('tr')
         tr.innerHTML = `
-            <td>${i++}</td>
+            <td>${json.historical.length - i}</td>
             <td>${historic.date}</td>
             <td>${historic.open}</td>
             <td>${historic.low}</td>
