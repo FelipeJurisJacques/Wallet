@@ -3,6 +3,15 @@ from .model import Model
 from ..entities.historic import HistoricEntity
 
 class HistoricModel(Model):
+
+    @staticmethod
+    def find(id:int):
+        result = HistoricEntity.objects.filter(pk=id)
+        if result.exists():
+            return HistoricModel(result[0])
+        else:
+            return None
+
     def __init__(self, entity: HistoricEntity = None):
         if entity is None:
             self._entity = HistoricEntity()
@@ -22,11 +31,11 @@ class HistoricModel(Model):
         self._entity.low = value
 
     @property
-    def date(self) -> datetime.date:
-        return datetime.date.fromtimestamp(self._entity.date)
+    def date(self) -> datetime.datetime:
+        return datetime.datetime.fromtimestamp(self._entity.date)
 
     @date.setter
-    def date(self, value: datetime.date):
+    def date(self, value: datetime.datetime):
         self._entity.date = value.timestamp()
 
     @property
@@ -68,3 +77,24 @@ class HistoricModel(Model):
     @stock_id.setter
     def stock_id(self, value: int):
         self._entity.stock_id = value
+
+    @property
+    def created(self) -> datetime.datetime:
+        if not self._entity.created:
+            return None
+        else:
+            return datetime.datetime.fromtimestamp(self._entity.created)
+
+    @property
+    def updated(self) -> datetime.datetime:
+        if not self._entity.updated:
+            return None
+        else:
+            return datetime.datetime.fromtimestamp(self._entity.updated)
+
+    def save(self):        
+        if not self._entity.created:
+            self._entity.created = datetime.datetime.now().timestamp()
+        if not self._entity.updated:
+            self._entity.updated = datetime.datetime.now().timestamp()
+        super().save()

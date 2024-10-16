@@ -3,22 +3,22 @@ from source.models.historic import HistoricModel
 
 class HistoricalSerializer(Serializer):
 
-    def __init__(self, entities: list[HistoricModel]):
-        self._entities = entities
+    def __init__(self, models: list[HistoricModel]):
+        self._models = models
         super().__init__()
 
     def handle(self):
         list = []
-        for entity in self._entities:
+        for model in self._models:
             list.append({
-                'id': entity.id,
-                'date': entity.date.isoformat(),
-                'stock_id': entity.stock_id,
-                'low': entity.low,
-                'high': entity.high,
-                'open': entity.open,
-                'close': entity.close,
-                'volume': entity.volume,
+                'id': model.id,
+                'date': model.date.isoformat() + 'Z',
+                'stock_id': model.stock_id,
+                'low': model.low,
+                'high': model.high,
+                'open': model.open,
+                'close': model.close,
+                'volume': model.volume,
             })
         return {
             'historical': list,

@@ -1,11 +1,18 @@
 from ..models.stock import StockModel
 from ..entities.stock import StockEntity
+from source.enumerators.api import ApiEnum
 
 class StockService:
 
     def all(self) -> list[StockModel]:
         result = []
         for entity in StockEntity.objects.all():
+            result.append(StockModel(entity))
+        return result
+
+    def all_from_api(self, api: ApiEnum) -> list[StockModel]:
+        result = []
+        for entity in StockEntity.objects.filter(api=api.value):
             result.append(StockModel(entity))
         return result
 

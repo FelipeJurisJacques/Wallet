@@ -10,6 +10,8 @@ class HistoricEntity(models.Model):
     low = models.DecimalField(max_digits=10, decimal_places=2)
     close = models.DecimalField(max_digits=10, decimal_places=2)
     volume = models.IntegerField()
+    created = models.IntegerField()
+    updated = models.IntegerField()
 
     class Meta:
         db_table = 'historical'

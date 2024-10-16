@@ -3,7 +3,6 @@ import yfinance
 from django.conf import settings
 from django.db import transaction
 from source.enumerators.api import ApiEnum
-from source.models.stock import StockModel
 from source.services.stock import StockService
 from source.models.historic import HistoricModel
 from django.core.management.base import BaseCommand
@@ -17,30 +16,13 @@ class Command(BaseCommand):
         historical_service = HistoricalService()
         yfinance.set_tz_cache_location(settings.YFINANCE_CACHE_DIR)
 
-        self.stdout.write('Verificando ações cadastradas')
-        file = open('bin\stocks.txt', 'r')
-        for line in file:
-            symbol = line.strip()
-            stock = stock_service.get_by_symbol(symbol)
-            if stock is None:
-                ticker = yfinance.Ticker(symbol)
-                info = ticker.info
-                stock = StockModel()
-                stock.api = ApiEnum.YAHOO
-                stock.name = info.get('shortName')
-                stock.symbol = info.get('symbol')
-                stock.industry = info.get('longName')
-                stock.currency = info.get('currency')
-                stock.fingerprint = info
-                stock.save()
-                self.stdout.write(stock.name + ' adicionado')
-        file.close()
-
         self.stdout.write('Baixando ações')
         end = datetime.datetime.now().strftime('%Y-%m-%d')
-        stocks = stock_service.all()
+        stocks = stock_service.all_from_api(ApiEnum.YAHOO)
         for stock in stocks:
-            start = historical_service.get_max_date(stock).strftime('%Y-%m-%d')
+            start = historical_service.get_max_date_from_stock(stock).strftime('%Y-%m-%d')
+            print(start)
+            print(end)
             if end == start:
                 continue
             response = yfinance.download(
@@ -52,7 +34,9 @@ class Command(BaseCommand):
                 transaction.set_autocommit(False)
                 try:
                     for item in response.itertuples():
-                        historic = HistoricModel()
+                        historic = historical_service.get_from_stock_date(stock, item.Index)
+                        if historic is None:
+                            historic = HistoricModel()
                         historic.low = item.Low
                         historic.date = item.Index
                         historic.high = item.High

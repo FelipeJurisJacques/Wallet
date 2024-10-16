@@ -7,7 +7,7 @@ from ..entities.stock import StockEntity
 class StockModel(Model):
 
     @staticmethod
-    def find(id:int) -> StockEntity:
+    def find(id:int):
         result = StockEntity.objects.filter(pk=id)
         if result.exists():
             return StockModel(result[0])
