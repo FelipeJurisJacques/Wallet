@@ -1,10 +1,21 @@
 import datetime
-from ..entities.Entity import Entity
+from .model import Model
+from ..entities.prophesied import ProphesiedEntity
+from ..enumerators.prophesied import ProphesiedEnum
 
-class ProphesiedModel:
-    def __init__(self, entity: Entity = None):
+class ProphesiedModel(Model):
+
+    @staticmethod
+    def find(id:int):
+        result = ProphesiedEntity.objects.filter(pk=id)
+        if result.exists():
+            return ProphesiedModel(result[0])
+        else:
+            return None
+
+    def __init__(self, entity: ProphesiedEntity = None):
         if entity is None:
-            self._entity = Entity()
+            self._entity = ProphesiedEntity()
         else:
             self._entity = entity
 
@@ -21,11 +32,19 @@ class ProphesiedModel:
         self._entity.stock_id = value
 
     @property
-    def date(self) -> datetime.date:
-        return datetime.date.fromtimestamp(self._entity.date)
+    def type(self) -> ProphesiedEnum:
+        return ProphesiedEnum(self._entity.type)
+
+    @type.setter
+    def type(self, value: ProphesiedEnum):
+        self._entity.type = value.value
+
+    @property
+    def date(self) -> datetime.datetime:
+        return datetime.datetime.fromtimestamp(self._entity.date)
 
     @date.setter
-    def date(self, value: datetime.date):
+    def date(self, value: datetime.datetime):
         self._entity.date = value.timestamp()
 
     @property
@@ -149,17 +168,24 @@ class ProphesiedModel:
         self._entity.yhat = value
 
     @property
-    def created(self) -> float:
-        return self._entity.created
-
-    @created.setter
-    def created(self, value: float):
-        self._entity.created = value
+    def created(self) -> datetime.datetimetime:
+        if not self._entity.created:
+            return None
+        else:
+            return datetime.datetimetime.fromtimestamp(self._entity.created)
 
     @property
-    def umpdated(self) -> float:
-        return self._entity.umpdated
+    def updated(self) -> datetime.datetimetime:
+        if not self._entity.updated:
+            return None
+        else:
+            return datetime.datetimetime.fromtimestamp(self._entity.updated)
 
-    @umpdated.setter
-    def umpdated(self, value: float):
-        self._entity.umpdated = value
+    def save(self):        
+        if not self._entity.fingerprint:
+            self._entity.fingerprint = '{}'
+        if not self._entity.created:
+            self._entity.created = datetime.datetimetime.now().timestamp()
+        if not self._entity.updated:
+            self._entity.updated = datetime.datetimetime.now().timestamp()
+        super().save()
