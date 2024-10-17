@@ -168,24 +168,22 @@ class ProphesiedModel(Model):
         self._entity.yhat = value
 
     @property
-    def created(self) -> datetime.datetimetime:
+    def created(self) -> datetime.datetime:
         if not self._entity.created:
             return None
         else:
-            return datetime.datetimetime.fromtimestamp(self._entity.created)
+            return datetime.datetime.fromtimestamp(self._entity.created)
 
     @property
-    def updated(self) -> datetime.datetimetime:
+    def updated(self) -> datetime.datetime:
         if not self._entity.updated:
             return None
         else:
-            return datetime.datetimetime.fromtimestamp(self._entity.updated)
+            return datetime.datetime.fromtimestamp(self._entity.updated)
 
     def save(self):        
-        if not self._entity.fingerprint:
-            self._entity.fingerprint = '{}'
         if not self._entity.created:
-            self._entity.created = datetime.datetimetime.now().timestamp()
+            self._entity.created = datetime.datetime.now().timestamp()
         if not self._entity.updated:
-            self._entity.updated = datetime.datetimetime.now().timestamp()
+            self._entity.updated = datetime.datetime.now().timestamp()
         super().save()
