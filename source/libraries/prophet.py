@@ -1,3 +1,4 @@
+import gc
 import pandas
 from prophet import Prophet
 from ..models.historic import HistoricModel
@@ -16,19 +17,17 @@ class ProphetLib:
         
     def set_historical(self, historical: list[HistoricModel]):
         self._prophet = Prophet()
-        data = pandas.DataFrame(columns=['ds', 'y'])
+        self._data = pandas.DataFrame(columns=['ds', 'y'])
         for historic in historical:
-            data.loc[len(data)] = [historic.date, historic.close]
-        self._data = data
+            self._data.loc[len(self._data)] = [historic.date, historic.close]
         self._max = historical.pop().date
         self._close_forecast = []
 
     def handle(self, periods: int):
         self._prophet.fit(self._data)
-        future = self._prophet.make_future_dataframe(periods=periods)
-        forecast = self._prophet.predict(future)
-        self._prophet.plot(forecast)
-        self._close_forecast = forecast
+        self._future = self._prophet.make_future_dataframe(periods=periods)
+        self._close_forecast = self._prophet.predict(self._future)
+        self._prophet.plot(self._close_forecast)
 
     def get_close_result(self) -> list[ProphesiedModel]:
         result = []
@@ -42,3 +41,11 @@ class ProphetLib:
             if model.date > self._max:
                 result.append(model)
         return result
+    
+    def flush(self):
+        del self._max
+        del self._data
+        del self._future
+        del self._prophet
+        del self._close_forecast
+        gc.collect()

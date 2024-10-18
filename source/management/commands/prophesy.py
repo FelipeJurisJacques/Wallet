@@ -1,11 +1,6 @@
-import datetime
-from django.conf import settings
 from django.db import transaction
-from source.enumerators.api import ApiEnum
-from source.models.stock import StockModel
 from source.services.stock import StockService
 from source.libraries.prophet import ProphetLib
-from source.models.historic import HistoricModel
 from django.core.management.base import BaseCommand
 from source.services.prophesy import ProphesyService
 from source.services.historical import HistoricalService
@@ -20,6 +15,7 @@ class Command(BaseCommand):
         historical_service = HistoricalService()
 
         stocks = stock_service.all()
+        library = ProphetLib()
         for stock in stocks:
             historical = historical_service.get_all_from_stock(stock)
             length = len(historical)
@@ -28,7 +24,6 @@ class Command(BaseCommand):
             self.stdout.write('Processando ' + str(length) + ' ações da empresa' + stock.name)
             last = prophesy_service.get_max_date_from_stock(stock, ProphesiedEnum.CLOSE)
             list = []
-            library = ProphetLib()
             for historic in historical:
                 list.append(historic)
                 if last is None:
@@ -39,6 +34,22 @@ class Command(BaseCommand):
                         continue
                 library.set_historical(list)
                 library.handle(1)
-                for prophesy in library.get_close_result():
-                    prophesy.stock_id = stock.id
-                    prophesy.save()
+                try:
+                    transaction.set_autocommit(False)
+                    for prophesy in library.get_close_result():
+                        prophesy.stock_id = stock.id
+                        prophesy.save()
+                        del prophesy
+                    transaction.commit()
+                except Exception:
+                    transaction.rollback()
+                finally:
+                    transaction.set_autocommit(True)
+                del historic
+                library.flush()
+            del last
+            del list
+            del stock
+            del length
+            del historical
+        del stocks
