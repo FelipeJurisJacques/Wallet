@@ -1,5 +1,4 @@
 fetch(`/api/historical/${location.search.split('=')[1]}/`).then(async response => {
-    let i = 0
     const json = await response.json()
     const table = document.body.querySelector('table tbody')
     for (let i = 1; i <= json.historical.length; i++) {

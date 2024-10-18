@@ -17,9 +17,19 @@ class ProphetLib:
         
     def set_historical(self, historical: list[HistoricModel]):
         self._prophet = Prophet()
-        self._data = pandas.DataFrame(columns=['ds', 'y'])
+        self._data = pandas.DataFrame(columns=[
+            'ds',
+            'y',
+            'cap',
+            'floor',
+        ])
         for historic in historical:
-            self._data.loc[len(self._data)] = [historic.date, historic.close]
+            self._data.loc[len(self._data)] = [
+                historic.date,
+                historic.close,
+                historic.high,
+                historic.low,
+            ]
         self._max = historical.pop().date
         self._close_forecast = []
 
@@ -27,7 +37,6 @@ class ProphetLib:
         self._prophet.fit(self._data)
         self._future = self._prophet.make_future_dataframe(periods=periods)
         self._close_forecast = self._prophet.predict(self._future)
-        self._prophet.plot(self._close_forecast)
 
     def get_close_result(self) -> list[ProphesiedModel]:
         result = []
