@@ -1,189 +1,189 @@
 import datetime
-from .model import Model
-from ..entities.prophesied import ProphesiedEntity
+from .entity import Entity
+from ..models.prophesy import ProphesyModel
 from ..enumerators.prophesied import ProphesiedEnum
 
-class ProphesiedModel(Model):
+class ProphesyEntity(Entity):
 
     @staticmethod
     def find(id:int):
-        result = ProphesiedEntity.objects.filter(pk=id)
+        result = ProphesyModel.objects.filter(pk=id)
         if result.exists():
-            return ProphesiedModel(result[0])
+            return ProphesyEntity(result[0])
         else:
             return None
 
-    def __init__(self, entity: ProphesiedEntity = None):
-        if entity is None:
-            self._entity = ProphesiedEntity()
+    def __init__(self, model: ProphesyModel = None):
+        if model is None:
+            self._model = ProphesyModel()
         else:
-            self._entity = entity
+            self._model = model
 
     @property
     def id(self) -> int:
-        return self._entity.id
+        return self._model.id
 
     @property
     def stock_id(self) -> int:
-        return self._entity.stock_id
+        return self._model.stock_id
 
     @stock_id.setter
     def stock_id(self, value: int):
-        self._entity.stock_id = value
+        self._model.stock_id = value
 
     @property
     def type(self) -> ProphesiedEnum:
-        return ProphesiedEnum(self._entity.type)
+        return ProphesiedEnum(self._model.type)
 
     @type.setter
     def type(self, value: ProphesiedEnum):
-        self._entity.type = value.value
+        self._model.type = value.value
 
     @property
     def date(self) -> datetime.datetime:
-        return datetime.datetime.fromtimestamp(self._entity.date)
+        return datetime.datetime.fromtimestamp(self._model.date)
 
     @date.setter
     def date(self, value: datetime.datetime):
-        self._entity.date = value.timestamp()
+        self._model.date = value.timestamp()
 
     @property
     def trend(self) -> float:
-        return self._entity.trend
+        return self._model.trend
 
     @trend.setter
     def trend(self, value: float):
-        self._entity.trend = value
+        self._model.trend = value
 
     @property
     def yhat_lower(self) -> float:
-        return self._entity.yhat_lower
+        return self._model.yhat_lower
 
     @yhat_lower.setter
     def yhat_lower(self, value: float):
-        self._entity.yhat_lower = value
+        self._model.yhat_lower = value
 
     @property
     def yhat_upper(self) -> float:
-        return self._entity.yhat_upper
+        return self._model.yhat_upper
 
     @yhat_upper.setter
     def yhat_upper(self, value: float):
-        self._entity.yhat_upper = value
+        self._model.yhat_upper = value
 
     @property
     def trend_lower(self) -> float:
-        return self._entity.trend_lower
+        return self._model.trend_lower
 
     @trend_lower.setter
     def trend_lower(self, value: float):
-        self._entity.trend_lower = value
+        self._model.trend_lower = value
 
     @property
     def trend_upper(self) -> float:
-        return self._entity.trend_upper
+        return self._model.trend_upper
 
     @trend_upper.setter
     def trend_upper(self, value: float):
-        self._entity.trend_upper = value
+        self._model.trend_upper = value
 
     @property
     def additive_terms(self) -> float:
-        return self._entity.additive_terms
+        return self._model.additive_terms
 
     @additive_terms.setter
     def additive_terms(self, value: float):
-        self._entity.additive_terms = value
+        self._model.additive_terms = value
 
     @property
     def additive_terms_lower(self) -> float:
-        return self._entity.additive_terms_lower
+        return self._model.additive_terms_lower
 
     @additive_terms_lower.setter
     def additive_terms_lower(self, value: float):
-        self._entity.additive_terms_lower = value
+        self._model.additive_terms_lower = value
 
     @property
     def additive_terms_upper(self) -> float:
-        return self._entity.additive_terms_upper
+        return self._model.additive_terms_upper
 
     @additive_terms_upper.setter
     def additive_terms_upper(self, value: float):
-        self._entity.additive_terms_upper = value
+        self._model.additive_terms_upper = value
 
     @property
     def weekly(self) -> float:
-        return self._entity.weekly
+        return self._model.weekly
 
     @weekly.setter
     def weekly(self, value: float):
-        self._entity.weekly = value
+        self._model.weekly = value
 
     @property
     def weekly_lower(self) -> float:
-        return self._entity.weekly_lower
+        return self._model.weekly_lower
 
     @weekly_lower.setter
     def weekly_lower(self, value: float):
-        self._entity.weekly_lower = value
+        self._model.weekly_lower = value
 
     @property
     def weekly_upper(self) -> float:
-        return self._entity.weekly_upper
+        return self._model.weekly_upper
 
     @weekly_upper.setter
     def weekly_upper(self, value: float):
-        self._entity.weekly_upper = value
+        self._model.weekly_upper = value
 
     @property
     def multiplicative_terms(self) -> float:
-        return self._entity.multiplicative_terms
+        return self._model.multiplicative_terms
 
     @multiplicative_terms.setter
     def multiplicative_terms(self, value: float):
-        self._entity.multiplicative_terms = value
+        self._model.multiplicative_terms = value
 
     @property
     def multiplicative_terms_lower(self) -> float:
-        return self._entity.multiplicative_terms_lower
+        return self._model.multiplicative_terms_lower
 
     @multiplicative_terms_lower.setter
     def multiplicative_terms_lower(self, value: float):
-        self._entity.multiplicative_terms_lower = value
+        self._model.multiplicative_terms_lower = value
 
     @property
     def multiplicative_terms_upper(self) -> float:
-        return self._entity.multiplicative_terms_upper
+        return self._model.multiplicative_terms_upper
 
     @multiplicative_terms_upper.setter
     def multiplicative_terms_upper(self, value: float):
-        self._entity.multiplicative_terms_upper = value
+        self._model.multiplicative_terms_upper = value
 
     @property
     def yhat(self) -> float:
-        return self._entity.yhat
+        return self._model.yhat
 
     @yhat.setter
     def yhat(self, value: float):
-        self._entity.yhat = value
+        self._model.yhat = value
 
     @property
     def created(self) -> datetime.datetime:
-        if not self._entity.created:
+        if not self._model.created:
             return None
         else:
-            return datetime.datetime.fromtimestamp(self._entity.created)
+            return datetime.datetime.fromtimestamp(self._model.created)
 
     @property
     def updated(self) -> datetime.datetime:
-        if not self._entity.updated:
+        if not self._model.updated:
             return None
         else:
-            return datetime.datetime.fromtimestamp(self._entity.updated)
+            return datetime.datetime.fromtimestamp(self._model.updated)
 
     def save(self):        
-        if not self._entity.created:
-            self._entity.created = datetime.datetime.now().timestamp()
-        if not self._entity.updated:
-            self._entity.updated = datetime.datetime.now().timestamp()
+        if not self._model.created:
+            self._model.created = datetime.datetime.now().timestamp()
+        if not self._model.updated:
+            self._model.updated = datetime.datetime.now().timestamp()
         super().save()

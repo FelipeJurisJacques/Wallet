@@ -1,10 +1,12 @@
 from django.db import models
-from .stock import StockEntity
+from .stock import StockModel
 
-class ProphesiedEntity(models.Model):
+class ProphesyModel(models.Model):
     id = models.AutoField(primary_key=True)
-    stock = models.ForeignKey(StockEntity, on_delete=models.CASCADE)
     type = models.IntegerField()
+    stock = models.ForeignKey(StockModel, on_delete=models.CASCADE)
+    data_end_date = models.IntegerField()
+    data_start_date = models.IntegerField()
     date = models.IntegerField()
     trend = models.DecimalField(max_digits=10, decimal_places=2)
     yhat_lower = models.DecimalField(max_digits=10, decimal_places=2)

@@ -1,3 +1,3 @@
-from ..entities.stock import StockEntity
-from ..entities.historic import HistoricEntity
-from ..entities.prophesied import ProphesiedEntity
+from .stock import StockModel
+from .historic import HistoricModel
+from .prophesy import ProphesyModel

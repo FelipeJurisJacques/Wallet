@@ -1,8 +1,8 @@
 import gc
 import pandas
 from prophet import Prophet
-from ..models.historic import HistoricModel
-from ..models.prophesied import ProphesiedModel
+from ..entities.historic import HistoricModel
+from ..entities.prophesy import ProphesiedModel
 from ..enumerators.prophesied import ProphesiedEnum
 
 class ProphetLib:
