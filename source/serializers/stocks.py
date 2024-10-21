@@ -1,9 +1,9 @@
 from .serializer import Serializer
-from source.models.stock import StockModel
+from source.entities.stock import StockEntity
 
 class StocksSerializer(Serializer):
 
-    def __init__(self, entities: list[StockModel]):
+    def __init__(self, entities: list[StockEntity]):
         self._entities = entities
         super().__init__()
 

@@ -1,20 +1,20 @@
 import datetime
 from .entity import Entity
-from ..models.historic import HistoricModel
+from ..models.historic_day import HistoricDayModel
 
-class HistoricEntity(Entity):
+class HistoricDayEntity(Entity):
 
     @staticmethod
     def find(id:int):
-        result = HistoricModel.objects.filter(pk=id)
+        result = HistoricDayModel.objects.filter(pk=id)
         if result.exists():
-            return HistoricEntity(result[0])
+            return HistoricDayEntity(result[0])
         else:
             return None
 
-    def __init__(self, model: HistoricModel = None):
+    def __init__(self, model: HistoricDayModel = None):
         if model is None:
-            self._model = HistoricModel()
+            self._model = HistoricDayModel()
         else:
             self._model = model
 

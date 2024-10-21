@@ -1,21 +1,21 @@
 import datetime
 from .entity import Entity
-from ..models.prophesy import ProphesyModel
+from ..models.prophesy_day import ProphesyDayModel
 from ..enumerators.prophesied import ProphesiedEnum
 
-class ProphesyEntity(Entity):
+class ProphesyDayEntity(Entity):
 
     @staticmethod
     def find(id:int):
-        result = ProphesyModel.objects.filter(pk=id)
+        result = ProphesyDayModel.objects.filter(pk=id)
         if result.exists():
-            return ProphesyEntity(result[0])
+            return ProphesyDayEntity(result[0])
         else:
             return None
 
-    def __init__(self, model: ProphesyModel = None):
+    def __init__(self, model: ProphesyDayModel = None):
         if model is None:
-            self._model = ProphesyModel()
+            self._model = ProphesyDayModel()
         else:
             self._model = model
 
@@ -27,10 +27,6 @@ class ProphesyEntity(Entity):
     def stock_id(self) -> int:
         return self._model.stock_id
 
-    @stock_id.setter
-    def stock_id(self, value: int):
-        self._model.stock_id = value
-
     @property
     def type(self) -> ProphesiedEnum:
         return ProphesiedEnum(self._model.type)
@@ -38,6 +34,26 @@ class ProphesyEntity(Entity):
     @type.setter
     def type(self, value: ProphesiedEnum):
         self._model.type = value.value
+
+    @stock_id.setter
+    def stock_id(self, value: int):
+        self._model.stock_id = value
+
+    @property
+    def data_start_date(self) -> datetime.datetime:
+        return datetime.datetime.fromtimestamp(self._model.data_start_date)
+
+    @data_start_date.setter
+    def data_start_date(self, value: datetime.datetime):
+        self._model.data_start_date = value.timestamp()
+
+    @property
+    def data_end_date(self) -> datetime.datetime:
+        return datetime.datetime.fromtimestamp(self._model.data_end_date)
+
+    @data_end_date.setter
+    def data_end_date(self, value: datetime.datetime):
+        self._model.data_end_date = value.timestamp()
 
     @property
     def date(self) -> datetime.datetime:

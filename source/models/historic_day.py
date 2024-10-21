@@ -1,10 +1,10 @@
 from django.db import models
 from .stock import StockModel
 
-class HistoricModel(models.Model):
+class HistoricDayModel(models.Model):
     id = models.AutoField(primary_key=True)
-    stock = models.ForeignKey(StockModel, on_delete=models.CASCADE)
-    date = models.IntegerField()
+    date = models.IntegerField(db_index=True)
+    stock_id = models.ForeignKey(StockModel, on_delete=models.CASCADE, db_index=True)
     open = models.DecimalField(max_digits=10, decimal_places=2)
     high = models.DecimalField(max_digits=10, decimal_places=2)
     low = models.DecimalField(max_digits=10, decimal_places=2)
@@ -14,5 +14,5 @@ class HistoricModel(models.Model):
     updated = models.IntegerField()
 
     class Meta:
-        db_table = 'historical'
+        db_table = 'historical_day'
 

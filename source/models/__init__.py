@@ -1,3 +1,4 @@
 from .stock import StockModel
-from .historic import HistoricModel
-from .prophesy import ProphesyModel
+from .historic_day import HistoricDayModel
+from .prophesy_day import ProphesyDayModel
+from .prophesy_forecast_day import ProphesyForecastDayModel
