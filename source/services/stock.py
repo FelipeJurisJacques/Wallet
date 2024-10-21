@@ -4,20 +4,20 @@ from source.enumerators.api import ApiEnum
 
 class StockService:
 
-    def all(self) -> list[StockModel]:
+    def all(self) -> list[StockEntity]:
         result = []
-        for entity in StockEntity.objects.all():
-            result.append(StockModel(entity))
+        for entity in StockModel.objects.all():
+            result.append(StockEntity(entity))
         return result
 
-    def all_from_api(self, api: ApiEnum) -> list[StockModel]:
+    def all_from_api(self, api: ApiEnum) -> list[StockEntity]:
         result = []
-        for entity in StockEntity.objects.filter(api=api.value):
-            result.append(StockModel(entity))
+        for entity in StockModel.objects.filter(api=api.value):
+            result.append(StockEntity(entity))
         return result
 
-    def get_by_symbol(self, symbol:str) -> StockModel:
-        entities = StockEntity.objects.filter(symbol=symbol)[:1]
+    def get_by_symbol(self, symbol:str) -> StockEntity:
+        entities = StockModel.objects.filter(symbol=symbol)[:1]
         for entity in entities:
-            return StockModel(entity)
+            return StockEntity(entity)
         return None

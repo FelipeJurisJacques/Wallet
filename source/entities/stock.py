@@ -63,6 +63,14 @@ class StockEntity(Entity):
     @industry.setter
     def industry(self, value: str):
         self._model.industry = value
+
+    @property
+    def timezone(self) -> int:
+        return self._model.timezone
+
+    @timezone.setter
+    def timezone(self, value: int):
+        self._model.timezone = value
     
     @property
     def fingerprint(self) -> object:
