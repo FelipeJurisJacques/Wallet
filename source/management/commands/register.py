@@ -1,7 +1,6 @@
 import pytz
 import datetime
 import yfinance
-from dateutil import tz
 from django.conf import settings
 from source.enumerators.api import ApiEnum
 from source.entities.stock import StockEntity
@@ -23,16 +22,13 @@ class Command(BaseCommand):
             if stock is None:
                 ticker = yfinance.Ticker(symbol)
                 info = ticker.info
-                timezone_edt = pytz.timezone(info.get('timeZoneFullName'))
-                current_time = datetime.datetime.now(timezone_edt)
-                utc_offset_hours = current_time.utcoffset().total_seconds() / 3600
                 stock = StockEntity()
                 stock.api = ApiEnum.YAHOO
                 stock.name = info.get('shortName')
                 stock.symbol = info.get('symbol')
                 stock.industry = info.get('longName')
                 stock.currency = info.get('currency')
-                stock.timezone = utc_offset_hours
+                stock.timezone = pytz.timezone(info.get('timeZoneFullName'))
                 stock.fingerprint = info
                 stock.save()
                 self.stdout.write(stock.name + ' adicionado')

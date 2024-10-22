@@ -4,8 +4,8 @@ from django.conf import settings
 from django.db import transaction
 from source.enumerators.api import ApiEnum
 from source.services.stock import StockService
-from source.models.historic import HistoricModel
 from django.core.management.base import BaseCommand
+from source.models.historic_day import HistoricDayModel
 from source.services.historical import HistoricalService
 
 class Command(BaseCommand):
@@ -17,9 +17,9 @@ class Command(BaseCommand):
         yfinance.set_tz_cache_location(settings.YFINANCE_CACHE_DIR)
 
         self.stdout.write('Baixando ações')
-        end = datetime.datetime.now().strftime('%Y-%m-%d')
         stocks = stock_service.all_from_api(ApiEnum.YAHOO)
         for stock in stocks:
+            end = datetime.datetime.now(stock.timezone).strftime('%Y-%m-%d')
             start = historical_service.get_max_date_from_stock(stock).strftime('%Y-%m-%d')
             print(start)
             print(end)
@@ -36,7 +36,7 @@ class Command(BaseCommand):
                     for item in response.itertuples():
                         historic = historical_service.get_from_stock_date(stock, item.Index)
                         if historic is None:
-                            historic = HistoricModel()
+                            historic = HistoricDayModel()
                         historic.low = item.Low
                         historic.date = item.Index
                         historic.high = item.High
