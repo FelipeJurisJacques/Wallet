@@ -1,9 +1,9 @@
 import gc
 import pandas
 from prophet import Prophet
-from ..entities.historic import HistoricModel
-from ..entities.prophesy import ProphesiedModel
 from ..enumerators.prophesied import ProphesiedEnum
+from ..entities.historic_day import HistoricDayEntity
+from ..entities.prophesy_day import ProphesyDayEntity
 
 class ProphetLib:
 
@@ -15,46 +15,86 @@ class ProphetLib:
         # holiday: datas de feriados ou eventos
         pass
         
-    def set_historical(self, historical: list[HistoricModel]):
-        self._prophet = Prophet()
-        self._data = pandas.DataFrame(columns=[
+    def set_historical(self, historical: list[HistoricDayEntity]):
+        self._open_data = pandas.DataFrame(columns=[
             'ds',
             'y',
             'cap',
             'floor',
         ])
+        self._close_data = pandas.DataFrame(columns=[
+            'ds',
+            'y',
+            'cap',
+            'floor',
+        ])
+        self._volume_data = pandas.DataFrame(columns=[
+            'ds',
+            'y',
+        ])
         for historic in historical:
-            self._data.loc[len(self._data)] = [
+            self._open_data.loc[len(self._close_data)] = [
+                historic.date,
+                historic.open,
+                historic.high,
+                historic.low,
+            ]
+            self._close_data.loc[len(self._close_data)] = [
                 historic.date,
                 historic.close,
                 historic.high,
                 historic.low,
             ]
+            self._close_data.loc[len(self._close_data)] = [
+                historic.date,
+                historic.volume,
+            ]
         self._max = historical.pop().date
+        self._open_forecast = []
         self._close_forecast = []
+        self._volume_forecast = []
 
     def handle(self, periods: int):
-        self._prophet.fit(self._data)
-        self._future = self._prophet.make_future_dataframe(periods=periods)
-        self._close_forecast = self._prophet.predict(self._future)
+        self._open_forecast = self._get_forecast(self._open_data, periods)
+        self._close_forecast = self._get_forecast(self._close_data, periods)
+        self._volume_forecast = self._get_forecast(self._volume_data, periods)
 
-    def get_close_result(self) -> list[ProphesiedModel]:
+    def get_open_result(self) -> list[ProphesyDayEntity]:
+        return self._get_result(self._open_forecast, ProphesiedEnum.OPEN)
+
+    def get_close_result(self) -> list[ProphesyDayEntity]:
+        return self._get_result(self._close_forecast, ProphesiedEnum.CLOSE)
+
+    def get_volume_result(self) -> list[ProphesyDayEntity]:
+        return self._get_result(self._volume_forecast, ProphesiedEnum.VOLUME)
+    
+    def flush(self):
+        del self._max
+        del self._future
+        del self._prophet
+        del self._open_data
+        del self._close_data
+        del self._volume_data
+        del self._open_forecast
+        del self._close_forecast
+        del self._volume_forecast
+        gc.collect()
+
+    def _get_forecast(self, data, periods):
+        self._prophet = Prophet()
+        self._prophet.fit(data)
+        self._future = self._prophet.make_future_dataframe(periods=periods)
+        return self._prophet.predict(self._future)
+    
+    def _get_result(self, forecast, type):
         result = []
-        for forecast in self._close_forecast.to_dict('records'):
-            model = ProphesiedModel()
-            model.type = ProphesiedEnum.CLOSE
+        for forecast in forecast.to_dict('records'):
+            model = ProphesyDayEntity()
             for key, value in forecast.items():
                 if key == 'ds':
                     key = 'date'
                 setattr(model, key, value)
             if model.date > self._max:
+                model.type = type
                 result.append(model)
         return result
-    
-    def flush(self):
-        del self._max
-        del self._data
-        del self._future
-        del self._prophet
-        del self._close_forecast
-        gc.collect()

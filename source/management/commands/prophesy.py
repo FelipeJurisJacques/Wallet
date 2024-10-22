@@ -36,7 +36,15 @@ class Command(BaseCommand):
                 library.handle(1)
                 try:
                     transaction.set_autocommit(False)
+                    for prophesy in library.get_open_result():
+                        prophesy.stock_id = stock.id
+                        prophesy.save()
+                        del prophesy
                     for prophesy in library.get_close_result():
+                        prophesy.stock_id = stock.id
+                        prophesy.save()
+                        del prophesy
+                    for prophesy in library.get_volume_result():
                         prophesy.stock_id = stock.id
                         prophesy.save()
                         del prophesy

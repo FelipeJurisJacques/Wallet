@@ -5,8 +5,8 @@ from django.db import transaction
 from source.enumerators.api import ApiEnum
 from source.services.stock import StockService
 from django.core.management.base import BaseCommand
-from source.models.historic_day import HistoricDayModel
 from source.services.historical import HistoricalService
+from source.entities.historic_day import HistoricDayEntity
 
 class Command(BaseCommand):
     help = 'Carregar informações das APIs'
@@ -36,7 +36,7 @@ class Command(BaseCommand):
                     for item in response.itertuples():
                         historic = historical_service.get_from_stock_date(stock, item.Index)
                         if historic is None:
-                            historic = HistoricDayModel()
+                            historic = HistoricDayEntity()
                         historic.low = item.Low
                         historic.date = item.Index
                         historic.high = item.High
