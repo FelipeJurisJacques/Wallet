@@ -16,6 +16,7 @@ class ProphetLib:
         pass
         
     def set_historical(self, historical: list[HistoricDayEntity]):
+        self._historical = historical
         self._open_data = pandas.DataFrame(columns=[
             'ds',
             'y',
@@ -74,6 +75,7 @@ class ProphetLib:
         del self._prophet
         del self._open_data
         del self._close_data
+        del self._historical
         del self._volume_data
         del self._open_forecast
         del self._close_forecast
@@ -87,6 +89,9 @@ class ProphetLib:
         return self._prophet.predict(self._future)
     
     def _get_result(self, forecast, type):
+        day = 0
+        end = self._historical[len(self._historical) - 1]
+        start = self._historical[0]
         result = []
         for forecast in forecast.to_dict('records'):
             model = ProphesyDayEntity()
@@ -95,6 +100,14 @@ class ProphetLib:
                     key = 'date'
                 setattr(model, key, value)
             if model.date > self._max:
+                day += 1
                 model.type = type
+                model.data_end_date = end.date
+                model.increased_day = day
+                model.data_start_date = start.date
+                model.last_historic_id = end.id
                 result.append(model)
+        del day
+        del end
+        del start
         return result

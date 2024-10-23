@@ -24,10 +24,6 @@ class ProphesyDayEntity(Entity):
         return self._model.id
 
     @property
-    def stock_id(self) -> int:
-        return self._model.stock_id
-
-    @property
     def type(self) -> ProphesiedEnum:
         return ProphesiedEnum(self._model.type)
 
@@ -35,9 +31,29 @@ class ProphesyDayEntity(Entity):
     def type(self, value: ProphesiedEnum):
         self._model.type = value.value
 
+    @property
+    def stock_id(self) -> int:
+        return self._model.stock_id
+
     @stock_id.setter
     def stock_id(self, value: int):
         self._model.stock_id = value
+
+    @property
+    def increased_day(self) -> int:
+        return self._model.increased_day
+
+    @increased_day.setter
+    def increased_day(self, value: int):
+        self._model.increased_day = value
+
+    @property
+    def last_historic_id(self) -> int:
+        return self._model.last_historic_id
+
+    @last_historic_id.setter
+    def last_historic_id(self, value: int):
+        self._model.last_historic_id = value
 
     @property
     def data_start_date(self) -> datetime.datetime:
