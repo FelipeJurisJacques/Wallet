@@ -1,7 +1,9 @@
 import datetime
 from .entity import Entity
+from ..entities.stock import StockEntity
 from ..models.prophesy_day import ProphesyDayModel
 from ..enumerators.prophesied import ProphesiedEnum
+from ..entities.historic_day import HistoricDayEntity
 
 class ProphesyDayEntity(Entity):
 
@@ -32,12 +34,16 @@ class ProphesyDayEntity(Entity):
         self._model.type = value.value
 
     @property
-    def stock_id(self) -> int:
-        return self._model.stock_id
+    def stock(self) -> StockEntity:
+        return StockEntity(self._model.stock_id)
 
-    @stock_id.setter
-    def stock_id(self, value: int):
-        self._model.stock_id = value
+    @stock.setter
+    def stock(self, value: StockEntity):
+        self._model.stock_id = value._model
+
+    @property
+    def stock_id(self) -> int:
+        return self._model.stock_id.id
 
     @property
     def increased_day(self) -> int:
@@ -48,12 +54,16 @@ class ProphesyDayEntity(Entity):
         self._model.increased_day = value
 
     @property
-    def last_historic_id(self) -> int:
-        return self._model.last_historic_id
+    def last_historic(self) -> HistoricDayEntity:
+        return HistoricDayEntity(self._model.last_historic_id)
 
-    @last_historic_id.setter
-    def last_historic_id(self, value: int):
-        self._model.last_historic_id = value
+    @stock.setter
+    def last_historic(self, value: HistoricDayEntity):
+        self._model.last_historic_id = value._model
+
+    @property
+    def last_historic_id(self) -> int:
+        return self._model.last_historic_id.id
 
     @property
     def data_start_date(self) -> datetime.datetime:

@@ -1,5 +1,6 @@
 import datetime
 from .entity import Entity
+from ..entities.stock import StockEntity
 from ..models.historic_day import HistoricDayModel
 
 class HistoricDayEntity(Entity):
@@ -71,12 +72,16 @@ class HistoricDayEntity(Entity):
         self._model.volume = value
 
     @property
-    def stock_id(self) -> int:
-        return self._model.stock_id
+    def stock(self) -> StockEntity:
+        return StockEntity(self._model.stock_id)
 
-    @stock_id.setter
-    def stock_id(self, value: int):
-        self._model.stock_id = value
+    @stock.setter
+    def stock(self, value: StockEntity):
+        self._model.stock_id = value._model
+
+    @property
+    def stock_id(self) -> int:
+        return self._model.stock_id.id
 
     @property
     def created(self) -> datetime.datetime:

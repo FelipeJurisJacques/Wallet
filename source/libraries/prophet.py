@@ -105,7 +105,7 @@ class ProphetLib:
                 model.data_end_date = end.date
                 model.increased_day = day
                 model.data_start_date = start.date
-                model.last_historic_id = end.id
+                model.last_historic = end
                 result.append(model)
         del day
         del end

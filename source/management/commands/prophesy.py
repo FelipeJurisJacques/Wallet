@@ -37,15 +37,15 @@ class Command(BaseCommand):
                 try:
                     transaction.set_autocommit(False)
                     for prophesy in library.get_open_result():
-                        prophesy.stock_id = stock.id
+                        prophesy.stock = stock
                         prophesy.save()
                         del prophesy
                     for prophesy in library.get_close_result():
-                        prophesy.stock_id = stock.id
+                        prophesy.stock = stock
                         prophesy.save()
                         del prophesy
                     for prophesy in library.get_volume_result():
-                        prophesy.stock_id = stock.id
+                        prophesy.stock = stock
                         prophesy.save()
                         del prophesy
                     transaction.commit()
@@ -60,4 +60,5 @@ class Command(BaseCommand):
             del stock
             del length
             del historical
+            break
         del stocks

@@ -19,6 +19,7 @@ class Command(BaseCommand):
         self.stdout.write('Baixando ações')
         stocks = stock_service.all_from_api(ApiEnum.YAHOO)
         for stock in stocks:
+            self.stdout.write('Baixando ações para da empresa ' + stock.name)
             end = datetime.datetime.now(stock.timezone).strftime('%Y-%m-%d')
             start = historical_service.get_max_date_from_stock(stock).strftime('%Y-%m-%d')
             print(start)
@@ -42,11 +43,13 @@ class Command(BaseCommand):
                         historic.high = item.High
                         historic.open = item.Open
                         historic.close = item.Close
+                        historic.stock = stock
                         historic.volume = item.Volume
-                        historic.stock_id = stock.id
                         historic.save()
                     transaction.commit()
-                except Exception:
+                    self.stdout.write('Ações salvas')
+                except Exception as error:
                     transaction.rollback()
+                    self.stdout.write('Erro ao salvar ações: ' + str(error))
                 finally:
                     transaction.set_autocommit(True)
