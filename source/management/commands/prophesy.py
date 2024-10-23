@@ -44,17 +44,17 @@ class Command(BaseCommand):
                         prophesy.stock = stock
                         prophesy.save()
                         del prophesy
-                    for prophesy in library.get_volume_result():
-                        prophesy.stock = stock
-                        prophesy.save()
-                        del prophesy
                     transaction.commit()
-                except Exception:
-                    transaction.rollback()
-                finally:
                     transaction.set_autocommit(True)
-                del historic
-                library.flush()
+                    del historic
+                    library.flush()
+                except Exception as error:
+                    transaction.rollback()
+                    self.stdout.write('Erro ao salvar profetização das ações: ' + str(error))
+                    transaction.set_autocommit(True)
+                    del historic
+                    library.flush()
+                    break
             del last
             del list
             del stock

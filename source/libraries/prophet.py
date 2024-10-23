@@ -47,29 +47,20 @@ class ProphetLib:
                 historic.high,
                 historic.low,
             ]
-            self._volume_data.loc[i] = [
-                historic.date,
-                historic.volume,
-            ]
             i += 1
         self._max = historical.pop().date
         self._open_forecast = []
         self._close_forecast = []
-        self._volume_forecast = []
 
     def handle(self, periods: int):
         self._open_forecast = self._get_forecast(self._open_data, periods)
         self._close_forecast = self._get_forecast(self._close_data, periods)
-        self._volume_forecast = self._get_forecast(self._volume_data, periods)
 
     def get_open_result(self) -> list[ProphesyDayEntity]:
         return self._get_result(self._open_forecast, ProphesiedEnum.OPEN)
 
     def get_close_result(self) -> list[ProphesyDayEntity]:
         return self._get_result(self._close_forecast, ProphesiedEnum.CLOSE)
-
-    def get_volume_result(self) -> list[ProphesyDayEntity]:
-        return self._get_result(self._volume_forecast, ProphesiedEnum.VOLUME)
     
     def flush(self):
         del self._max
@@ -78,10 +69,8 @@ class ProphetLib:
         del self._open_data
         del self._close_data
         del self._historical
-        del self._volume_data
         del self._open_forecast
         del self._close_forecast
-        del self._volume_forecast
         gc.collect()
 
     def _get_forecast(self, data, periods):
