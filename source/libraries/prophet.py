@@ -33,23 +33,25 @@ class ProphetLib:
             'ds',
             'y',
         ])
+        i = 0
         for historic in historical:
-            self._open_data.loc[len(self._close_data)] = [
+            self._open_data.loc[i] = [
                 historic.date,
                 historic.open,
                 historic.high,
                 historic.low,
             ]
-            self._close_data.loc[len(self._close_data)] = [
+            self._close_data.loc[i] = [
                 historic.date,
                 historic.close,
                 historic.high,
                 historic.low,
             ]
-            self._close_data.loc[len(self._close_data)] = [
+            self._volume_data.loc[i] = [
                 historic.date,
                 historic.volume,
             ]
+            i += 1
         self._max = historical.pop().date
         self._open_forecast = []
         self._close_forecast = []
