@@ -64,11 +64,11 @@ class HistoricDayEntity(Entity):
         self._model.close = value
 
     @property
-    def volume(self) -> float:
+    def volume(self) -> int:
         return self._model.volume
 
     @volume.setter
-    def volume(self, value: float):
+    def volume(self, value: int):
         self._model.volume = value
 
     @property
