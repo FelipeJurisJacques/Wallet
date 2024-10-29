@@ -26,39 +26,27 @@ class ProphesyDayEntity(Entity):
 
     @property
     def last_historic(self) -> HistoricDayEntity:
-        return HistoricDayEntity(self._model.last_historic_id)
+        return HistoricDayEntity(self._model.last_historic)
 
     @last_historic.setter
     def last_historic(self, value: HistoricDayEntity):
-        self._model.last_historic_id = value._model
-
-    @property
-    def last_historic_id(self) -> int:
-        return self._model.last_historic_id.id
+        self._model.last_historic = value._model
 
     @property
     def open(self) -> ProphesyEntity:
-        return ProphesyEntity(self._model.open_prophesy_id)
+        return ProphesyEntity(self._model.open_prophesy)
 
     @open.setter
     def open(self, value: ProphesyEntity):
-        self._model.open_prophesy_id = value._model
-
-    @property
-    def open_prophesy_id(self) -> int:
-        return self._model.open_prophesy_id.id
+        self._model.open_prophesy = value._model
 
     @property
     def close(self) -> ProphesyEntity:
-        return ProphesyEntity(self._model.close_prophesy_id)
+        return ProphesyEntity(self._model.close_prophesy)
 
     @close.setter
     def close(self, value: ProphesyEntity):
-        self._model.close_prophesy_id = value._model
-
-    @property
-    def close_prophesy_id(self) -> int:
-        return self._model.close_prophesy_id.id
+        self._model.close_prophesy = value._model
 
     @property
     def created(self) -> datetime.datetime:

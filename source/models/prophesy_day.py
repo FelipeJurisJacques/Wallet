@@ -4,14 +4,14 @@ from .historic_day import HistoricDayModel
 
 class ProphesyDayModel(models.Model):
     id = models.AutoField(primary_key=True)
-    last_historic_id = models.ForeignKey(HistoricDayModel, on_delete=models.CASCADE, db_index=True)
-    open_prophesy_id = models.ForeignKey(
+    last_historic = models.ForeignKey(HistoricDayModel, on_delete=models.CASCADE, db_index=True)
+    open_prophesy = models.ForeignKey(
         ProphesyModel,
         on_delete=models.CASCADE,
         db_index=True,
         related_name='open'
     )
-    close_prophesy_id = models.ForeignKey(
+    close_prophesy = models.ForeignKey(
         ProphesyModel,
         on_delete=models.CASCADE,
         db_index=True,

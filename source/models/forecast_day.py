@@ -4,12 +4,12 @@ from .historic_day import HistoricDayModel
 class ForecastDayModel(models.Model):
     id = models.AutoField(primary_key=True)
     origin = models.IntegerField(db_index=True)
-    nested_historic_id = models.ForeignKey(
+    nested_historic = models.ForeignKey(
         HistoricDayModel,
         on_delete=models.CASCADE,
         related_name='nested'
     )
-    consecutive_historic_id = models.ForeignKey(
+    consecutive_historic = models.ForeignKey(
         HistoricDayModel,
         on_delete=models.CASCADE,
         related_name='consecutive',

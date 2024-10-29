@@ -22,10 +22,15 @@ class ProphesyService:
         return list
 
     def get_max_date_from_stock(self, stock:StockModel) -> datetime.datetime:
-        # date = HistoricDayModel.objects.filter(
-        #     id__in=ProphesyDayModel.objects.values_list('registro_historico_id', flat=True)
-        # ).order_by('-data').first()
-        row = ProphesyDayModel.objects.filter(stock_id=stock.id, type=type.value).aggregate(max_date=Max('date'))
-        if row['max_date']:
-            return datetime.datetime.fromtimestamp(row['max_date'])
-        return None
+        date = HistoricDayModel.objects.filter(
+            stock_id=stock.id
+        ).select_related(
+            'prophesied_day'
+        ).order_by(
+            '-prophesied_day__last_historic_id'
+        ).values_list(
+            'date', flat=True
+        ).first()
+        if date in None:
+            return None
+        return datetime.datetime.fromtimestamp(date)

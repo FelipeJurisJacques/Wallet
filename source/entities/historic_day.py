@@ -73,15 +73,11 @@ class HistoricDayEntity(Entity):
 
     @property
     def stock(self) -> StockEntity:
-        return StockEntity(self._model.stock_id)
+        return StockEntity(self._model.stock)
 
     @stock.setter
     def stock(self, value: StockEntity):
-        self._model.stock_id = value._model
-
-    @property
-    def stock_id(self) -> int:
-        return self._model.stock_id.id
+        self._model.stock = value._model
 
     @property
     def created(self) -> datetime.datetime:
