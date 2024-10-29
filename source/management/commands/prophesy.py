@@ -4,8 +4,6 @@ from source.libraries.prophet import ProphetLib
 from django.core.management.base import BaseCommand
 from source.services.prophesy import ProphesyService
 from source.services.historical import HistoricalService
-from source.enumerators.prophesied import ProphesiedEnum
-
 class Command(BaseCommand):
     help = 'Realizar professia das informações das ações'
     
@@ -22,7 +20,7 @@ class Command(BaseCommand):
             if length == 0:
                 continue
             self.stdout.write('Processando ' + str(length) + ' ações da empresa' + stock.name)
-            last = prophesy_service.get_max_date_from_stock(stock, ProphesiedEnum.CLOSE)
+            last = prophesy_service.get_max_date_from_stock(stock)
             list = []
             for historic in historical:
                 list.append(historic)
@@ -36,14 +34,7 @@ class Command(BaseCommand):
                 library.handle(1)
                 try:
                     transaction.set_autocommit(False)
-                    for prophesy in library.get_open_result():
-                        prophesy.stock = stock
-                        prophesy.save()
-                        del prophesy
-                    for prophesy in library.get_close_result():
-                        prophesy.stock = stock
-                        prophesy.save()
-                        del prophesy
+                    library.persist()
                     transaction.commit()
                     transaction.set_autocommit(True)
                     del historic

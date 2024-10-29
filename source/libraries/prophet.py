@@ -1,7 +1,7 @@
 import gc
 import pandas
 from prophet import Prophet
-from ..enumerators.prophesied import ProphesiedEnum
+from ..entities.prophesy import ProphesyEntity
 from ..entities.historic_day import HistoricDayEntity
 from ..entities.prophesy_day import ProphesyDayEntity
 
@@ -56,11 +56,28 @@ class ProphetLib:
         self._open_forecast = self._get_forecast(self._open_data, periods)
         self._close_forecast = self._get_forecast(self._close_data, periods)
 
-    def get_open_result(self) -> list[ProphesyDayEntity]:
-        return self._get_result(self._open_forecast, ProphesiedEnum.OPEN)
-
-    def get_close_result(self) -> list[ProphesyDayEntity]:
-        return self._get_result(self._close_forecast, ProphesiedEnum.CLOSE)
+    def persist(self):
+        end = self._historical[len(self._historical) - 1]
+        open = self._persist(self._open_forecast)
+        close = self._persist(self._close_forecast)
+        i = 0
+        while i < len(open) or i < len(close):
+            prophesy = ProphesyDayEntity()
+            prophesy.last_historic = end
+            if i < len(open):
+                model = open[i]
+                model.save()
+                prophesy.open = model
+            if i < len(close):
+                model = close[i]
+                model.save()
+                prophesy.close = model
+            prophesy.save()
+            del prophesy
+            i += 1
+        del end
+        del open
+        del close
     
     def flush(self):
         del self._max
@@ -79,24 +96,22 @@ class ProphetLib:
         self._future = self._prophet.make_future_dataframe(periods=periods)
         return self._prophet.predict(self._future)
     
-    def _get_result(self, forecast, type):
+    def _persist(self, forecast):
         day = 0
         end = self._historical[len(self._historical) - 1]
         start = self._historical[0]
         result = []
         for forecast in forecast.to_dict('records'):
-            model = ProphesyDayEntity()
+            model = ProphesyEntity()
             for key, value in forecast.items():
                 if key == 'ds':
                     key = 'date'
                 setattr(model, key, value)
             if model.date > self._max:
                 day += 1
-                model.type = type
+                model.increased = day
                 model.data_end_date = end.date
-                model.increased_day = day
                 model.data_start_date = start.date
-                model.last_historic = end
                 result.append(model)
         del day
         del end

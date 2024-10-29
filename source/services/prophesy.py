@@ -2,7 +2,7 @@ import datetime
 from django.db.models import Max
 from ..models.stock import StockModel
 from ..models.prophesy_day import ProphesyDayModel
-from ..enumerators.prophesied import ProphesiedEnum
+from ..models.historic_day import HistoricDayModel
 from ..entities.prophesy_day import ProphesyDayEntity
 
 class ProphesyService:
@@ -21,7 +21,10 @@ class ProphesyService:
             list.append(ProphesyDayEntity(entity))
         return list
 
-    def get_max_date_from_stock(self, stock:StockModel, type: ProphesiedEnum) -> datetime.datetime:
+    def get_max_date_from_stock(self, stock:StockModel) -> datetime.datetime:
+        # date = HistoricDayModel.objects.filter(
+        #     id__in=ProphesyDayModel.objects.values_list('registro_historico_id', flat=True)
+        # ).order_by('-data').first()
         row = ProphesyDayModel.objects.filter(stock_id=stock.id, type=type.value).aggregate(max_date=Max('date'))
         if row['max_date']:
             return datetime.datetime.fromtimestamp(row['max_date'])
