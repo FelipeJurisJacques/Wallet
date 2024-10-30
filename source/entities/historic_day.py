@@ -1,3 +1,4 @@
+import datetime
 from .entity import Entity
 from ..entities.stock import StockEntity
 from ..models.historic_day import HistoricDayModel

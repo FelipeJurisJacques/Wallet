@@ -1,3 +1,4 @@
+import datetime
 from .entity import Entity
 from ..models.prophesy import ProphesyModel
 
