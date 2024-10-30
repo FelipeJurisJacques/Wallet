@@ -1,7 +1,5 @@
 from django.db import models
-from .stock import StockModel
 from .historic_day import HistoricDayModel
-from .prophesy_day import ProphesyDayModel
 
 class StrategyDayModel(models.Model):
     id = models.AutoField(primary_key=True)
