@@ -25,12 +25,12 @@ class Command(BaseCommand):
             list = []
             for historic in historical:
                 list.append(historic)
-                # if last is None:
-                #     if 180 > len(list):
-                #         continue
-                # else:
-                if not last is None and last.timestamp() > historic.date.timestamp():
-                    continue
+                if last is None:
+                    if 180 > len(list):
+                        continue
+                else:
+                    if last.timestamp() > historic.date.timestamp():
+                        continue
                 library.set_historical(list)
                 library.handle(1)
                 try:

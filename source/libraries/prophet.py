@@ -29,10 +29,6 @@ class ProphetLib:
             'cap',
             'floor',
         ])
-        self._volume_data = pandas.DataFrame(columns=[
-            'ds',
-            'y',
-        ])
         i = 0
         for historic in historical:
             self._open_data.loc[i] = [

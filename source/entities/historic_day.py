@@ -24,12 +24,12 @@ class HistoricDayEntity(Entity):
         return self._model.id
 
     @property
-    def low(self) -> float:
-        return self._model.low
+    def stock(self) -> StockEntity:
+        return StockEntity(self._model.stock)
 
-    @low.setter
-    def low(self, value: float):
-        self._model.low = value
+    @stock.setter
+    def stock(self, value: StockEntity):
+        self._model.stock = value._model
 
     @property
     def date(self) -> datetime.datetime:
@@ -38,6 +38,14 @@ class HistoricDayEntity(Entity):
     @date.setter
     def date(self, value: datetime.datetime):
         self._model.date = value.timestamp()
+
+    @property
+    def low(self) -> float:
+        return self._model.low
+
+    @low.setter
+    def low(self, value: float):
+        self._model.low = value
 
     @property
     def high(self) -> float:
@@ -70,11 +78,3 @@ class HistoricDayEntity(Entity):
     @volume.setter
     def volume(self, value: int):
         self._model.volume = value
-
-    @property
-    def stock(self) -> StockEntity:
-        return StockEntity(self._model.stock)
-
-    @stock.setter
-    def stock(self, value: StockEntity):
-        self._model.stock = value._model
