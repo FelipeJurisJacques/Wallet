@@ -49,7 +49,7 @@ class ForecastDayEntity(Entity):
     
     @property
     def open_forecast_difference(self) -> float:
-        return self._model.open_forecast_difference
+        return float(self._model.open_forecast_difference)
 
     @open_forecast_difference.setter
     def open_forecast_difference(self, value: float):
@@ -57,7 +57,7 @@ class ForecastDayEntity(Entity):
 
     @property
     def open_forecast_percentage(self) -> float:
-        return self._model.open_forecast_percentage
+        return float(self._model.open_forecast_percentage)
 
     @open_forecast_percentage.setter
     def open_forecast_percentage(self, value: float):
@@ -65,7 +65,7 @@ class ForecastDayEntity(Entity):
 
     @property
     def close_forecast_difference(self) -> float:
-        return self._model.close_forecast_difference
+        return float(self._model.close_forecast_difference)
 
     @close_forecast_difference.setter
     def close_forecast_difference(self, value: float):
@@ -73,7 +73,7 @@ class ForecastDayEntity(Entity):
 
     @property
     def close_forecast_percentage(self) -> float:
-        return self._model.close_forecast_percentage
+        return float(self._model.close_forecast_percentage)
 
     @close_forecast_percentage.setter
     def close_forecast_percentage(self, value: float):
@@ -81,7 +81,10 @@ class ForecastDayEntity(Entity):
 
     @property
     def open_corrected_difference(self) -> float:
-        return self._model.open_corrected_difference
+        if self._model.open_corrected_difference is None:
+            return None
+        else:
+            return float(self._model.open_corrected_difference)
 
     @open_corrected_difference.setter
     def open_corrected_difference(self, value: float):
@@ -89,7 +92,10 @@ class ForecastDayEntity(Entity):
 
     @property
     def open_corrected_percentage(self) -> float:
-        return self._model.open_corrected_percentage
+        if self._model.open_corrected_percentage is None:
+            return None
+        else:
+            return float(self._model.open_corrected_percentage)
 
     @open_corrected_percentage.setter
     def open_corrected_percentage(self, value: float):
@@ -97,7 +103,10 @@ class ForecastDayEntity(Entity):
 
     @property
     def close_corrected_difference(self) -> float:
-        return self._model.close_corrected_difference
+        if self._model.close_corrected_difference is None:
+            return None
+        else:
+            return float(self._model.close_corrected_difference)
 
     @close_corrected_difference.setter
     def close_corrected_difference(self, value: float):
@@ -105,7 +114,10 @@ class ForecastDayEntity(Entity):
 
     @property
     def close_corrected_percentage(self) -> float:
-        return self._model.close_corrected_percentage
+        if self._model.close_corrected_percentage is None:
+            return None
+        else:
+            return float(self._model.close_corrected_percentage)
 
     @close_corrected_percentage.setter
     def close_corrected_percentage(self, value: float):
