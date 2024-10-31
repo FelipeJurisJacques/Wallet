@@ -45,7 +45,7 @@ class ProphesyService:
         return list
 
     def get_max_date_from_stock(self, stock:StockEntity) -> datetime.datetime:
-        query = "SELECT MAX(last_historic.date) AS date FROM prophesied_day INNER JOIN last_historic ON last_historic.id = prophesied_day.last_historic_id WHERE last_historic.last_historic__stock_id = %s"
+        query = "SELECT MAX(historical_day.date) AS date FROM prophesied_day INNER JOIN historical_day ON historical_day.id = prophesied_day.last_historic_id WHERE historical_day.stock_id = %s"
         with connection.cursor() as cursor:
             cursor.execute(query, [
                 stock.id,
