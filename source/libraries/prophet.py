@@ -89,7 +89,14 @@ class ProphetLib:
         gc.collect()
 
     def _get_forecast(self, data, periods):
-        self._prophet = Prophet()
+        self._prophet = Prophet(
+            daily_seasonality=True,
+            yearly_seasonality=True,
+            weekly_seasonality=True,
+            changepoint_prior_scale=0.05,
+            seasonality_prior_scale=10,
+            # seasonality_mode='multiplicative',
+        )
         self._prophet.fit(data)
         self._future = self._prophet.make_future_dataframe(periods=periods)
         return self._prophet.predict(self._future)
