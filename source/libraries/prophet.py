@@ -44,7 +44,8 @@ class ProphetLib:
                 historic.low,
             ]
             i += 1
-        self._max = historical.pop().date
+        self._last = historical[i - 1]
+        self._first = historical[0]
         self._open_forecast = []
         self._close_forecast = []
 
@@ -53,7 +54,7 @@ class ProphetLib:
         self._close_forecast = self._get_forecast(self._close_data, periods)
 
     def persist(self):
-        end = self._historical[len(self._historical) - 1]
+        end = self._last
         open = self._persist(self._open_forecast)
         close = self._persist(self._close_forecast)
         i = 0
@@ -76,7 +77,8 @@ class ProphetLib:
         del close
     
     def flush(self):
-        del self._max
+        del self._last
+        del self._first
         del self._future
         del self._prophet
         del self._open_data
@@ -94,8 +96,8 @@ class ProphetLib:
     
     def _persist(self, forecast):
         day = 0
-        end = self._historical[len(self._historical) - 1]
-        start = self._historical[0]
+        end = self._last
+        start = self._first
         result = []
         for forecast in forecast.to_dict('records'):
             model = ProphesyEntity()
@@ -103,7 +105,7 @@ class ProphetLib:
                 if key == 'ds':
                     key = 'date'
                 setattr(model, key, value)
-            if model.date > self._max:
+            if model.date > self._last.date:
                 day += 1
                 model.increased = day
                 model.data_end_date = end.date
