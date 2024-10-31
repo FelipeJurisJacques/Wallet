@@ -1,0 +1,42 @@
+Numeric lookups
+
+__exact : exact match
+__iexact : case-insensitive exact match
+__gt : greater than
+__gte : greater than or equal to
+__lt : less than
+__lte : less than or equal to
+__in : in a list of values
+
+
+String lookups
+
+__contains : contains (case-sensitive)
+__icontains : contains (case-insensitive)
+__startswith : starts with (case-sensitive)
+__istartswith : starts with (case-insensitive)
+__endswith : ends with (case-sensitive)
+__iendswith : ends with (case-insensitive)
+__regex : matches a regular expression (case-sensitive)
+__iregex : matches a regular expression (case-insensitive)
+
+
+Date and time lookups
+
+__exact : exact match
+__gt : later than
+__gte : later than or equal to
+__lt : earlier than
+__lte : earlier than or equal to
+__year : exact year
+__month : exact month
+__day : exact day
+__week_day : exact day of the week (0 = Sunday, 1 = Monday, …, 6 = Saturday)
+
+
+Other lookups
+
+__isnull : is null
+__isnotnull : is not null
+__in : in a list of values
+__range : in a range of values
