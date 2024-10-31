@@ -126,7 +126,7 @@ class Migration(migrations.Migration):
                 ('quantitative', models.DecimalField(blank=True, decimal_places=2, max_digits=17, null=True)),
                 ('created', models.IntegerField()),
                 ('updated', models.IntegerField()),
-                ('historic_id', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='source.historicdaymodel')),
+                ('historic', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='source.historicdaymodel')),
             ],
             options={
                 'db_table': 'strategy_day',

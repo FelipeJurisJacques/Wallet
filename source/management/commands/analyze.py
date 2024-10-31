@@ -9,5 +9,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         stock_service = StockService()
         prophesy_service = ProphesyService()
+        
 
         stocks = stock_service.all()
