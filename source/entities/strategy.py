@@ -1,34 +1,34 @@
 from .entity import Entity
-from .historic_day import HistoricDayEntity
-from ..models.strategy_day import StrategyDayModel
+from .period import PeriodEntity
+from ..models.strategy import StrategyModel
 
 class StrategyDayEntity(Entity):
 
     @staticmethod
     def find(id:int):
-        result = StrategyDayModel.objects.filter(pk=id)
+        result = StrategyModel.objects.filter(pk=id)
         if result.exists():
             return StrategyDayEntity(result[0])
         else:
             return None
 
-    def __init__(self, model: StrategyDayModel = None):
+    def __init__(self, model: StrategyModel = None):
         if model is None:
-            self._model = StrategyDayModel()
+            self._model = StrategyModel()
         else:
             self._model = model
 
     @property
     def id(self) -> int:
         return self._model.id
-
+    
     @property
-    def historic(self) -> HistoricDayEntity:
-        return HistoricDayEntity(self._model.historic)
+    def period(self) -> PeriodEntity:
+        return PeriodEntity(self._model.period)
 
-    @historic.setter
-    def historic(self, value: HistoricDayEntity):
-        self._model.historic = value._model
+    @period.setter
+    def period(self, value: PeriodEntity):
+        self._model.period = value._model
     
     @property
     def qualitative(self) -> float:

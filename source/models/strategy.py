@@ -1,13 +1,13 @@
 from django.db import models
-from .historic_day import HistoricDayModel
+from .period import ProphesyPeriodModel
 
-class StrategyDayModel(models.Model):
+class StrategyModel(models.Model):
     id = models.AutoField(primary_key=True)
-    historic = models.ForeignKey(HistoricDayModel, on_delete=models.CASCADE)
+    period = models.OneToOneField(ProphesyPeriodModel, on_delete=models.CASCADE, db_index=True)
     qualitative = models.DecimalField(max_digits=17, decimal_places=2, null=True, blank=True)
     quantitative = models.DecimalField(max_digits=17, decimal_places=2, null=True, blank=True)
     created = models.IntegerField()
     updated = models.IntegerField()
 
     class Meta:
-        db_table = 'strategy_day'
+        db_table = 'strategies'

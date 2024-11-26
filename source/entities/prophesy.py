@@ -31,22 +31,6 @@ class ProphesyEntity(Entity):
         self._model.increased = value
 
     @property
-    def data_start_date(self) -> datetime.datetime:
-        return datetime.datetime.fromtimestamp(self._model.data_start_date)
-
-    @data_start_date.setter
-    def data_start_date(self, value: datetime.datetime):
-        self._model.data_start_date = value.timestamp()
-
-    @property
-    def data_end_date(self) -> datetime.datetime:
-        return datetime.datetime.fromtimestamp(self._model.data_end_date)
-
-    @data_end_date.setter
-    def data_end_date(self, value: datetime.datetime):
-        self._model.data_end_date = value.timestamp()
-
-    @property
     def date(self) -> datetime.datetime:
         return datetime.datetime.fromtimestamp(self._model.date)
 

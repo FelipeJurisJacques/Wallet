@@ -1,8 +1,8 @@
 import datetime
 from django.db.models import Max
 from ..entities.stock import StockEntity
-from ..models.historic_day import HistoricDayModel
-from ..entities.historic_day import HistoricDayEntity
+from ..models import HistoricDayModel
+from ..entities.historic import HistoricDayEntity
 
 class HistoricalService:
 

@@ -1,21 +1,22 @@
 import datetime
 from .entity import Entity
 from ..entities.stock import StockEntity
-from ..models.historic_day import HistoricDayModel
+from ..models.historic import HistoricModel
+from ..enumerators.historic import HistoricEnum
 
-class HistoricDayEntity(Entity):
+class HistoricEntity(Entity):
 
     @staticmethod
     def find(id:int):
-        result = HistoricDayModel.objects.filter(pk=id)
+        result = HistoricModel.objects.filter(pk=id)
         if result.exists():
-            return HistoricDayEntity(result[0])
+            return HistoricEntity(result[0])
         else:
             return None
 
-    def __init__(self, model: HistoricDayModel = None):
+    def __init__(self, model: HistoricModel = None):
         if model is None:
-            self._model = HistoricDayModel()
+            self._model = HistoricModel()
         else:
             self._model = model
 
@@ -30,6 +31,14 @@ class HistoricDayEntity(Entity):
     @stock.setter
     def stock(self, value: StockEntity):
         self._model.stock = value._model
+    
+    @property
+    def type(self) -> HistoricEnum:
+        return HistoricEnum(self._model.type)
+
+    @type.setter
+    def type(self, value: HistoricEnum):
+        self._model.type = value.value
 
     @property
     def date(self) -> datetime.datetime:
