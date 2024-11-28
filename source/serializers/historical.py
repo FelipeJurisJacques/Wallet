@@ -1,9 +1,9 @@
 from .serializer import Serializer
-from source.entities.historic_day import HistoricDayEntity
+from source.entities.historic import HistoricEntity
 
 class HistoricalSerializer(Serializer):
 
-    def __init__(self, models: list[HistoricDayEntity]):
+    def __init__(self, models: list[HistoricEntity]):
         self._models = models
         super().__init__()
 

@@ -2,15 +2,15 @@ import datetime
 from django.db import connection
 from ..models.stock import StockModel
 from ..entities.stock import StockEntity
-from ..models.forecast_day import ForecastDayModel
-from ..entities.historic_day import HistoricDayEntity
-from ..entities.forecast_day import ForecastDayEntity
+from ..models.forecast import ForecastModel
+from ..entities.historic import HistoricEntity
+from ..entities.forecast import ForecastEntity
 from ..enumerators.quantitative import QuantitativeEnum
 
 class ForecastService:
 
-    def get_all_from_stock(self, stock:StockEntity, origin: QuantitativeEnum) -> list[ForecastDayEntity]:
-        models = ForecastDayModel.objects.filter(
+    def get_all_from_stock(self, stock:StockEntity, origin: QuantitativeEnum) -> list[ForecastEntity]:
+        models = ForecastModel.objects.filter(
             nested_historic__stock_id=stock.id,
             origin=origin.value,
         ).select_related(
@@ -20,13 +20,13 @@ class ForecastService:
         )
         list = []
         for model in models:
-            list.append(ForecastDayEntity(model))
+            list.append(ForecastEntity(model))
         return list
 
-    def get_from_consecutive_historic(self, historic:HistoricDayEntity) -> ForecastDayEntity:
-        result = ForecastDayModel.objects.filter(nested_historic=historic.id)[:1]
+    def get_from_consecutive_historic(self, historic:HistoricEntity) -> ForecastEntity:
+        result = ForecastModel.objects.filter(nested_historic=historic.id)[:1]
         if result.exists():
-            return ForecastDayEntity(result[0])
+            return ForecastEntity(result[0])
         else:
             return None
 
