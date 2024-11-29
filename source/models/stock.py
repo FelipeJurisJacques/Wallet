@@ -14,3 +14,4 @@ class StockModel(models.Model):
 
     class Meta:
         db_table = 'stocks'
+        unique_together = ('api', 'symbol')

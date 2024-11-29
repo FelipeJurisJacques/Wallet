@@ -2,9 +2,17 @@ import datetime
 from django.db.models import Max
 from ..entities.stock import StockEntity
 from ..models.historic import HistoricModel
+from ..enumerators.period import PeriodEnum
 from ..entities.historic import HistoricEntity
 
 class HistoricalService:
+    
+    def get_historic(self, stock:StockEntity, period:PeriodEnum, date: datetime.datetime) -> HistoricEntity:
+        result = HistoricModel.objects.filter(stock_id=stock.id, period=period, date=date.timestamp())[:1]
+        if result.exists():
+            return HistoricEntity(result[0])
+        else:
+            return None
 
     def get_all_from_stock(self, stock:StockEntity) -> list[HistoricEntity]:
         entities = HistoricModel.objects.filter(stock_id=stock.id).order_by('date')

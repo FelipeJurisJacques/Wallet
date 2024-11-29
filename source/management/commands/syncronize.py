@@ -4,9 +4,10 @@ from django.conf import settings
 from django.db import transaction
 from source.enumerators.api import ApiEnum
 from source.services.stock import StockService
+from source.enumerators.period import PeriodEnum
 from django.core.management.base import BaseCommand
+from source.entities.historic import HistoricEntity
 from source.services.historical import HistoricalService
-from source.entities.historic_day import HistoricDayEntity
 
 class Command(BaseCommand):
     help = 'Carregar informações das APIs'
@@ -35,15 +36,16 @@ class Command(BaseCommand):
                 transaction.set_autocommit(False)
                 try:
                     for item in response.itertuples():
-                        historic = historical_service.get_from_stock_date(stock, item.Index)
+                        historic = historical_service.get_historic(stock, PeriodEnum.DAY, item.Index)
                         if historic is None:
-                            historic = HistoricDayEntity()
+                            historic = HistoricEntity()
+                            historic.stock = stock
+                            historic.date = item.Index
+                            historic.type = PeriodEnum.DAY
                         historic.low = item.Low
-                        historic.date = item.Index
                         historic.high = item.High
                         historic.open = item.Open
                         historic.close = item.Close
-                        historic.stock = stock
                         historic.volume = item.Volume
                         historic.save()
                     transaction.commit()

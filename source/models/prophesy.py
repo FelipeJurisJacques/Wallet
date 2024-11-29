@@ -26,4 +26,5 @@ class ProphesyModel(models.Model):
 
     class Meta:
         db_table = 'prophesied'
+        unique_together = ('period', 'increased')
 

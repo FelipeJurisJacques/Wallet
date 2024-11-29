@@ -16,4 +16,4 @@ class HistoricModel(models.Model):
 
     class Meta:
         db_table = 'historical'
-
+        unique_together = ('type', 'date', 'stock')
