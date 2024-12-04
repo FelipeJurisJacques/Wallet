@@ -1,9 +1,10 @@
 from django.db import transaction
 from source.services.stock import StockService
+from source.enumerators.period import PeriodEnum
+from source.entities.forecast import ForecastEntity
 from django.core.management.base import BaseCommand
 from source.services.prophesy import ProphesyService
 from source.services.forecast import ForecastService
-from source.entities.forecast_day import ForecastDayEntity
 from source.enumerators.quantitative import QuantitativeEnum
 
 class Command(BaseCommand):
