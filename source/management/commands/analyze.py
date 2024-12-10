@@ -22,12 +22,9 @@ class Command(BaseCommand):
                 continue
             end = analyze_service.get_max_date_period(stock, period, PeriodEnum.DAY)
             if end is None:
-                end = analyze_service.get_next_week(
-                    start + timedelta(days=180),
-                    WeekEnum.TUESDAY
-                )
+                end = analyze_service.get_next_date(start + timedelta(days=180), WeekEnum.TUESDAY, period)
             else:
-                end = analyze_service.get_next_week(end, WeekEnum.TUESDAY)
+                end = analyze_service.get_next_date(end, WeekEnum.TUESDAY, period)
             if end is None:
                 continue
             while True:
@@ -46,4 +43,4 @@ class Command(BaseCommand):
                     library.flush()
                 except Exception as error:
                     self.stdout.write('Erro ao processar ações: ' + str(error))
-                end = analyze_service.get_next_week(end, WeekEnum.TUESDAY)
+                end = analyze_service.get_next_date(end, WeekEnum.TUESDAY, period)

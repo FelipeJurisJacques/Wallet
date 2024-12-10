@@ -16,8 +16,13 @@ from ..enumerators.quantitative import QuantitativeEnum
 
 class AnalyzeService:
 
-    def get_next_week(self, start: datetime, day: WeekEnum) -> datetime:
-        start += timedelta(days=1)
+    def get_next_date(self, start: datetime, day: WeekEnum, period: PeriodEnum) -> datetime:
+        if period == PeriodEnum.MONTH:
+            start += timedelta(days=30)
+        elif period == PeriodEnum.YEAR:
+            start += timedelta(days=365)
+        else:
+            start += timedelta(days=1)
         while start.weekday() != day.value:
             start += timedelta(days=1)
         return start
