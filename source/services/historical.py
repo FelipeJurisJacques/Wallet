@@ -8,7 +8,7 @@ from ..entities.historic import HistoricEntity
 class HistoricalService:
     
     def get_historic(self, stock:StockEntity, period:PeriodEnum, date: datetime.datetime) -> HistoricEntity:
-        result = HistoricModel.objects.filter(stock_id=stock.id, period=period, date=date.timestamp())[:1]
+        result = HistoricModel.objects.filter(stock_id=stock.id, type=period.value, date=date.timestamp())[:1]
         if result.exists():
             return HistoricEntity(result[0])
         else:

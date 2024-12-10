@@ -3,6 +3,7 @@ from .period import PeriodModel
 
 class ProphesyModel(models.Model):
     id = models.AutoField(primary_key=True)
+    type = models.IntegerField(db_index=True)
     period = models.ForeignKey(PeriodModel, on_delete=models.CASCADE, db_index=True)
     increased = models.IntegerField(db_index=True)
     date = models.IntegerField(db_index=True)
@@ -26,5 +27,5 @@ class ProphesyModel(models.Model):
 
     class Meta:
         db_table = 'prophesied'
-        unique_together = ('period', 'increased')
+        unique_together = ('type', 'period', 'increased')
 

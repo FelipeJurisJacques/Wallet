@@ -15,10 +15,13 @@ class QueryLib:
         self._columns = []
         self._function = ''
 
-    def select(self, parameters: list[str] = []):
+    def select(self, parameters = []):
         self._function = 'SELECT'
-        for parameter in parameters:
-            self._columns.append(parameter)
+        if isinstance(parameters, str):
+            self._columns.append(parameters)
+        if isinstance(parameters, list):
+            for parameter in parameters:
+                self._columns.append(parameter)
 
     def table(self, table: str):
         self._from = table
@@ -34,6 +37,18 @@ class QueryLib:
 
     def where(self, where: str):
         self._wheres.append(where)
+
+    def order(self, orders):
+        if isinstance(orders, str):
+            self._order = orders
+        if isinstance(orders, list):
+            self._order = ', '.join(orders)
+
+    def limit(self, limit: int):
+        self._limit = limit
+
+    def offset(self, offset: int):
+        self._offset = offset
 
     def quote(self, value) -> str:
         if value is None:

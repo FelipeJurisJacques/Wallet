@@ -1,9 +1,12 @@
 import gc
 import pandas
 from prophet import Prophet
+from ..entities.period import PeriodEntity
+from ..enumerators.period import PeriodEnum
+from ..entities.historic import HistoricEntity
 from ..entities.prophesy import ProphesyEntity
-from ..entities.historic_day import HistoricDayEntity
-from ..entities.prophesy_day import ProphesyDayEntity
+from ..enumerators.historic import HistoricEnum
+from ..libraries.database.transaction import TransactionLib
 
 class ProphetLib:
 
@@ -13,9 +16,9 @@ class ProphetLib:
         # cap: limite superior
         # floor: limite inferior
         # holiday: datas de feriados ou eventos
-        pass
+        self._transaction = TransactionLib()
         
-    def set_historical(self, historical: list[HistoricDayEntity]):
+    def set_historical(self, historical: list[HistoricEntity]):
         self._historical = historical
         self._open_data = pandas.DataFrame(columns=[
             'ds',
@@ -49,32 +52,38 @@ class ProphetLib:
         self._open_forecast = []
         self._close_forecast = []
 
-    def handle(self, periods: int):
-        self._open_forecast = self._get_forecast(self._open_data, periods)
-        self._close_forecast = self._get_forecast(self._close_data, periods)
+    def handle(self, period: PeriodEnum):
+        self._period = period
+        self._open_forecast = self._get_forecast(self._open_data, period)
+        self._close_forecast = self._get_forecast(self._close_data, period)
 
     def persist(self):
-        end = self._last
-        open = self._persist(self._open_forecast)
-        close = self._persist(self._close_forecast)
-        i = 0
-        while i < len(open) or i < len(close):
-            prophesy = ProphesyDayEntity()
-            prophesy.last_historic = end
-            if i < len(open):
-                model = open[i]
-                model.save()
-                prophesy.open = model
-            if i < len(close):
-                model = close[i]
-                model.save()
-                prophesy.close = model
-            prophesy.save()
-            del prophesy
-            i += 1
-        del end
-        del open
-        del close
+        self._transaction.start()
+        try:
+            end = self._last
+            opens = self._persist(self._open_forecast)
+            closes = self._persist(self._close_forecast)
+            period = PeriodEntity()
+            period.period = self._period
+            period.historical = self._historical
+            period.save()
+            for open in opens:
+                open.type = HistoricEnum.OPEN
+                open.period = period
+                open.save()
+                del open
+            for close in closes:
+                close.type = HistoricEnum.CLOSE
+                close.period = period
+                close.save()
+                del close
+            self._transaction.commit()
+            del end
+            del opens
+            del closes
+        except Exception as error:
+            self._transaction.rollback()
+            raise error
     
     def flush(self):
         del self._last
@@ -88,7 +97,7 @@ class ProphetLib:
         del self._close_forecast
         gc.collect()
 
-    def _get_forecast(self, data, periods):
+    def _get_forecast(self, data, period: PeriodEnum):
         self._prophet = Prophet(
             daily_seasonality=True,
             yearly_seasonality=True,
@@ -98,10 +107,10 @@ class ProphetLib:
             # seasonality_mode='multiplicative',
         )
         self._prophet.fit(data)
-        self._future = self._prophet.make_future_dataframe(periods=periods)
+        self._future = self._prophet.make_future_dataframe(periods=period.value)
         return self._prophet.predict(self._future)
     
-    def _persist(self, forecast):
+    def _persist(self, forecast) -> list[ProphesyEntity]:
         day = 0
         end = self._last
         start = self._first

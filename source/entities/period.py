@@ -15,6 +15,7 @@ class PeriodEntity(Entity):
             return None
 
     def __init__(self, model: PeriodModel = None):
+        self._historical = None
         if model is None:
             self._model = PeriodModel()
         else:
@@ -34,14 +35,24 @@ class PeriodEntity(Entity):
 
     @property
     def historical(self) -> list[HistoricEntity]:
-        entities = []
-        for model in self._model.historical:
-            entities.append(StockEntity(model))
-        return entities
+        if self._historical is None:
+            entities = []
+            for model in self._model.historical.all():
+                entities.append(StockEntity(model))
+            return entities
+        return self._historical
 
     @historical.setter
     def historical(self, value: list[HistoricEntity]):
-        models = []
-        for entity in value:
-            models.append(entity._model)
-        self._model.historical = models
+        self._historical = value
+
+    def save(self):
+        super().save()
+        if self._historical is not None:
+            models = []
+            for entity in self._historical:
+                models.append(entity._model)
+            if len(self._historical) == 0:
+                self._model.historical.clear()
+            else:
+                self._model.historical.set(models)

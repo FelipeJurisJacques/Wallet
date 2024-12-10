@@ -1,6 +1,8 @@
 import datetime
 from .entity import Entity
+from .period import PeriodEntity
 from ..models.prophesy import ProphesyModel
+from ..enumerators.historic import HistoricEnum
 
 class ProphesyEntity(Entity):
 
@@ -21,6 +23,22 @@ class ProphesyEntity(Entity):
     @property
     def id(self) -> int:
         return self._model.id
+
+    @property
+    def type(self) -> HistoricEnum:
+        return HistoricEnum(self._model.type)
+
+    @type.setter
+    def type(self, value: HistoricEnum):
+        self._model.type = value.value
+
+    @property
+    def period(self) -> PeriodEntity:
+        return PeriodEntity(self._model.period)
+
+    @period.setter
+    def period(self, value: PeriodEntity):
+        self._model.period = value._model
 
     @property
     def increased(self) -> int:

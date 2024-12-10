@@ -3,15 +3,14 @@ from .entity import Entity
 from .period import PeriodEntity
 from ..models.forecast import ForecastModel
 from ..enumerators.historic import HistoricEnum
-from ..enumerators.quantitative import QuantitativeEnum
 
-class ForecastDayEntity(Entity):
+class ForecastEntity(Entity):
 
     @staticmethod
     def find(id:int):
         result = ForecastModel.objects.filter(pk=id)
         if result.exists():
-            return ForecastDayEntity(result[0])
+            return ForecastEntity(result[0])
         else:
             return None
 
@@ -27,7 +26,7 @@ class ForecastDayEntity(Entity):
 
     @property
     def type(self) -> HistoricEnum:
-        return QuantitativeEnum(self._model.type)
+        return HistoricEnum(self._model.type)
 
     @type.setter
     def type(self, value: HistoricEnum):
