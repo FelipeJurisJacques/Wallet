@@ -50,6 +50,12 @@ class QueryLib:
     def offset(self, offset: int):
         self._offset = offset
 
+    def group(self, groups):
+        if isinstance(groups, str):
+            self._group = groups
+        if isinstance(groups, list):
+            self._group = ', '.join(groups)
+
     def quote(self, value) -> str:
         if value is None:
             return 'NULL'

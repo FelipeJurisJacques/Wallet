@@ -1,22 +1,29 @@
+from .query import QueryLib
 from django.db import connection
 
 class FetchLib:
 
-    def all(self, query):
+    def all(self, query:QueryLib) -> list[dict]:
         with connection.cursor() as cursor:
-            cursor.execute(query)
-            return cursor.fetchall()
+            cursor.execute(query.assemble())
+            names = [desc[0] for desc in cursor.description]
+            rows = cursor.fetchall()
+            results = []
+            for row in rows:
+                results.append(dict(zip(names, row)))
+            return results
         return []
 
-    def row(self, query):
-        results = self.all(query)
+    def row(self, query:QueryLib) -> dict:
+        results = self.all(query.assemble())
         for result in results:
             return result
         return None
 
-    def one(self, query):
-        result = self.row(query)
-        if result is None:
-            return None
-        else:
-            return result[0]
+    def one(self, query:QueryLib):
+        with connection.cursor() as cursor:
+            cursor.execute(query.assemble())
+            rows = cursor.fetchall()
+            for row in rows:
+                return row[0]
+        return None

@@ -1,5 +1,5 @@
-import datetime
 from enum import Enum
+from datetime import date, time, datetime
 
 class Serializer:
 
@@ -23,16 +23,21 @@ class Serializer:
             return value
         if isinstance(value, Enum):
             return value.name
-        if isinstance(value, datetime.date):
+        if isinstance(value, date):
             return value.isoformat() + 'Z'
-        if isinstance(value, datetime.time):
+        if isinstance(value, time):
             return value.isoformat() + 'Z'
-        if isinstance(value, datetime.datetime):
+        if isinstance(value, datetime):
             return value.isoformat() + 'Z'
         if isinstance(value, list):
             result = []
             for v in value:
                 result.append(self.serialize(v))
+            return result
+        if isinstance(value, dict):
+            result = {}
+            for key in value.keys():
+                result.setdefault(key, self.serialize(value.get(key)))
             return result
         if isinstance(value, object):
             # attributes = vars(value)
