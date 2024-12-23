@@ -15,7 +15,7 @@ class FetchLib:
         return []
 
     def row(self, query:QueryLib) -> dict:
-        results = self.all(query.assemble())
+        results = self.all(query)
         for result in results:
             return result
         return None

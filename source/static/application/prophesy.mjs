@@ -2,7 +2,25 @@ import { Runtime, Library, Inspector } from "./d3.mjs";
 
 fetch(`/api/dashboard/periods/${location.search.split('=')[1]}/`).then(async response => {
     const json = await response.json()
-    console.log(json)
+    const periods = document.body.querySelector('select#periods')
+    for (let item of json) {
+        let date = new Date(item.max_prophesied_date)
+        let element = document.createElement('option')
+        element.value = item.id
+        element.innerHTML = `${item.period} - ${date.getDay()}/${date.getMonth()}/${date.getFullYear()}`
+        periods.append(element)
+    }
+})
+
+document.body.addEventListener('change', event => {
+    const element = event.target
+    // if (element.id === 'stock') {
+        const period = element.value
+        fetch(`/api/dashboard/prophesy/${period}/`).then(async response => {
+            const json = await response.json()
+            console.log(json)
+        })
+    // }
 })
 
 function _1(md) {
