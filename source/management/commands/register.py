@@ -1,5 +1,4 @@
 import pytz
-import datetime
 import yfinance
 from django.conf import settings
 from source.enumerators.api import ApiEnum

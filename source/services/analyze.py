@@ -16,12 +16,14 @@ from ..enumerators.quantitative import QuantitativeEnum
 
 class AnalyzeService:
 
-    def get_next_date(self, start: datetime, day: WeekEnum, period: PeriodEnum) -> datetime:
+    def get_next_date(self, start: datetime, day: WeekEnum, period: PeriodEnum = None) -> datetime:
         if period == PeriodEnum.MONTH:
             start += timedelta(days=30)
         elif period == PeriodEnum.YEAR:
             start += timedelta(days=365)
-        else:
+        elif period == PeriodEnum.WEEK:
+            start += timedelta(days=7)
+        elif period == PeriodEnum.DAY:
             start += timedelta(days=1)
         while start.weekday() != day.value:
             start += timedelta(days=1)
@@ -37,7 +39,7 @@ class AnalyzeService:
         query.inner('historical', 'historical.id = periods_historical.historicmodel_id')
         query.where(f"periods.period = {query.quote(period)}")
         query.where(f"historical.stock_id = {query.quote(stock.id)}")
-        result = PeriodModel.objects.raw(query.assemble())
+        result = PeriodModel.objects.raw(query.assemble)
         if result.exists():
             return PeriodEntity(result[0])
         else:
@@ -55,7 +57,7 @@ class AnalyzeService:
         query.where(f"periods.period = {query.quote(period)}")
         query.where(f"historical.type = {query.quote(historic)}")
         query.where(f"historical.stock_id = {query.quote(stock.id)}")
-        timestamp = fetch.one(query.assemble())
+        timestamp = fetch.one(query)
         if timestamp is None:
             return None
         else:
@@ -70,7 +72,7 @@ class AnalyzeService:
         query.table('historical')
         query.where(f"type = {query.quote(historic)}")
         query.where(f"stock_id = {query.quote(stock.id)}")
-        timestamp = fetch.one(query.assemble())
+        timestamp = fetch.one(query)
         if timestamp:
             return datetime.fromtimestamp(timestamp)
         else:
@@ -85,14 +87,13 @@ class AnalyzeService:
         query.table('historical')
         query.where(f"type = {query.quote(historic)}")
         query.where(f"stock_id = {query.quote(stock.id)}")
-        timestamp = fetch.one(query.assemble())
-        if timestamp:
-            return datetime.fromtimestamp(timestamp)
-        else:
+        timestamp = fetch.one(query)
+        if timestamp is None:
             return None
+        else:
+            return datetime.fromtimestamp(timestamp)
 
     def get_historical(self, stock:StockEntity, historic: PeriodEnum, min: datetime, max: datetime):
-        list = []
         query = QueryLib()
         query.limit(1)
         query.select('date')
@@ -101,8 +102,11 @@ class AnalyzeService:
         query.where(f"type = {query.quote(historic)}")
         query.where(f"stock_id = {query.quote(stock.id)}")
         fetch = FetchLib()
-        timestamp = fetch.one(query.assemble())
-        if timestamp:
+        timestamp = fetch.one(query)
+        if timestamp is None:
+            return []
+        else:
+            list = []
             query = QueryLib()
             query.select()
             query.order('date ASC')
@@ -113,7 +117,7 @@ class AnalyzeService:
             query.where(f"stock_id = {query.quote(stock.id)}")
             for model in HistoricModel.objects.raw(query.assemble()):
                 list.append(HistoricEntity(model))
-        return list
+            return list
 
     def get_all_from_stock(self, stock:StockEntity, origin: QuantitativeEnum) -> list[ForecastEntity]:
         models = ForecastModel.objects.filter(

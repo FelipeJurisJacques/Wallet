@@ -10,52 +10,71 @@ from ..libraries.database.transaction import TransactionLib
 
 class ProphetLib:
 
-    def __init__(self):
+    def __init__(self, results: list[HistoricEnum] = []):
         # y: dados
         # ds: data
         # cap: limite superior
         # floor: limite inferior
         # holiday: datas de feriados ou eventos
+        if len(results) == 0:
+            self._is_open = True
+            self._is_close = True
+        else:
+            self._is_open = False
+            self._is_close = False
+            for result in results:
+                if result == HistoricEnum.OPEN:
+                    self._is_open = True
+                elif result == HistoricEnum.CLOSE:
+                    self._is_close = True
         self._transaction = TransactionLib()
         
     def set_historical(self, historical: list[HistoricEntity]):
         self._historical = historical
-        self._open_data = pandas.DataFrame(columns=[
-            'ds',
-            'y',
-            'cap',
-            'floor',
-        ])
-        self._close_data = pandas.DataFrame(columns=[
-            'ds',
-            'y',
-            'cap',
-            'floor',
-        ])
+        self._open_data = None
+        self._close_data = None
+        self._open_forecast = None
+        self._close_forecast = None
+        if self._is_open:
+            self._open_data = pandas.DataFrame(columns=[
+                'ds',
+                'y',
+                'cap',
+                'floor',
+            ])
+        if self._is_close:
+            self._close_data = pandas.DataFrame(columns=[
+                'ds',
+                'y',
+                'cap',
+                'floor',
+            ])
         i = 0
         for historic in historical:
-            self._open_data.loc[i] = [
-                historic.date,
-                historic.open,
-                historic.high,
-                historic.low,
-            ]
-            self._close_data.loc[i] = [
-                historic.date,
-                historic.close,
-                historic.high,
-                historic.low,
-            ]
+            if self._is_open:
+                self._open_data.loc[i] = [
+                    historic.date,
+                    historic.open,
+                    historic.high,
+                    historic.low,
+                ]
+            if self._is_close:
+                self._close_data.loc[i] = [
+                    historic.date,
+                    historic.close,
+                    historic.high,
+                    historic.low,
+                ]
             i += 1
         self._last = historical[i - 1]
         self._first = historical[0]
-        self._open_forecast = []
-        self._close_forecast = []
 
     def handle(self, period: PeriodEnum):
         self._period = period
-        self._open_forecast = self._get_forecast(self._open_data, period)
-        self._close_forecast = self._get_forecast(self._close_data, period)
+        if self._is_open:
+            self._open_forecast = self._get_forecast(self._open_data, period)
+        if self._is_close:
+            self._close_forecast = self._get_forecast(self._close_data, period)
 
     def persist(self):
         self._transaction.start()
@@ -111,15 +130,20 @@ class ProphetLib:
         return self._prophet.predict(self._future)
     
     def _persist(self, forecast) -> list[ProphesyEntity]:
+        if forecast is None:
+            return []
         day = 0
         end = self._last
         start = self._first
         result = []
         for forecast in forecast.to_dict('records'):
+            if end.date.timestamp() > forecast['ds'].timestamp():
+                continue
             model = ProphesyEntity()
             for key, value in forecast.items():
                 if key == 'ds':
                     key = 'date'
+                    print(value)
                 setattr(model, key, value)
             if model.date > self._last.date:
                 day += 1

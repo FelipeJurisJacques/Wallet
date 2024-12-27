@@ -11,8 +11,10 @@ class DashboardHistoricalView(View):
         if request.GET.get('StartDate') is None:
             return JsonResponse({'error': 'StartDate is required'}, status=400)
         service = DashboardService()
-        end = datetime.now()
+        end = None
         if request.GET.get('EndDate') is None:
+            end = datetime.now()
+        else:
             end = datetime.fromisoformat(request.GET.get('EndDate'))
         rows = service.get_historical(
             request.GET.get('StockId'),

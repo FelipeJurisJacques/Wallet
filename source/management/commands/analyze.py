@@ -1,11 +1,11 @@
-from django.db import transaction
-from datetime import datetime, timedelta
+from datetime import timedelta
 from source.enumerators.week import WeekEnum
 from source.services.stock import StockService
 from source.libraries.prophet import ProphetLib
 from source.enumerators.period import PeriodEnum
 from source.services.analyze import AnalyzeService
 from django.core.management.base import BaseCommand
+from source.enumerators.historic import HistoricEnum
 
 class Command(BaseCommand):
     help = 'Análisar resultados de previsões quantitativas das ações'
@@ -22,7 +22,7 @@ class Command(BaseCommand):
                 continue
             end = analyze_service.get_max_date_period(stock, period, PeriodEnum.DAY)
             if end is None:
-                end = analyze_service.get_next_date(start + timedelta(days=180), WeekEnum.TUESDAY, period)
+                end = analyze_service.get_next_date(start + timedelta(days=180), WeekEnum.TUESDAY)
             else:
                 end = analyze_service.get_next_date(end, WeekEnum.TUESDAY, period)
             if end is None:
@@ -36,7 +36,9 @@ class Command(BaseCommand):
                     'Processando ' + str(length) + ' ações da empresa ' + stock.name + ' de ' + start.strftime("%d/%m/%Y %H:%M:%S") + ' até ' + end.strftime("%d/%m/%Y %H:%M:%S")
                 )
                 try:
-                    library = ProphetLib()
+                    library = ProphetLib([
+                        HistoricEnum.CLOSE,
+                    ])
                     library.set_historical(historical)
                     library.handle(period)
                     library.persist()
