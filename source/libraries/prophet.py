@@ -143,7 +143,6 @@ class ProphetLib:
             for key, value in forecast.items():
                 if key == 'ds':
                     key = 'date'
-                    print(value)
                 setattr(model, key, value)
             if model.date > self._last.date:
                 day += 1
