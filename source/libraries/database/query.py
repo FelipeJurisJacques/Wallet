@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, date, time
 from enum import Enum
 
 class QueryLib:
@@ -14,6 +14,12 @@ class QueryLib:
         self._having = []
         self._columns = []
         self._function = ''
+
+    def delete(self):
+        self._function = 'DELETE'
+
+    def truncate(self):
+        self._function = 'TRUNCATE'
 
     def select(self, parameters = []):
         self._function = 'SELECT'
@@ -72,12 +78,12 @@ class QueryLib:
             return f"{value}"
         if isinstance(value, Enum):
             return self.quote(value.value)
-        if isinstance(value, datetime.date):
-            return self.quote(value.timestamp)
-        if isinstance(value, datetime.time):
-            return self.quote(value.timestamp)
-        if isinstance(value, datetime.datetime):
-            return self.quote(value.timestamp)
+        if isinstance(value, date):
+            return self.quote(value.timestamp())
+        if isinstance(value, time):
+            return self.quote(value.timestamp())
+        if isinstance(value, datetime):
+            return self.quote(value.timestamp())
         if isinstance(value, list):
             result = []
             for v in value:
@@ -92,6 +98,10 @@ class QueryLib:
         return '(' + ' AND '.join(wheres) + ')'
 
     def assemble(self) -> str:
+        if self._from == '':
+            raise Exception('unknown table')
+        if self._function == 'TRUNCATE':
+            return f"TRUNCATE {self._from}"
         sql = ''
         # if self._function == 'INSERT':
         #     $columns = array_keys($this->_params['columns']);
@@ -118,8 +128,7 @@ class QueryLib:
             sql += ' ' + ' '.join(self._joins)
         if len(self._wheres) == 0:
             if self._function != 'SELECT':
-                pass
-        #     throw new PDOException('unknown where expression');
+                raise Exception('unknown where expression')
         else:
             sql += ' WHERE ' + ' AND '.join(self._wheres)
         if self._group:

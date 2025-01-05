@@ -36,58 +36,42 @@ class ForecastLib:
         self._close_prophesies = self._historical_compare(self._close_prophesies)
 
     def handle(self):
-        self._open_forecast = self._get_forecast(self._open_prophesies)
-        self._close_forecast = self._get_forecast(self._close_prophesies)
+        self._open_forecast = self._get_forecast(
+            self._open_prophesies,
+            HistoricEnum.OPEN
+        )
+        self._close_forecast = self._get_forecast(
+            self._close_prophesies,
+            HistoricEnum.CLOSE
+        )
 
     def persist(self):
-        # print('valores')
-        # for prophesy in self._close_prophesies:
-            # print(prophesy.yhat)
-        todos = 0
-        lucrados = 0
-        perdidos = 0
-        for forecast in self._close_forecast:
-            todos += 1
-            print('parte')
-            print(forecast.forecast_min_value)
-            # print(forecast.corrected_min_value)
-            print(forecast.forecast_max_value)
-            # print(forecast.corrected_max_value)
-            # print(forecast.forecast_min_value)
-            # print(forecast.forecast_max_value)
-            # print(forecast.forecast_difference)
-            # print(forecast.forecast_percentage)
-            # print(forecast.corrected_percentage)
-            if forecast.corrected_percentage is not None:
-                if forecast.forecast_percentage > 0:
-                    if forecast.corrected_percentage > 0:
-                        lucrados += 1
-                    else:
-                        perdidos += 1
-        return todos, lucrados, perdidos
-
-        # self._transaction.start()
-        # try:
-        #     self._transaction.commit()
-        # except Exception as error:
-        #     self._transaction.rollback()
-        #     raise error
+        self._transaction.start()
+        try:
+            for prophesy in self._close_forecast:
+                prophesy.save()
+            for forecast in self._close_forecast:
+                forecast.save()
+            self._transaction.commit()
+        except Exception as error:
+            self._transaction.rollback()
+            raise error
     
     def flush(self):
+        del self._period
+        del self._historical
         del self._open_forecast
         del self._close_forecast
         del self._open_prophesies
         del self._close_prophesies
 
-    def _get_forecast(self, data: list[ProphesyEntity]) -> list[ForecastEntity]:
+    def _get_forecast(self, data: list[ProphesyEntity], type: HistoricEnum) -> list[ForecastEntity]:
         length = len(data)
         if length == 0:
             return []
         result = []
-        print(length)
         data = self._trim(data)
         length = len(data)
-        print(length)
         if length > 0:
             # maxs = self._get_peaks(data, 1)
             # mins = self._get_peaks(data, -1)
@@ -98,7 +82,7 @@ class ForecastLib:
             #     forecast = self._generate_forecast(data[start:end])
             #     if forecast is not None:
             #         result.append(forecast)
-            forecast = self._generate_forecast(data)
+            forecast = self._generate_forecast(data, type)
             if forecast is not None:
                 result.append(forecast)
         return result
@@ -159,7 +143,7 @@ class ForecastLib:
                 result.append(len(values) - 1)
         return result
 
-    def _generate_forecast(self, data: list[ProphesyEntity]) -> ForecastEntity:
+    def _generate_forecast(self, data: list[ProphesyEntity], type: HistoricEnum) -> ForecastEntity:
         if len(data) < 3:
             # avaliar periodo superior de 2 dias
             return None
@@ -181,12 +165,14 @@ class ForecastLib:
             # evitar prejuiso
             return None
         forecast = ForecastEntity()
+        forecast.type = type
         forecast.period = self._period
+        forecast.min_date = min_date
+        forecast.max_date = max_date
+        forecast.interval = int(max_date.timestamp() - min_date.timestamp())
         forecast.historical = data[0].type
         forecast.forecast_min_value = min_value
         forecast.forecast_max_value = max_value
-        forecast.forecast_min_moment = min_date
-        forecast.forecast_max_moment = max_date
         forecast.forecast_difference = forecast.forecast_max_value - forecast.forecast_min_value
         forecast.forecast_percentage = 100 * (forecast.forecast_max_value / forecast.forecast_min_value - 1)
         min = self._get_historic(min_date)
@@ -232,29 +218,3 @@ class ForecastLib:
             if time > start and time < end:
                 return historic
         return None
-    
-    def _persist(self, forecast) -> list[ProphesyEntity]:
-        if forecast is None:
-            return []
-        day = 0
-        end = self._last
-        start = self._first
-        result = []
-        for forecast in forecast.to_dict('records'):
-            if end.date.timestamp() > forecast['ds'].timestamp():
-                continue
-            model = ProphesyEntity()
-            for key, value in forecast.items():
-                if key == 'ds':
-                    key = 'date'
-                setattr(model, key, value)
-            if model.date > self._last.date:
-                day += 1
-                model.increased = day
-                model.data_end_date = end.date
-                model.data_start_date = start.date
-                result.append(model)
-        del day
-        del end
-        del start
-        return result

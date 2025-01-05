@@ -10,4 +10,12 @@ class LogLib:
         self._log.write(message)
 
     def date(self, time: datetime) -> str:
+        # strftime("%d/%m/%Y %H:%M:%S")
+        if time is None:
+            return ''
         return str(time.day) + '/' + str(time.month) + '/' + str(time.year)
+
+    def money(self, value) -> str:
+        if value is None:
+            return ''
+        return "{:.2f}".format(value)

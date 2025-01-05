@@ -41,26 +41,37 @@ class ForecastEntity(Entity):
         self._model.period = value._model
 
     @property
-    def forecast_min_moment(self) -> datetime.datetime:
-        if self._model.forecast_min_moment is None:
+    def min_date(self) -> datetime.datetime:
+        if self._model.min_date is None:
             return None
         else:
-            return datetime.datetime.fromtimestamp(self._model.forecast_min_moment)
+            return datetime.datetime.fromtimestamp(self._model.min_date)
 
-    @forecast_min_moment.setter
-    def forecast_min_moment(self, value: datetime.datetime):
-        self._model.forecast_min_moment = value.timestamp()
+    @min_date.setter
+    def min_date(self, value: datetime.datetime):
+        self._model.min_date = value.timestamp()
 
     @property
-    def forecast_max_moment(self) -> datetime.datetime:
-        if self._model.forecast_max_moment is None:
+    def max_date(self) -> datetime.datetime:
+        if self._model.max_date is None:
             return None
         else:
-            return datetime.datetime.fromtimestamp(self._model.forecast_max_moment)
+            return datetime.datetime.fromtimestamp(self._model.max_date)
 
-    @forecast_max_moment.setter
-    def forecast_max_moment(self, value: datetime.datetime):
-        self._model.forecast_max_moment = value.timestamp()
+    @max_date.setter
+    def max_date(self, value: datetime.datetime):
+        self._model.max_date = value.timestamp()
+
+    @property
+    def interval(self) -> int:
+        if self._model.interval is None:
+            return None
+        else:
+            return self._model.interval
+
+    @interval.setter
+    def interval(self, value: int):
+        self._model.interval = value
 
     @property
     def corrected_min_moment(self) -> datetime.datetime:

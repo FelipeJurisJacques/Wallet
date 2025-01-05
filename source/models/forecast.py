@@ -5,10 +5,11 @@ class ForecastModel(models.Model):
     id = models.AutoField(primary_key=True)
     type = models.IntegerField(db_index=True)
     period = models.OneToOneField(PeriodModel, on_delete=models.CASCADE, db_index=True)
+    min_date = models.IntegerField()
+    max_date = models.IntegerField()
+    interval = models.IntegerField()
     forecast_min_value = models.DecimalField(max_digits=17, decimal_places=2)
     forecast_max_value = models.DecimalField(max_digits=17, decimal_places=2)
-    forecast_min_moment = models.IntegerField()
-    forecast_max_moment = models.IntegerField()
     forecast_difference = models.DecimalField(max_digits=17, decimal_places=2)
     forecast_percentage = models.DecimalField(max_digits=17, decimal_places=2)
     corrected_min_value = models.DecimalField(
@@ -20,14 +21,6 @@ class ForecastModel(models.Model):
     corrected_max_value = models.DecimalField(
         max_digits=17,
         decimal_places=2,
-        null=True,
-        blank=True
-    )
-    corrected_min_moment = models.IntegerField(
-        null=True,
-        blank=True
-    )
-    corrected_max_moment = models.IntegerField(
         null=True,
         blank=True
     )

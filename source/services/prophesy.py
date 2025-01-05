@@ -45,6 +45,21 @@ class ProphesyService:
         else:
             return None
 
+    def clear_periods(self):
+        fetch = FetchLib()
+        tables = [
+            'periods_historical',
+            'prophesied',
+            'forecasts',
+            'periods',
+        ]
+        for table in tables:
+            query = QueryLib()
+            query.table(table)
+            query.delete()
+            query.where('1 = 1')
+            fetch.execute(query)
+
     def get_max_date_period(self, stock: StockEntity, period: PeriodEnum, historic: PeriodEnum) -> datetime:
         fetch = FetchLib()
         query = QueryLib()

@@ -13,23 +13,23 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         period = PeriodEnum.MONTH
         stock_service = StockService()
-        analyze_service = ProphesyService()
+        prophesy_service = ProphesyService()
         stocks = stock_service.all()
 
         for stock in stocks:
-            end = analyze_service.get_max_date_period(stock, period, PeriodEnum.DAY)
+            end = prophesy_service.get_max_date_period(stock, period, PeriodEnum.DAY)
             if end is None:
-                start = analyze_service.get_min_date_historic(stock, PeriodEnum.DAY)
+                start = prophesy_service.get_min_date_historic(stock, PeriodEnum.DAY)
                 if start is None:
                     continue
-                end = analyze_service.get_next_date(start + timedelta(days=180), WeekEnum.TUESDAY)
+                end = prophesy_service.get_next_date(start + timedelta(days=180), WeekEnum.TUESDAY)
             else:
-                end = analyze_service.get_next_date(end, WeekEnum.TUESDAY, period)
+                end = prophesy_service.get_next_date(end, WeekEnum.TUESDAY, period)
             if end is None:
                 continue
             start = end - timedelta(days=180)
             while True:
-                historical = analyze_service.get_historical(stock, PeriodEnum.DAY, start, end)
+                historical = prophesy_service.get_historical(stock, PeriodEnum.DAY, start, end)
                 length = len(historical)
                 if length == 0:
                     break
@@ -46,5 +46,5 @@ class Command(BaseCommand):
                     library.flush()
                 except Exception as error:
                     self.stdout.write('Erro ao processar ações: ' + str(error))
-                end = analyze_service.get_next_date(end, WeekEnum.TUESDAY, period)
+                end = prophesy_service.get_next_date(end, WeekEnum.TUESDAY, period)
                 start = end - timedelta(days=180)

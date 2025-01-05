@@ -1,37 +1,67 @@
 from datetime import datetime
-from ..models.period import PeriodModel
+from ..models.stock import StockModel
 from ..entities.stock import StockEntity
 from ..entities.period import PeriodEntity
+from ..models.forecast import ForecastModel
 from ..models.historic import HistoricModel
 from ..models.prophesy import ProphesyModel
+from ..entities.forecast import ForecastEntity
 from ..entities.historic import HistoricEntity
 from ..entities.prophesy import ProphesyEntity
 from ..libraries.database.fetch import FetchLib
 from ..libraries.database.query import QueryLib
 from ..enumerators.historic import HistoricEnum
 
-class AnalyzeService:
+class StrategyService:
 
-    def get_all_periods_to_analyze(self, stock: StockEntity = None, start: datetime = None) -> list[PeriodEntity]:
-        query = QueryLib()
-        query.table('periods')
-        query.group('periods.id')
-        query.select('periods.*')
-        query.order('periods.created')
-        query.where('forecasts.id IS NULL')
-        query.left('forecasts', 'forecasts.period_id = periods.id')
-        query.inner('prophesied', 'prophesied.period_id = periods.id')
-        if stock is not None:
-            query.inner('periods_historical', 'periods_historical.periodmodel_id = periods.id')
-            query.inner('historical', 'historical.id = periods_historical.historicmodel_id')
-            query.where(f'historical.stock_id = {stock.id}')
+    def get_forecasts(self, start: datetime = None, limit: int = None) -> list[ForecastEntity]:
+        query = self._query_forecasts()
         if start is not None:
-            query.where(f'prophesied.date > {query.quote(start)}')
-        list = []
-        models = PeriodModel.objects.raw(query.assemble())
-        for model in models:
-            list.append(PeriodEntity(model))
-        return list
+            query.where(f'forecast_min_moment > {query.quote(start)}')
+        if limit is not None:
+            query.limit(limit)
+        result = []
+        for model in ForecastModel.objects.raw(query.assemble()):
+            result.append(ForecastEntity(model))
+        return result
+
+    def get_forecasts_historical(self, start: datetime = None, limit: int = None) -> list[ForecastEntity]:
+        query = self._query_forecasts()
+        query.where('corrected_difference IS NOT NULL')
+        query.where('corrected_percentage IS NOT NULL')
+        if start is not None:
+            query.where(f'forecast_min_moment > {query.quote(start)}')
+        if limit is not None:
+            query.limit(limit)
+        result = []
+        for model in ForecastModel.objects.raw(query.assemble()):
+            result.append(ForecastEntity(model))
+        return result
+
+    def _query_forecasts(self) -> QueryLib:
+        query = QueryLib()
+        query.select()
+        query.table('forecasts')
+        query.order([
+            # 'forecast_difference ASC',
+            'forecast_max_moment DESC',
+            # 'forecast_min_moment DESC',
+        ])
+        return query
+
+    def get_stock(self, forecast: ForecastEntity):
+        query = QueryLib()
+        query.limit(1)
+        query.table('stocks')
+        query.select('stocks.*')
+        query.where(f'forecasts.id = {forecast.id}')
+        query.inner('historical', 'historical.stock_id = stocks.id')
+        query.inner('forecasts', 'forecasts.period_id = periods.id')
+        query.inner('periods', 'periods.id = periods_historical.periodmodel_id')
+        query.inner('periods_historical', 'periods_historical.historicmodel_id = historical.id')
+        for model in StockModel.objects.raw(query.assemble()):
+            return StockEntity(model)
+        return None
     
     def get_prophesies(self, period:PeriodEntity, type: HistoricEnum) -> list[ProphesyEntity]:
         query = QueryLib()
