@@ -43,27 +43,28 @@ class ForecastLib:
         # print('valores')
         # for prophesy in self._close_prophesies:
             # print(prophesy.yhat)
-        length = 0
+        todos = 0
+        lucrados = 0
+        perdidos = 0
         for forecast in self._close_forecast:
+            todos += 1
             print('parte')
             print(forecast.forecast_min_value)
-            print(forecast.corrected_min_value)
+            # print(forecast.corrected_min_value)
             print(forecast.forecast_max_value)
-            print(forecast.corrected_max_value)
+            # print(forecast.corrected_max_value)
             # print(forecast.forecast_min_value)
             # print(forecast.forecast_max_value)
             # print(forecast.forecast_difference)
             # print(forecast.forecast_percentage)
             # print(forecast.corrected_percentage)
             if forecast.corrected_percentage is not None:
-                if forecast.forecast_percentage > 0 and forecast.corrected_percentage > 0:
-                    length += 1
-                elif forecast.forecast_percentage < 0 and forecast.corrected_percentage < 0:
-                    # length += 1
-                    pass
-                else:
-                    length -= 1
-        return length
+                if forecast.forecast_percentage > 0:
+                    if forecast.corrected_percentage > 0:
+                        lucrados += 1
+                    else:
+                        perdidos += 1
+        return todos, lucrados, perdidos
 
         # self._transaction.start()
         # try:
@@ -79,28 +80,88 @@ class ForecastLib:
         del self._close_prophesies
 
     def _get_forecast(self, data: list[ProphesyEntity]) -> list[ForecastEntity]:
+        length = len(data)
+        if length == 0:
+            return []
+        result = []
+        print(length)
+        data = self._trim(data)
+        length = len(data)
+        print(length)
+        if length > 0:
+            # maxs = self._get_peaks(data, 1)
+            # mins = self._get_peaks(data, -1)
+            # intervals = self._get_intervals(mins, maxs)
+            # for interval in intervals:
+            #     end = interval[-1]
+            #     start = interval[0]
+            #     forecast = self._generate_forecast(data[start:end])
+            #     if forecast is not None:
+            #         result.append(forecast)
+            forecast = self._generate_forecast(data)
+            if forecast is not None:
+                result.append(forecast)
+        return result
+    
+    def _trim(self, data: list[ProphesyEntity]) -> list[ProphesyEntity]:
+        return self._rtrim(self._ltrim(data))
+        # return self._rtrim(data)
+
+    def _ltrim(self, data: list[ProphesyEntity]) -> list[ProphesyEntity]:
+        length = len(data)
+        if length > 1:
+            if data[0].yhat > data[1].yhat:
+                return self._ltrim(data[1:length])
+        return data
+
+    def _rtrim(self, data: list[ProphesyEntity]) -> list[ProphesyEntity]:
+        length = len(data)
+        if length > 1:
+            if data[-2].yhat > data[-1].yhat:
+                length -= 1
+                return self._rtrim(data[0:length])
+        return data
+
+    def _get_intervals(self, mins, maxs) -> list:
+        last = None
+        result = []
+        for max in maxs:
+            end = max
+            start = 0
+            for min in mins:
+                if max > min:
+                    start = min
+            if last == start:
+                result[len(result) - 1] = [
+                    start,
+                    end,
+                ]
+            else:
+                result.append([
+                    start,
+                    end,
+                ])
+                last = start
+        return result
+
+    def _get_peaks(self, data: list[ProphesyEntity], multiply: int = 1):
         result = []
         if len(data) > 0:
+            if multiply < 0:
+                result.append(0)
             values = []
             for prophesy in data:
-                values.append(prophesy.yhat)
+                values.append(prophesy.yhat * multiply)
             peaks, _ = find_peaks(values)
-            del values
-            if len(peaks) > 0:
-                index = 0
-                for peak in peaks:
-                    start = index
-                    end = peak
-                    index = peak + 1
-                    if end < start:
-                        continue
-                    forecast = self._generate_forecast(data[start:end])
-                    if forecast is not None:
-                        result.append(forecast)
+            for peak in peaks:
+                result.append(peak)
+            if multiply > 0:
+                result.append(len(values) - 1)
         return result
 
     def _generate_forecast(self, data: list[ProphesyEntity]) -> ForecastEntity:
-        if len(data) == 0:
+        if len(data) < 3:
+            # avaliar periodo superior de 2 dias
             return None
         min_date = None
         max_date = None
@@ -113,6 +174,12 @@ class ForecastLib:
             if max_value is None or prophesy.yhat > max_value:
                 max_date = prophesy.date
                 max_value = prophesy.yhat
+        if min_date >= max_date:
+            # evitar inversao
+            return None
+        if min_value > max_value:
+            # evitar prejuiso
+            return None
         forecast = ForecastEntity()
         forecast.period = self._period
         forecast.historical = data[0].type

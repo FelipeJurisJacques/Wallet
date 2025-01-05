@@ -1,8 +1,6 @@
-from datetime import datetime
 from ..models.period import PeriodModel
 from ..entities.stock import StockEntity
 from ..entities.period import PeriodEntity
-from ..enumerators.period import PeriodEnum
 from ..models.historic import HistoricModel
 from ..models.prophesy import ProphesyModel
 from ..entities.historic import HistoricEntity
@@ -75,34 +73,3 @@ class AnalyzeService:
         for model in HistoricModel.objects.raw(query.assemble()):
             list.append(HistoricEntity(model))
         return list
-
-    # def get_historic(self, date: datetime, period: PeriodEntity) -> HistoricEntity:
-    #     fetch = FetchLib()
-    #     query = QueryLib()
-    #     query.limit(1)
-    #     query.table('historical')
-    #     query.select([
-    #         'historical.type',
-    #         'historical.stock_id',
-    #     ])
-    #     query.where(f'periods_historical.periodmodel_id = {period.id}')
-    #     query.inner('periods_historical', 'periods_historical.historicmodel_id = historical.id')
-    #     row = fetch.row(query)
-    #     if row is None:
-    #         return None
-    #     time = date.timestamp()
-    #     end = time + 43200
-    #     start = time - 43200
-    #     query = QueryLib()
-    #     query.limit(1)
-    #     query.select()
-    #     query.table('historical')
-    #     query.order('date')
-    #     query.where(f'date <= {end}')
-    #     query.where(f'date >= {start}')
-    #     query.where(f'type = {row.get('type')}')
-    #     query.where(f'stock_id = {row.get('stock_id')}')
-    #     models = HistoricModel.objects.raw(query.assemble())
-    #     for model in models:
-    #         return HistoricEntity(model)
-    #     return None
