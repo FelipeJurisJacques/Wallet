@@ -8,6 +8,13 @@ from ..models.stock import StockModel
 class StockEntity(Entity):
 
     @staticmethod
+    def all():
+        result = []
+        for model in StockModel.objects.all():
+            result.append(StockEntity(model))
+        return result
+
+    @staticmethod
     def find(id:int):
         result = StockModel.objects.filter(pk=id)
         if result.exists():

@@ -8,6 +8,7 @@ from ..entities.prophesy import ProphesyEntity
 from ..enumerators.historic import HistoricEnum
 from ..libraries.database.transaction import TransactionLib
 
+# encapsulamento para manipular a biblioteca Prophet para prever valoes futuros de acoes de empresas
 class ProphetLib:
 
     def __init__(self, results: list[HistoricEnum] = []):

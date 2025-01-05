@@ -1,5 +1,5 @@
-import datetime
 from .entity import Entity
+from datetime import datetime
 from ..entities.stock import StockEntity
 from ..models.historic import HistoricModel
 from ..enumerators.period import PeriodEnum
@@ -41,11 +41,11 @@ class HistoricEntity(Entity):
         self._model.type = value.value
 
     @property
-    def date(self) -> datetime.datetime:
-        return datetime.datetime.fromtimestamp(self._model.date)
+    def date(self) -> datetime:
+        return datetime.fromtimestamp(self._model.date)
 
     @date.setter
-    def date(self, value: datetime.datetime):
+    def date(self, value: datetime):
         self._model.date = value.timestamp()
 
     @property

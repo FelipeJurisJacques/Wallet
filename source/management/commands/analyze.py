@@ -1,9 +1,9 @@
-from datetime import timedelta
-from source.enumerators.week import WeekEnum
-from source.services.stock import StockService
-from source.libraries.prophet import ProphetLib
+from source.entities.stock import StockEntity
 from source.enumerators.period import PeriodEnum
+from source.libraries.forecast import ForecastLib
 from source.services.analyze import AnalyzeService
+from source.entities.forecast import ForecastEntity
+from source.entities.prophesy import ProphesyEntity
 from django.core.management.base import BaseCommand
 from source.enumerators.historic import HistoricEnum
 
@@ -11,40 +11,22 @@ class Command(BaseCommand):
     help = 'Análisar resultados de previsões quantitativas das ações'
     
     def handle(self, *args, **options):
-        period = PeriodEnum.MONTH
-        stock_service = StockService()
-        analyze_service = AnalyzeService()
-        stocks = stock_service.all()
-
+        total = 0
+        stocks = StockEntity.all()
+        service = AnalyzeService()
         for stock in stocks:
-            end = analyze_service.get_max_date_period(stock, period, PeriodEnum.DAY)
-            if end is None:
-                start = analyze_service.get_min_date_historic(stock, PeriodEnum.DAY)
-                if start is None:
+            self.stdout.write('Análisando professias de ' + stock.name)
+            periods = service.get_all_periods_to_analyze(stock)
+            for period in periods:
+                prophesies = service.get_prophesies(period, HistoricEnum.CLOSE)
+                historical = service.get_historical(prophesies)
+                if len(prophesies) == 0:
                     continue
-                end = analyze_service.get_next_date(start + timedelta(days=180), WeekEnum.TUESDAY)
-            else:
-                end = analyze_service.get_next_date(end, WeekEnum.TUESDAY, period)
-            if end is None:
-                continue
-            start = end - timedelta(days=180)
-            while True:
-                historical = analyze_service.get_historical(stock, PeriodEnum.DAY, start, end)
-                length = len(historical)
-                if length == 0:
-                    break
-                self.stdout.write(
-                    'Processando ' + str(length) + ' ações da empresa ' + stock.name + ' de ' + start.strftime("%d/%m/%Y %H:%M:%S") + ' até ' + end.strftime("%d/%m/%Y %H:%M:%S")
-                )
-                try:
-                    library = ProphetLib([
-                        HistoricEnum.CLOSE,
-                    ])
-                    library.set_historical(historical)
-                    library.handle(period)
-                    library.persist()
-                    library.flush()
-                except Exception as error:
-                    self.stdout.write('Erro ao processar ações: ' + str(error))
-                end = analyze_service.get_next_date(end, WeekEnum.TUESDAY, period)
-                start = end - timedelta(days=180)
+                library = ForecastLib()
+                library.set_prophesies(prophesies)
+                library.set_historical(historical)
+                library.handle()
+                total += library.persist()
+                # break
+            break
+        print(total)
