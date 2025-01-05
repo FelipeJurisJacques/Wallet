@@ -120,11 +120,11 @@ class ProphetLib:
     def _get_forecast(self, data, period: PeriodEnum):
         self._prophet = Prophet(
             daily_seasonality=True,
-            yearly_seasonality=True,
+            yearly_seasonality=False,
             weekly_seasonality=True,
-            changepoint_prior_scale=0.05,
-            seasonality_prior_scale=10,
-            # seasonality_mode='multiplicative',
+            changepoint_prior_scale=0.01,
+            seasonality_prior_scale=1.0,
+            seasonality_mode='multiplicative',
         )
         self._prophet.fit(data)
         self._future = self._prophet.make_future_dataframe(periods=period.value)

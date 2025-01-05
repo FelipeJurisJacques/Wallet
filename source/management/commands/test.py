@@ -15,6 +15,7 @@ class Command(BaseCommand):
     help = 'Realiza teste do algoritmo'
     
     def handle(self, *args, **options):
+        days = 100
         money = 1000.0
         next_date = None
         output = LogLib(self.stdout, self.stderr)
@@ -43,11 +44,11 @@ class Command(BaseCommand):
                     start = prophesy_service.get_min_date_historic(stock, PeriodEnum.DAY)
                     if start is None:
                         continue
-                    end = prophesy_service.get_next_date(start + timedelta(days=180), WeekEnum.TUESDAY)
+                    end = prophesy_service.get_next_date(start + timedelta(days=days), WeekEnum.TUESDAY)
                 if end is None:
                     continue
                 if start is None:
-                    start = end - timedelta(days=180)
+                    start = end - timedelta(days=days)
                 historical = prophesy_service.get_historical(stock, PeriodEnum.DAY, start, end)
                 length = len(historical)
                 if length == 0:
@@ -76,15 +77,23 @@ class Command(BaseCommand):
                     forecast.persist()
                     forecast.flush()
 
-            forecasts = strategy_service.get_forecasts_historical(next_date, 1)
+            forecasts = strategy_service.get_forecasts_historical(next_date)
             if len(forecasts) == 0:
                 output.log('Sem opões de investimento')
-                next_date += timedelta(days=30)
+                if next_date is None:
+                    next_date = end
+                next_date += timedelta(days=15)
             else:
-                stock = strategy_service.get_stock(forecasts[0])
-                next_date = forecasts[0].forecast_max_moment
-                output.log('Investindo em ' + stock.name + ' até ' + output.date(next_date) + ' com valor estimado ' + str(forecasts[0].forecast_percentage) + '% x valor corrigido ' + str(forecasts[0].corrected_percentage) + '%')
-                value = (forecasts[0].corrected_percentage / 100) + 1
+                entity = None
+                for e in forecasts:
+                    if entity is None:
+                        entity = e
+                    if e.min_date < entity.min_date:
+                        entity = e
+                stock = strategy_service.get_stock(entity)
+                next_date = entity.max_date
+                output.log('Investindo em ' + stock.name + ' até ' + output.date(next_date) + ' com valor estimado ' + str(entity.forecast_percentage) + '% x valor corrigido ' + str(entity.corrected_percentage) + '%')
+                value = (entity.corrected_percentage / 100) + 1
                 money *= value
 
             output.log('Valor ' + output.money(money))

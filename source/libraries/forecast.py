@@ -147,17 +147,33 @@ class ForecastLib:
         if len(data) < 3:
             # avaliar periodo superior de 2 dias
             return None
+        min = None
+        max = None
         min_date = None
         max_date = None
         min_value = None
         max_value = None
-        for prophesy in data:
+        length = len(data)
+        for i in range(length):
+            prophesy = data[i]
             if min_value is None or prophesy.yhat < min_value:
+                if i > 1:
+                    min = i - 2
+                else:
+                    min = i
                 min_date = prophesy.date
                 min_value = prophesy.yhat
             if max_value is None or prophesy.yhat > max_value:
+                if (i + 2) >= length:
+                    max = i
+                else:
+                    max = i + 2
                 max_date = prophesy.date
                 max_value = prophesy.yhat
+        min_date = data[min].date
+        min_value = data[min].yhat
+        max_date = data[max].date
+        max_value = data[max].yhat
         if min_date >= max_date:
             # evitar inversao
             return None
@@ -171,20 +187,14 @@ class ForecastLib:
         forecast.max_date = max_date
         forecast.interval = int(max_date.timestamp() - min_date.timestamp())
         forecast.historical = data[0].type
-        forecast.forecast_min_value = min_value
-        forecast.forecast_max_value = max_value
-        forecast.forecast_difference = forecast.forecast_max_value - forecast.forecast_min_value
-        forecast.forecast_percentage = 100 * (forecast.forecast_max_value / forecast.forecast_min_value - 1)
-        min = self._get_historic(min_date)
-        max = self._get_historic(max_date)
-        if min is not None and max is not None:
-            forecast.corrected_min_value = min.close
-            forecast.corrected_max_value = max.close
-            forecast.corrected_min_moment = min.date
-            forecast.corrected_max_moment = max.date
-            forecast.corrected_difference = max.close - min.close
-            forecast.corrected_percentage = 100 * (max.close / min.close - 1)
-        return forecast
+        forecast.min_value = min_value
+        forecast.max_value = max_value
+        forecast.difference = max_value - min_value
+        forecast.percentage = 100 * (max_value / min_value - 1)
+        if forecast.percentage > 0.0:
+            return forecast
+        else:
+            return None
 
     def _historical_compare(self, prophesies: list[ProphesyEntity]):
         if len(prophesies) == 0:

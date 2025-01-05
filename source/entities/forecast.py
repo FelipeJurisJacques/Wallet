@@ -74,99 +74,33 @@ class ForecastEntity(Entity):
         self._model.interval = value
 
     @property
-    def corrected_min_moment(self) -> datetime.datetime:
-        if self._model.corrected_min_moment is None:
-            return None
-        else:
-            return datetime.datetime.fromtimestamp(self._model.corrected_min_moment)
+    def min_value(self) -> float:
+        return float(self._model.min_value)
 
-    @corrected_min_moment.setter
-    def corrected_min_moment(self, value: datetime.datetime):
-        self._model.corrected_min_moment = value.timestamp()
+    @min_value.setter
+    def min_value(self, value: float):
+        self._model.min_value = value
 
     @property
-    def corrected_max_moment(self) -> datetime.datetime:
-        if self._model.corrected_max_moment is None:
-            return None
-        else:
-            return datetime.datetime.fromtimestamp(self._model.corrected_max_moment)
+    def max_value(self) -> float:
+        return float(self._model.max_value)
 
-    @corrected_max_moment.setter
-    def corrected_max_moment(self, value: datetime.datetime):
-        self._model.corrected_max_moment = value.timestamp()
+    @max_value.setter
+    def max_value(self, value: float):
+        self._model.max_value = value
 
     @property
-    def forecast_min_value(self) -> float:
-        return float(self._model.forecast_min_value)
+    def difference(self) -> float:
+        return float(self._model.difference)
 
-    @forecast_min_value.setter
-    def forecast_min_value(self, value: float):
-        self._model.forecast_min_value = value
-
-    @property
-    def forecast_max_value(self) -> float:
-        return float(self._model.forecast_max_value)
-
-    @forecast_max_value.setter
-    def forecast_max_value(self, value: float):
-        self._model.forecast_max_value = value
+    @difference.setter
+    def difference(self, value: float):
+        self._model.difference = value
 
     @property
-    def forecast_difference(self) -> float:
-        return float(self._model.forecast_difference)
+    def percentage(self) -> float:
+        return float(self._model.percentage)
 
-    @forecast_difference.setter
-    def forecast_difference(self, value: float):
-        self._model.forecast_difference = value
-
-    @property
-    def forecast_percentage(self) -> float:
-        return float(self._model.forecast_percentage)
-
-    @forecast_percentage.setter
-    def forecast_percentage(self, value: float):
-        self._model.forecast_percentage = value
-
-    @property
-    def corrected_min_value(self) -> float:
-        if self._model.corrected_min_value is None:
-            return None
-        else:
-            return float(self._model.corrected_min_value)
-
-    @corrected_min_value.setter
-    def corrected_min_value(self, value: float):
-        self._model.corrected_min_value = value
-
-    @property
-    def corrected_max_value(self) -> float:
-        if self._model.corrected_max_value is None:
-            return None
-        else:
-            return float(self._model.corrected_max_value)
-
-    @corrected_max_value.setter
-    def corrected_max_value(self, value: float):
-        self._model.corrected_max_value = value
-
-    @property
-    def corrected_difference(self) -> float:
-        if self._model.corrected_difference is None:
-            return None
-        else:
-            return float(self._model.corrected_difference)
-
-    @corrected_difference.setter
-    def corrected_difference(self, value: float):
-        self._model.corrected_difference = value
-
-    @property
-    def corrected_percentage(self) -> float:
-        if self._model.corrected_percentage is None:
-            return None
-        else:
-            return float(self._model.corrected_percentage)
-
-    @corrected_percentage.setter
-    def corrected_percentage(self, value: float):
-        self._model.corrected_percentage = value
+    @percentage.setter
+    def percentage(self, value: float):
+        self._model.percentage = value

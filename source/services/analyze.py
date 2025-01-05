@@ -4,6 +4,7 @@ from ..entities.stock import StockEntity
 from ..entities.period import PeriodEntity
 from ..models.historic import HistoricModel
 from ..models.prophesy import ProphesyModel
+from ..entities.forecast import ForecastEntity
 from ..entities.historic import HistoricEntity
 from ..entities.prophesy import ProphesyEntity
 from ..libraries.database.fetch import FetchLib
@@ -46,9 +47,7 @@ class AnalyzeService:
             list.append(ProphesyEntity(model))
         return list
 
-    def get_historical(self, prophesies: list[ProphesyEntity]) -> HistoricEntity:
-        if len(prophesies) == 0:
-            return []
+    def get_historical(self, forecast: ForecastEntity) -> list[HistoricEntity]:
         fetch = FetchLib()
         query = QueryLib()
         query.limit(1)
@@ -57,13 +56,15 @@ class AnalyzeService:
             'historical.type',
             'historical.stock_id',
         ])
-        query.where(f'periods_historical.periodmodel_id = {prophesies[0].period.id}')
+        query.where(f'forecasts.id = {forecast.id}')
+        query.inner('forecasts', 'forecasts.period_id = periods.id')
+        query.inner('periods', 'periods.id = periods_historical.periodmodel_id')
         query.inner('periods_historical', 'periods_historical.historicmodel_id = historical.id')
         row = fetch.row(query)
         if row is None:
             return []
-        end = prophesies[-1].date.timestamp() + 43200
-        start = prophesies[0].date.timestamp() - 43200
+        end = forecast.max_date.timestamp() + 43200
+        start = forecast.min_date.timestamp() - 43200
         query = QueryLib()
         query.select()
         query.table('historical')

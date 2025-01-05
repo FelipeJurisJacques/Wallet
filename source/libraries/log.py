@@ -10,10 +10,10 @@ class LogLib:
         self._log.write(message)
 
     def date(self, time: datetime) -> str:
-        # strftime("%d/%m/%Y %H:%M:%S")
         if time is None:
             return ''
-        return str(time.day) + '/' + str(time.month) + '/' + str(time.year)
+        return time.strftime("%d/%m/%Y")
+        # return time.strftime("%d/%m/%Y %H:%M:%S")
 
     def money(self, value) -> str:
         if value is None:

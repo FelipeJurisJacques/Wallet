@@ -8,34 +8,10 @@ class ForecastModel(models.Model):
     min_date = models.IntegerField()
     max_date = models.IntegerField()
     interval = models.IntegerField()
-    forecast_min_value = models.DecimalField(max_digits=17, decimal_places=2)
-    forecast_max_value = models.DecimalField(max_digits=17, decimal_places=2)
-    forecast_difference = models.DecimalField(max_digits=17, decimal_places=2)
-    forecast_percentage = models.DecimalField(max_digits=17, decimal_places=2)
-    corrected_min_value = models.DecimalField(
-        max_digits=17,
-        decimal_places=2,
-        null=True,
-        blank=True
-    )
-    corrected_max_value = models.DecimalField(
-        max_digits=17,
-        decimal_places=2,
-        null=True,
-        blank=True
-    )
-    corrected_difference = models.DecimalField(
-        max_digits=17,
-        decimal_places=2,
-        null=True,
-        blank=True
-    )
-    corrected_percentage = models.DecimalField(
-        max_digits=17,
-        decimal_places=2,
-        null=True,
-        blank=True
-    )
+    min_value = models.DecimalField(max_digits=17, decimal_places=2)
+    max_value = models.DecimalField(max_digits=17, decimal_places=2)
+    difference = models.DecimalField(max_digits=17, decimal_places=2)
+    percentage = models.DecimalField(max_digits=17, decimal_places=2)
     created = models.IntegerField()
     updated = models.IntegerField()
 
