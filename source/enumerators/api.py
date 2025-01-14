@@ -1,4 +1,4 @@
 from enum import Enum
 
-class ApiEnum(Enum):
+class Api(Enum):
     YAHOO = 1

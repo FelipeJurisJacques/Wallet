@@ -1,6 +1,6 @@
 from django.db import models
 
-class StockModel(models.Model):
+class Stock(models.Model):
     id = models.AutoField(primary_key=True)
     api = models.IntegerField()
     name = models.CharField(max_length=255)

@@ -1,7 +1,7 @@
-from datetime import datetime, date, time
 from enum import Enum
+from datetime import datetime, date, time
 
-class QueryLib:
+class Query:
 
     def __init__(self):
         self._from = ''

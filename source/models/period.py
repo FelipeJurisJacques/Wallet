@@ -1,10 +1,10 @@
 from django.db import models
-from .historic import HistoricModel
+from .historic import Historic
 
-class PeriodModel(models.Model):
+class Period(models.Model):
     id = models.AutoField(primary_key=True)
     period = models.IntegerField(db_index=True)
-    historical = models.ManyToManyField(HistoricModel, db_index=True)
+    historical = models.ManyToManyField(Historic, db_index=True)
     created = models.IntegerField()
     updated = models.IntegerField()
 

@@ -1,9 +1,9 @@
-from .query import QueryLib
+from .query import Query
 from django.db import connection
 
-class FetchLib:
+class Fetch:
 
-    def all(self, query: QueryLib) -> list[dict]:
+    def all(self, query: Query) -> list[dict]:
         with connection.cursor() as cursor:
             cursor.execute(query.assemble())
             names = [desc[0] for desc in cursor.description]
@@ -14,13 +14,13 @@ class FetchLib:
             return results
         return []
 
-    def row(self, query: QueryLib) -> dict:
+    def row(self, query: Query) -> dict:
         results = self.all(query)
         for result in results:
             return result
         return None
 
-    def one(self, query: QueryLib):
+    def one(self, query: Query):
         with connection.cursor() as cursor:
             cursor.execute(query.assemble())
             rows = cursor.fetchall()
@@ -28,6 +28,6 @@ class FetchLib:
                 return row[0]
         return None
     
-    def execute(self, query: QueryLib):
+    def execute(self, query: Query):
         with connection.cursor() as cursor:
             cursor.execute(query.assemble())

@@ -1,20 +1,20 @@
 from datetime import datetime
-from ..models.period import PeriodModel
-from ..entities.stock import StockEntity
-from ..entities.period import PeriodEntity
-from ..models.historic import HistoricModel
-from ..models.prophesy import ProphesyModel
-from ..entities.forecast import ForecastEntity
-from ..entities.historic import HistoricEntity
-from ..entities.prophesy import ProphesyEntity
-from ..libraries.database.fetch import FetchLib
-from ..libraries.database.query import QueryLib
-from ..enumerators.historic import HistoricEnum
+from source.libraries.database.fetch import Fetch
+from source.libraries.database.query import Query
+from source.models.period import Period as PeriodModel
+from source.entities.stock import Stock as StockEntity
+from source.entities.period import Period as PeriodEntity
+from source.models.historic import Historic as HistoricModel
+from source.models.prophesy import Prophesy as ProphesyModel
+from source.entities.forecast import Forecast as ForecastEntity
+from source.entities.historic import Historic as HistoricEntity
+from source.entities.prophesy import Prophesy as ProphesyEntity
+from source.enumerators.historic import Historic as HistoricEnum
 
-class AnalyzeService:
+class Analyze:
 
     def get_all_periods_to_analyze(self, stock: StockEntity = None, start: datetime = None) -> list[PeriodEntity]:
-        query = QueryLib()
+        query = Query()
         query.table('periods')
         query.group('periods.id')
         query.select('periods.*')
@@ -35,7 +35,7 @@ class AnalyzeService:
         return list
     
     def get_prophesies(self, period:PeriodEntity, type: HistoricEnum) -> list[ProphesyEntity]:
-        query = QueryLib()
+        query = Query()
         query.select()
         query.table('prophesied')
         query.order('prophesied.date')
@@ -48,8 +48,8 @@ class AnalyzeService:
         return list
 
     def get_historical(self, forecast: ForecastEntity) -> list[HistoricEntity]:
-        fetch = FetchLib()
-        query = QueryLib()
+        fetch = Fetch()
+        query = Query()
         query.limit(1)
         query.table('historical')
         query.select([
@@ -65,7 +65,7 @@ class AnalyzeService:
             return []
         end = forecast.max_date.timestamp() + 43200
         start = forecast.min_date.timestamp() - 43200
-        query = QueryLib()
+        query = Query()
         query.select()
         query.table('historical')
         query.order('date ASC')

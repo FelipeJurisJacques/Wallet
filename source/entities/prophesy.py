@@ -1,16 +1,16 @@
 import datetime
 from .entity import Entity
-from .period import PeriodEntity
-from ..models.prophesy import ProphesyModel
-from ..enumerators.historic import HistoricEnum
+from .period import Period as PeriodEntity
+from ..models.prophesy import Prophesy as ProphesyModel
+from ..enumerators.historic import Historic as HistoricEnum
 
-class ProphesyEntity(Entity):
+class Prophesy(Entity):
 
     @staticmethod
     def find(id:int):
         result = ProphesyModel.objects.filter(pk=id)
         if result.exists():
-            return ProphesyEntity(result[0])
+            return Prophesy(result[0])
         else:
             return None
 

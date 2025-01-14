@@ -1,6 +1,6 @@
 from enum import Enum
 
-class PeriodEnum(Enum):
+class Period(Enum):
     DAY = 1
     WEEK = 7
     MONTH = 30

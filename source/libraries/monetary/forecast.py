@@ -1,34 +1,28 @@
-import gc
-import pandas
-from prophet import Prophet
 from datetime import datetime
 from scipy.signal import find_peaks
-from ..entities.period import PeriodEntity
-from ..enumerators.period import PeriodEnum
-from ..services.analyze import AnalyzeService
-from ..entities.forecast import ForecastEntity
-from ..entities.historic import HistoricEntity
-from ..entities.prophesy import ProphesyEntity
-from ..enumerators.historic import HistoricEnum
-from ..libraries.database.transaction import TransactionLib
+from source.libraries.database.transaction import Transaction
+from source.entities.forecast import Forecast as ForecastEntity
+from source.entities.historic import Historic as HistoricEntity
+from source.entities.prophesy import Prophesy as ProphesyEntity
+from source.enumerators.historic import Historic as HistoricEnum
+from source.services.monetary.analyze import Analyze as AnalyzeService
 
 # encapsulamento para manipular a profetizacao de valoes futuros de acoes de empresas e estimar ganhos
-class ForecastLib:
+class Forecast:
 
     def __init__(self):
         self._service = AnalyzeService()
-        self._transaction = TransactionLib()
+        self._transaction = Transaction()
         
-    def set_prophesies(self, prophesies: list[ProphesyEntity]):
-        self._open_prophesies = []
-        self._close_prophesies = []
-        if len(prophesies) > 0:
-            self._period = prophesies[0].period
-            for prophesy in prophesies:
-                if prophesy.type == HistoricEnum.OPEN:
-                    self._open_prophesies.append(prophesy)
-                if prophesy.type == HistoricEnum.CLOSE:
-                    self._close_prophesies.append(prophesy)
+    def set_prophesies(
+        self,
+        open: list[ProphesyEntity],
+        close: list[ProphesyEntity],
+        volume: list[ProphesyEntity]
+    ):
+        self._open_prophesies = open
+        self._close_prophesies = close
+        self._volume_prophesies = volume
 
     def set_historical(self, historical: list[HistoricEntity]):
         self._historical = historical
@@ -36,14 +30,22 @@ class ForecastLib:
         self._close_prophesies = self._historical_compare(self._close_prophesies)
 
     def handle(self):
-        self._open_forecast = self._get_forecast(
-            self._open_prophesies,
-            HistoricEnum.OPEN
-        )
-        self._close_forecast = self._get_forecast(
-            self._close_prophesies,
-            HistoricEnum.CLOSE
-        )
+        self._open_forecast = self._get_forecast(self._open_prophesies)
+        for forecast in self._open_forecast:
+            forecast.type = HistoricEnum.OPEN
+        self._close_forecast = self._get_forecast(self._close_prophesies)
+        for forecast in self._close_forecast:
+            forecast.type = HistoricEnum.CLOSE
+        self._volume_forecast = self._get_forecast(self._volume_prophesies)
+        for forecast in self._volume_forecast:
+            forecast.type = HistoricEnum.VOLUME
+
+    def results(self) -> tuple[
+        list[ForecastEntity], # OPEN
+        list[ForecastEntity], # CLOSE
+        list[ForecastEntity], # VOLUME
+    ]:
+        return self._open_forecast, self._close_forecast, self._volume_forecast
 
     def persist(self):
         self._transaction.start()
@@ -65,7 +67,7 @@ class ForecastLib:
         del self._open_prophesies
         del self._close_prophesies
 
-    def _get_forecast(self, data: list[ProphesyEntity], type: HistoricEnum) -> list[ForecastEntity]:
+    def _get_forecast(self, data: list[ProphesyEntity]) -> list[ForecastEntity]:
         length = len(data)
         if length == 0:
             return []
@@ -82,7 +84,7 @@ class ForecastLib:
             #     forecast = self._generate_forecast(data[start:end])
             #     if forecast is not None:
             #         result.append(forecast)
-            forecast = self._generate_forecast(data, type)
+            forecast = self._generate_forecast(data)
             if forecast is not None:
                 result.append(forecast)
         return result
@@ -143,7 +145,7 @@ class ForecastLib:
                 result.append(len(values) - 1)
         return result
 
-    def _generate_forecast(self, data: list[ProphesyEntity], type: HistoricEnum) -> ForecastEntity:
+    def _generate_forecast(self, data: list[ProphesyEntity]) -> ForecastEntity:
         if len(data) < 3:
             # avaliar periodo superior de 2 dias
             return None
@@ -181,7 +183,6 @@ class ForecastLib:
             # evitar prejuiso
             return None
         forecast = ForecastEntity()
-        forecast.type = type
         forecast.period = self._period
         forecast.min_date = min_date
         forecast.max_date = max_date

@@ -1,10 +1,10 @@
+from .period import Period
 from django.db import models
-from .period import PeriodModel
 
-class ProphesyModel(models.Model):
+class Prophesy(models.Model):
     id = models.AutoField(primary_key=True)
     type = models.IntegerField(db_index=True)
-    period = models.ForeignKey(PeriodModel, on_delete=models.CASCADE, db_index=True)
+    period = models.ForeignKey(Period, on_delete=models.CASCADE, db_index=True)
     increased = models.IntegerField(db_index=True)
     date = models.IntegerField(db_index=True)
     trend = models.DecimalField(max_digits=17, decimal_places=2, null=True, blank=True)

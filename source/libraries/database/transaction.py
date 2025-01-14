@@ -1,6 +1,6 @@
 from django.db import transaction
 
-class TransactionLib:
+class Transaction:
 
     def start(self):
         transaction.set_autocommit(False)

@@ -2,23 +2,23 @@ import json
 import pytz
 import datetime
 from .entity import Entity
-from ..enumerators.api import ApiEnum
-from ..models.stock import StockModel
+from ..enumerators.api import Api
+from ..models.stock import Stock as StockModel
 
-class StockEntity(Entity):
+class Stock(Entity):
 
     @staticmethod
     def all():
         result = []
         for model in StockModel.objects.all():
-            result.append(StockEntity(model))
+            result.append(Stock(model))
         return result
 
     @staticmethod
     def find(id:int):
         result = StockModel.objects.filter(pk=id)
         if result.exists():
-            return StockEntity(result[0])
+            return Stock(result[0])
         else:
             return None
 
@@ -33,11 +33,11 @@ class StockEntity(Entity):
         return self._model.id
 
     @property
-    def api(self) -> ApiEnum:
-        return ApiEnum(self._model.api)
+    def api(self) -> Api:
+        return Api(self._model.api)
 
     @api.setter
-    def api(self, value: ApiEnum):
+    def api(self, value: Api):
         self._model.api = value.value
 
     @property

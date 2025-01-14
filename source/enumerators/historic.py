@@ -1,6 +1,6 @@
 from enum import Enum
 
-class HistoricEnum(Enum):
+class Historic(Enum):
     OPEN = 1
     CLOSE = 2
     VOLUME = 3

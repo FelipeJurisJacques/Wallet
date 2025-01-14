@@ -2,9 +2,10 @@ from datetime import timedelta
 from source.libraries.log import LogLib
 from source.enumerators.week import WeekEnum
 from source.services.stock import StockService
-from source.libraries.prophet import ProphetLib
+from source.libraries.monetary.analyze import AnalyzeLib
+from source.libraries.monetary.prophet import ProphetLib
 from source.enumerators.period import PeriodEnum
-from source.libraries.forecast import ForecastLib
+from source.libraries.monetary.forecast import ForecastLib
 from source.services.analyze import AnalyzeService
 from django.core.management.base import BaseCommand
 from source.services.prophesy import ProphesyService
@@ -16,12 +17,13 @@ class Command(BaseCommand):
     
     def handle(self, *args, **options):
         days = 100
-        money = 1000.0
         next_date = None
         output = LogLib(self.stdout, self.stderr)
         prophesy = ProphetLib([
             HistoricEnum.CLOSE,
         ])
+        analyze = AnalyzeLib()
+        analyze.set_money(1000)
         forecast = ForecastLib()
         stock_service = StockService()
         stocks = stock_service.all()
@@ -90,10 +92,8 @@ class Command(BaseCommand):
                         entity = e
                     if e.min_date < entity.min_date:
                         entity = e
-                stock = strategy_service.get_stock(entity)
                 next_date = entity.max_date
-                output.log('Investindo em ' + stock.name + ' até ' + output.date(next_date) + ' com valor estimado ' + str(entity.forecast_percentage) + '% x valor corrigido ' + str(entity.corrected_percentage) + '%')
-                value = (entity.corrected_percentage / 100) + 1
-                money *= value
-
-            output.log('Valor ' + output.money(money))
+                analyze.set_forecast(entity)
+                stock = strategy_service.get_stock(entity)
+                output.log('Investindo em ' + stock.name + ' até ' + output.date(next_date) + ' com valor estimado ' + str(entity.percentage) + '%')
+                output.log('Valor ' + output.money(analyze.result()))

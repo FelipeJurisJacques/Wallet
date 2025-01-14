@@ -1,10 +1,10 @@
+from .period import Period
 from django.db import models
-from .period import PeriodModel
 
-class ForecastModel(models.Model):
+class Forecast(models.Model):
     id = models.AutoField(primary_key=True)
     type = models.IntegerField(db_index=True)
-    period = models.OneToOneField(PeriodModel, on_delete=models.CASCADE, db_index=True)
+    period = models.OneToOneField(Period, on_delete=models.CASCADE, db_index=True)
     min_date = models.IntegerField()
     max_date = models.IntegerField()
     interval = models.IntegerField()

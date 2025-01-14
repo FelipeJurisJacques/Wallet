@@ -1,16 +1,16 @@
 import datetime
 from .entity import Entity
-from .period import PeriodEntity
-from ..models.forecast import ForecastModel
-from ..enumerators.historic import HistoricEnum
+from .period import Period as PeriodEntity
+from ..models.forecast import Forecast as ForecastModel
+from ..enumerators.historic import Historic as HistoricEnum
 
-class ForecastEntity(Entity):
+class Forecast(Entity):
 
     @staticmethod
     def find(id:int):
         result = ForecastModel.objects.filter(pk=id)
         if result.exists():
-            return ForecastEntity(result[0])
+            return Forecast(result[0])
         else:
             return None
 

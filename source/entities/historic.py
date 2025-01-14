@@ -4,13 +4,13 @@ from ..entities.stock import StockEntity
 from ..models.historic import HistoricModel
 from ..enumerators.period import PeriodEnum
 
-class HistoricEntity(Entity):
+class Historic(Entity):
 
     @staticmethod
     def find(id:int):
         result = HistoricModel.objects.filter(pk=id)
         if result.exists():
-            return HistoricEntity(result[0])
+            return Historic(result[0])
         else:
             return None
 

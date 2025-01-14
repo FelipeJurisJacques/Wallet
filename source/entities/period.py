@@ -1,16 +1,16 @@
 from .entity import Entity
-from ..models.period import PeriodModel
-from ..entities.stock import StockEntity
-from ..enumerators.period import PeriodEnum
-from ..entities.historic import HistoricEntity
+from ..models.period import Period as PeriodModel
+from ..entities.stock import Stock as StockEntity
+from ..enumerators.period import Period as PeriodEnum
+from ..entities.historic import Historic as HistoricEntity
 
-class PeriodEntity(Entity):
+class Period(Entity):
 
     @staticmethod
     def find(id:int):
         result = PeriodModel.objects.filter(pk=id)
         if result.exists():
-            return PeriodEntity(result[0])
+            return Period(result[0])
         else:
             return None
 
