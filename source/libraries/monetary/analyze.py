@@ -1,57 +1,57 @@
-from source.services.analyze import AnalyzeService
-from source.entities.forecast import ForecastEntity
+from datetime import datetime
+from .forecast import Forecast
+from .prophet import Prophet as ProphetLib
+from source.entities.stock import Stock as StockEntity
+from source.enumerators.period import Period as PeriodEnum
+from source.enumerators.historic import Historic as HistoricEnum
+from source.services.monetary.analyze import Analyze as AnalyzeService
 
-class AnalyzeLib:
+class Analyze:
 
     def __init__(self):
-        self._decay = 3
         self._service = AnalyzeService()
+        self._prophet = ProphetLib([
+            HistoricEnum.CLOSE,
+        ], PeriodEnum.MONTH)
+        self._forecast = Forecast()
 
-    def set_money(self, value):
-        self._money = None
-        self._fallen = None
-        self._started = value
-        self._quantity = None
-
-    def set_forecast(self, forecast: ForecastEntity):
-        self._fallen = None
-        self._quantity = None
-        self._forecast = forecast
-        self._historical = self._service.get_historical(forecast)
+    def set_stocks(
+        self,
+        stocks: list[StockEntity],
+        start: datetime,
+        end: datetime
+    ):
+        self._end = end
+        self._start = start
+        self._stocks = stocks
 
     def handle(self):
-        money = None
-        self._historic_fallen = None
-        self._historic_applied = None
-        historic = self._historical[0]
-        limit = self._forecast.max_date
-        expected = self._forecast.max_value
-        if self._money is None:
-            money = self._started
-        else:
-            money = self._money
-        quantity = round(money / historic.close)
-        money = quantity * historic.close
-        self._fallen = money * ((100 - self._decay) / 100)
-        for historic in self._historical:
-            money = quantity * historic.close
-            if self._fallen >= money:
-                self._historic_fallen = historic
-                break
-            if money >= expected or historic.date >= limit:
-                self._historic_applied = historic
-                break
-        self._money = money
-        self._quantity = quantity
+        for stock in self._stocks:
+            historical = self._service.get_historical(
+                stock,
+                self._start,
+                self._end
+            )
+            if len(historical) == 0:
+                continue
+            self._prophet.set_historical(historical)
+            self._prophet.handle()
+            open_prophesies, close_prophesies, volume_prophesies = self._prophet.results()
+            self._forecast.set_prophesies(
+                open_prophesies,
+                close_prophesies,
+                volume_prophesies
+            )
+            self._forecast.handle()
+            open_forecast, close_forecast, volume_forecast = self._forecast.results()
 
     def persist(self):
         pass
 
     def result(self):
-        return self._money
+        pass
     
     def flush(self):
-        del self._forecast
-        del self._historical
-        del self._historic_fallen
-        del self._historic_applied
+        del self._stocks
+        self._prophet.flush()
+        self._forecast.flush()
