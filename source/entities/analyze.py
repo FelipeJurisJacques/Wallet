@@ -1,23 +1,23 @@
 from .entity import Entity
-from ..models.period import Period as PeriodModel
+from ..models.analyze import Analyze as AnalyzeModel
 from ..entities.stock import Stock as StockEntity
 from ..enumerators.period import Period as PeriodEnum
 from ..entities.historic import Historic as HistoricEntity
 
-class Period(Entity):
+class Analyze(Entity):
 
     @staticmethod
     def find(id:int):
-        result = PeriodModel.objects.filter(pk=id)
+        result = AnalyzeModel.objects.filter(pk=id)
         if result.exists():
-            return Period(result[0])
+            return Analyze(result[0])
         else:
             return None
 
-    def __init__(self, model: PeriodModel = None):
+    def __init__(self, model: AnalyzeModel = None):
         self._historical = None
         if model is None:
-            self._model = PeriodModel()
+            self._model = AnalyzeModel()
         else:
             self._model = model
 

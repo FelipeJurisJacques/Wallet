@@ -1,8 +1,6 @@
-
-from .stock import StockModel
-from .period import PeriodModel
-from .prophesy import ProphesyModel
-from .historic import HistoricModel
-from .prophesy import ProphesyModel
-from .forecast import ForecastModel
-from .strategy import StrategyModel
+from .stock import Stock
+from .analyze import Analyze
+from .forecast import Forecast
+from .historic import Historic
+from .prophesy import Prophesy
+from .timeline import Timeline

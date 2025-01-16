@@ -1,14 +1,14 @@
 from django.contrib import admin
-from .models.stock import StockModel
-from .models.period import PeriodModel
-from .models.historic import HistoricModel
-from .models.prophesy import ProphesyModel
-from .models.forecast import ForecastModel
-from .models.strategy import StrategyModel
+from .models.stock import Stock
+from .models.analyze import Analyze
+from .models.forecast import Forecast
+from .models.historic import Historic
+from .models.prophesy import Prophesy
+from .models.timeline import Timeline
 
-admin.site.register(StockModel)
-admin.site.register(PeriodModel)
-admin.site.register(HistoricModel)
-admin.site.register(ProphesyModel)
-admin.site.register(ForecastModel)
-admin.site.register(StrategyModel)
+admin.site.register(Stock)
+admin.site.register(Analyze)
+admin.site.register(Forecast)
+admin.site.register(Historic)
+admin.site.register(Prophesy)
+admin.site.register(Timeline)

@@ -1,6 +1,6 @@
 import datetime
 from .entity import Entity
-from .period import Period as PeriodEntity
+from .analyze import Period as PeriodEntity
 from ..models.forecast import Forecast as ForecastModel
 from ..enumerators.historic import Historic as HistoricEnum
 
@@ -104,3 +104,11 @@ class Forecast(Entity):
     @percentage.setter
     def percentage(self, value: float):
         self._model.percentage = value
+
+    @property
+    def quantitative(self) -> float:
+        return self._model.quantitative
+
+    @quantitative.setter
+    def quantitative(self, value: float):
+        self._model.quantitative = value

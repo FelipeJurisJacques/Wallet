@@ -1,12 +1,12 @@
 from django.db import models
-from .historic import Historic
+from .timeline import Timeline
 
-class Period(models.Model):
+class Analyze(models.Model):
     id = models.AutoField(primary_key=True)
     period = models.IntegerField(db_index=True)
-    historical = models.ManyToManyField(Historic, db_index=True)
     created = models.IntegerField()
     updated = models.IntegerField()
+    timelines = models.ManyToManyField(Timeline, db_index=True)
 
     class Meta:
-        db_table = 'periods'
+        db_table = 'analyzes'
