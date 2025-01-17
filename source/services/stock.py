@@ -1,14 +1,18 @@
-from ..models.stock import StockModel
-from ..entities.stock import StockEntity
-from source.enumerators.api import ApiEnum
+from ..models.stock import Stock as StockModel
+from source.enumerators.api import Api as ApiEnum
+from ..entities.stock import Stock as StockEntity
 
-class StockService:
+class Stock:
 
-    def all(self) -> list[StockEntity]:
-        result = []
-        for model in StockModel.objects.all():
-            result.append(StockEntity(model))
-        return result
+    def all_symbols_to_install(self) -> list[str]:
+        results = []
+        file = open('bin\stocks.txt', 'r')
+        for line in file:
+            symbol = line.strip()
+            if not symbol == '' and not symbol[0] == '#':
+                results.append(symbol)
+        file.close()
+        return results
 
     def all_from_api(self, api: ApiEnum) -> list[StockEntity]:
         result = []
