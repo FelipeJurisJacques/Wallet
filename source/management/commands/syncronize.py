@@ -36,8 +36,8 @@ class Command(BaseCommand):
                 end=end
             )
             if not response.empty:
-                transaction.start()
                 try:
+                    transaction.start()
                     for item in response.itertuples():
                         timeline = timeline_service.get_timeline(stock, PeriodEnum.DAY, item.Index)
                         historic = historic_service.get_historic(timeline)
