@@ -1,8 +1,6 @@
 from .entity import Entity
-from datetime import datetime
-from ..entities.stock import StockEntity
-from ..models.historic import HistoricModel
-from ..enumerators.period import PeriodEnum
+from .timeline import Timeline
+from ..models.historic import Historic as HistoricModel
 
 class Historic(Entity):
 
@@ -25,28 +23,12 @@ class Historic(Entity):
         return self._model.id
 
     @property
-    def stock(self) -> StockEntity:
-        return StockEntity(self._model.stock)
+    def timeline(self) -> Timeline:
+        return Timeline(self._model.timeline)
 
-    @stock.setter
-    def stock(self, value: StockEntity):
-        self._model.stock = value._model
-    
-    @property
-    def type(self) -> PeriodEnum:
-        return PeriodEnum(self._model.type)
-
-    @type.setter
-    def type(self, value: PeriodEnum):
-        self._model.type = value.value
-
-    @property
-    def date(self) -> datetime:
-        return datetime.fromtimestamp(self._model.date)
-
-    @date.setter
-    def date(self, value: datetime):
-        self._model.date = value.timestamp()
+    @timeline.setter
+    def timeline(self, value: Timeline):
+        self._model.timeline = value._model
 
     @property
     def low(self) -> float:
