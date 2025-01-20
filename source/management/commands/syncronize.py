@@ -1,6 +1,6 @@
 import yfinance
-from datetime import datetime 
 from django.conf import settings
+from source.libraries.log import Log
 from source.enumerators.api import Api as ApiEnum
 from django.core.management.base import BaseCommand
 from source.services.stock import Stock as StockService
@@ -14,6 +14,7 @@ class Command(BaseCommand):
     help = 'Carregar informações das APIs'
     
     def handle(self, *args, **options):
+        output = Log(self.stdout, self.stderr)
         transaction = Transaction()
         stock_service = StockService()
         timeline_service = TimelineService()
@@ -23,11 +24,11 @@ class Command(BaseCommand):
         self.stdout.write('Baixando ações')
         stocks = stock_service.all_from_api(ApiEnum.YAHOO)
         for stock in stocks:
-            self.stdout.write('Baixando ações para da empresa ' + stock.name)
-            end = datetime.now(stock.timezone).strftime('%Y-%m-%d')
-            start = historic_service.get_max_historical_date(stock, PeriodEnum.DAY).strftime('%Y-%m-%d')
-            print(start)
-            print(end)
+            max = timeline_service.get_datetime_now(stock)
+            min = historic_service.get_max_historical_date(stock, PeriodEnum.DAY)
+            output.log('Baixando ações para da empresa ' + stock.name + ' de ' + Log.date(min) + ' até ' + Log.date(max))
+            end = max.strftime('%Y-%m-%d')
+            start = min.strftime('%Y-%m-%d')
             if end == start:
                 continue
             response = yfinance.download(

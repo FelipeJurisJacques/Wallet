@@ -1,6 +1,4 @@
 import json
-import pytz
-import datetime
 from .entity import Entity
 from ..enumerators.api import Api
 from ..models.stock import Stock as StockModel
@@ -76,24 +74,9 @@ class Stock(Entity):
     def timezone(self) -> str:
         return self._model.timezone
 
-    # @property
-    # def timezone(self) -> datetime.timezone:
-    #     for tz_name in pytz.all_timezones:
-    #         tz = pytz.timezone(tz_name)
-    #         now = datetime.datetime.now(tz)
-    #         offset = now.utcoffset()
-    #         if offset is not None and offset.total_seconds() / 3600 == self._model.timezone:
-    #             return tz
-    #     return None
-
     @timezone.setter
     def timezone(self, value: str):
         self._model.timezone = value
-
-    # @timezone.setter
-    # def timezone(self, value: datetime.timezone):
-    #     current_time = datetime.datetime.now(value)
-    #     self._model.timezone = current_time.utcoffset().total_seconds() / 3600
     
     @property
     def fingerprint(self) -> object:

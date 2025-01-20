@@ -33,11 +33,18 @@ class Historic:
             return None
 
     def get_all_from_stock(self, stock:StockEntity) -> list[HistoricEntity]:
-        entities = HistoricModel.objects.filter(stock_id=stock.id).order_by('date')
-        list = []
-        for entity in entities:
-            list.append(HistoricEntity(entity))
-        return list
+        query = Query()
+        query.select()
+        query.table('historical')
+        query.order('timelines.date ASC')
+        query.where(f"timelines.stock_id = {query.quote(stock.id)}")
+        query.where(f"timelines.type = {query.quote(PeriodEnum.DAY)}")
+        query.inner('timelines', 'timelines.id = historical.timeline_id')
+        models = HistoricModel.objects.raw(query.assemble())
+        entities = []
+        for model in models:
+            entities.append(HistoricEntity(model))
+        return entities
 
     def get_period_from_stock(self, stock:StockEntity, limit:int, offset:int) -> list[HistoricEntity]:
         entities = HistoricModel.objects.filter(stock_id=stock.id)[offset:limit]

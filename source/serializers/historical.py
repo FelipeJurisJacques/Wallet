@@ -1,24 +1,25 @@
 from .serializer import Serializer
-from source.entities.historic import HistoricEntity
+from source.entities.historic import Historic
 
-class HistoricalSerializer(Serializer):
+class Historical(Serializer):
 
-    def __init__(self, models: list[HistoricEntity]):
-        self._models = models
+    def __init__(self, entities: list[Historic]):
+        self._entities = entities
         super().__init__()
 
     def handle(self):
         list = []
-        for model in self._models:
+        for entity in self._entities:
+            timeline = entity.timeline
             list.append({
-                'id': model.id,
-                'date': model.date.isoformat() + 'Z',
-                'stock_id': model.stock_id,
-                'low': model.low,
-                'high': model.high,
-                'open': model.open,
-                'close': model.close,
-                'volume': model.volume,
+                'id': entity.id,
+                'date': timeline.date.isoformat() + 'Z',
+                'stock_id': timeline.stock.id,
+                'low': entity.low,
+                'high': entity.high,
+                'open': entity.open,
+                'close': entity.close,
+                'volume': entity.volume,
             })
         return {
             'historical': list,
