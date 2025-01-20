@@ -7,7 +7,7 @@ class Stock(models.Model):
     symbol = models.CharField(max_length=255)
     currency = models.CharField(max_length=255)
     industry = models.CharField(max_length=255)
-    timezone = models.IntegerField()
+    timezone = models.CharField(max_length=255)
     fingerprint = models.TextField(max_length=65535)
     created = models.IntegerField()
     updated = models.IntegerField()

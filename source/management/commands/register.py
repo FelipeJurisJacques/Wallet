@@ -26,7 +26,8 @@ class Command(BaseCommand):
                 stock.symbol = info.get('symbol')
                 stock.industry = info.get('longName')
                 stock.currency = info.get('currency')
-                stock.timezone = pytz.timezone(info.get('timeZoneFullName'))
+                stock.timezone = info.get('timeZoneShortName')
+                # stock.timezone = pytz.timezone(info.get('timeZoneFullName'))
                 stock.fingerprint = info
                 stock.save()
                 self.stdout.write(stock.name + ' adicionado')
