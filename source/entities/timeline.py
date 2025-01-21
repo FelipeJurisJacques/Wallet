@@ -40,12 +40,12 @@ class Timeline:
         self._model.type = value.value
 
     @property
-    def date(self) -> datetime:
-        return datetime.fromtimestamp(self._model.date)
+    def datetime(self) -> datetime:
+        return datetime.fromtimestamp(self._model.datetime)
 
-    @date.setter
-    def date(self, value: datetime):
-        self._model.date = value.timestamp()
+    @datetime.setter
+    def datetime(self, value: datetime):
+        self._model.datetime = value.timestamp()
 
     def save(self):
         self._model.save()

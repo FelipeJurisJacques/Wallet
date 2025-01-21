@@ -1,3 +1,4 @@
+import pytz
 from enum import Enum
 from datetime import date, time, datetime
 
@@ -24,11 +25,17 @@ class Serializer:
         if isinstance(value, Enum):
             return value.name
         if isinstance(value, date):
-            return value.isoformat() + 'Z'
+            value = value.astimezone(pytz.utc)
+            iso = value.isoformat()
+            return iso[:19] + 'Z'
         if isinstance(value, time):
-            return value.isoformat() + 'Z'
+            value = value.astimezone(pytz.utc)
+            iso = value.isoformat()
+            return iso[:19] + 'Z'
         if isinstance(value, datetime):
-            return value.isoformat() + 'Z'
+            value = value.astimezone(pytz.utc)
+            iso = value.isoformat()
+            return iso[:19] + 'Z'
         if isinstance(value, list):
             result = []
             for v in value:

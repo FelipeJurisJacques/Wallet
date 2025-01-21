@@ -13,7 +13,7 @@ class Historical(Serializer):
             timeline = entity.timeline
             list.append({
                 'id': entity.id,
-                'date': timeline.date.isoformat() + 'Z',
+                'date': self.serialize(timeline.datetime),
                 'stock_id': timeline.stock.id,
                 'low': entity.low,
                 'high': entity.high,

@@ -9,41 +9,38 @@ from source.entities.timeline import Timeline as TimelineEntity
 class Timeline:
 
     def get_datetime_now(self, stock: StockEntity) -> datetime:
-        date = datetime.now(pytz.timezone(stock.timezone))
-        utc = 16
-        if stock.timezone == 'EST':
-            utc = 21
-        if date.hour < utc:
-            date -= timedelta(days=1)
-        while date.weekday() == 5 or date.weekday() == 6:
-            date -= timedelta(days=1)
-        date.replace(hour=utc, minute=0, second=0, microsecond=0)
-        return date
+        result = datetime.now(pytz.timezone(stock.timezone))
+        if result.hour < 16:
+            result -= timedelta(days=1)
+        while result.weekday() == 5 or result.weekday() == 6:
+            result -= timedelta(days=1)
+        return result.replace(hour=16, minute=0, second=0, microsecond=0)
 
-    def get_timeline(self, stock: StockEntity, type: PeriodEnum, date: datetime) -> TimelineEntity:
+    def get_timeline(self, stock: StockEntity, type: PeriodEnum, moment: datetime) -> TimelineEntity:
+        if type == PeriodEnum.DAY:
+            return self._get_timeline_day(stock, moment)
+        raise Exception('Period not implemented')
+
+    # momento fixado com 16 horas para tipo diario
+    def _get_timeline_day(self, stock: StockEntity, moment: datetime) -> TimelineEntity:
+        at = datetime.now(pytz.timezone(stock.timezone))
+        at = at.replace(hour=16, minute=0, second=0, microsecond=0)
+        at = at.replace(year=moment.year, month=moment.month, day=moment.day)
         query = Query()
         query.limit(1)
         query.select()
-        query.order('date ASC')
         query.table('timelines')
-        query.where(f"date = {query.quote(date)}")
-        query.where(f"type = {query.quote(type)}")
+        query.order('datetime ASC')
+        query.where(f"datetime = {query.quote(at)}")
         query.where(f"stock_id = {query.quote(stock.id)}")
+        query.where(f"type = {query.quote(PeriodEnum.DAY)}")
         for model in TimelineModel.objects.raw(query.assemble()):
             return TimelineEntity(model)
-        date = date.astimezone(pytz.utc)
-        moment = datetime.now(pytz.utc)
-        if date.date() == moment.date():
-            utc = 16
-            if stock.timezone == 'EST':
-                utc = 21
-            if date.hour < utc:
-                return None
-        elif date.weekday() == 5 and moment.weekday() == 6:
+        if at.weekday() == 5 and at.weekday() == 6:
             return None
         entity = TimelineEntity()
-        entity.date = date
-        entity.type = type
+        entity.type = PeriodEnum.DAY
         entity.stock = stock
+        entity.datetime = at
         entity.save()
         return entity

@@ -1,6 +1,7 @@
 import yfinance
 from django.conf import settings
 from source.libraries.log import Log
+from datetime import datetime, timedelta
 from source.enumerators.api import Api as ApiEnum
 from django.core.management.base import BaseCommand
 from source.services.stock import Stock as StockService
@@ -25,7 +26,7 @@ class Command(BaseCommand):
         stocks = stock_service.all_from_api(ApiEnum.YAHOO)
         for stock in stocks:
             max = timeline_service.get_datetime_now(stock)
-            min = historic_service.get_max_historical_date(stock, PeriodEnum.DAY)
+            min = historic_service.get_max_historical_datetime(stock, PeriodEnum.DAY)
             output.log('Baixando ações para da empresa ' + stock.name + ' de ' + Log.date(min) + ' até ' + Log.date(max))
             end = max.strftime('%Y-%m-%d')
             start = min.strftime('%Y-%m-%d')

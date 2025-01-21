@@ -9,13 +9,13 @@ from ..entities.historic import Historic as HistoricEntity
 
 class Historic:
 
-    def get_max_historical_date(self, stock: StockEntity, type: PeriodEnum) -> datetime:
+    def get_max_historical_datetime(self, stock: StockEntity, type: PeriodEnum) -> datetime:
         fetch = Fetch()
         query = Query()
         query.limit(1)
         query.table('timelines')
-        query.select('timelines.date')
-        query.order('timelines.date DESC')
+        query.select('timelines.datetime')
+        query.order('timelines.datetime DESC')
         query.where(f"timelines.type = {query.quote(type)}")
         query.where(f"timelines.stock_id = {query.quote(stock.id)}")
         query.inner('historical', 'historical.timeline_id = timelines.id')
@@ -36,7 +36,7 @@ class Historic:
         query = Query()
         query.select()
         query.table('historical')
-        query.order('timelines.date ASC')
+        query.order('timelines.datetime ASC')
         query.where(f"timelines.stock_id = {query.quote(stock.id)}")
         query.where(f"timelines.type = {query.quote(PeriodEnum.DAY)}")
         query.inner('timelines', 'timelines.id = historical.timeline_id')

@@ -10,7 +10,11 @@ class Log:
         if time is None:
             return ''
         return time.strftime("%d/%m/%Y")
-        # return time.strftime("%d/%m/%Y %H:%M:%S")
+
+    def datetime(time: datetime) -> str:
+        if time is None:
+            return ''
+        return time.strftime("%d/%m/%Y %H:%M:%S")
 
     def money(value) -> str:
         if value is None:
