@@ -26,6 +26,14 @@ class Analyze(Entity):
         return self._model.id
 
     @property
+    def stock(self) -> Stock:
+        return Stock(self._model.stock)
+
+    @stock.setter
+    def stock(self, value: Stock):
+        self._model.stock = value._model
+
+    @property
     def period(self) -> Stock:
         return PeriodEnum(self._model.period)
 
@@ -38,7 +46,7 @@ class Analyze(Entity):
         if self._historical is None:
             entities = []
             for model in self._model.historical.all():
-                entities.append(Stock(model))
+                entities.append(Historic(model))
             return entities
         return self._historical
 

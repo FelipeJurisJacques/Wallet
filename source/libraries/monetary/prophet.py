@@ -2,7 +2,6 @@ import gc
 import pandas
 from prophet import Prophet as Library
 from source.enumerators.period import Period as PeriodEnum
-from source.entities.analyze import Analyze as AnalyzeEntity
 from source.libraries.database.transaction import Transaction
 from source.entities.historic import Historic as HistoricEntity
 from source.entities.prophesy import Prophesy as ProphesyEntity

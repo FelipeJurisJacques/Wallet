@@ -11,9 +11,7 @@ from source.libraries.monetary.analyze import Analyze as AnalyzeLib
 from source.libraries.monetary.prophet import Prophet as ProphetLib
 from source.libraries.monetary.forecast import Forecast as ForecastLib
 from source.services.monetary.timeline import Timeline as TimelineService
-# from source.services.analyze import AnalyzeService
-# from source.services.prophesy import ProphesyService
-# from source.services.strategy import StrategyService
+from source.services.monetary.historic import Historic as HistoricService
 
 class Command(BaseCommand):
     help = 'Realiza teste do algoritmo'
@@ -24,6 +22,7 @@ class Command(BaseCommand):
         output = Log(self.stdout, self.stderr)
         forecast = ForecastLib()
         timeline_service = TimelineService()
+        historic_service = HistoricService()
 
         # obtem empresas
         stocks = StockEntity.all()
@@ -43,6 +42,18 @@ class Command(BaseCommand):
         analyze = AnalyzeLib()
         analyze.set_stocks(stocks, start, end)
         analyze.handle()
+        open_forecasts, close_forecasts, volume_forecasts = analyze.results()
+        # for forecast in close_forecasts:
+        #     print(forecast.percentage, forecast.difference, forecast.interval, forecast.quantitative)
+        if len(close_forecasts) == 0:
+            output.log('Sem opões de investimento')
+            return
+        forecast = close_forecasts[0]
+        historical = historic_service.get_historical(
+            forecast.analyze.stock,
+            forecast.min_timeline.datetime,
+            forecast.max_timeline.datetime
+        )
 
         # stock_service = StockService()
         # analyze_service = AnalyzeService()

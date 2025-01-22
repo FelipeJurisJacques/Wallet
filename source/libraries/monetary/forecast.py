@@ -24,10 +24,10 @@ class Forecast:
         self._close_prophesies = close
         self._volume_prophesies = volume
 
-    def set_historical(self, historical: list[HistoricEntity]):
-        self._historical = historical
-        self._open_prophesies = self._historical_compare(self._open_prophesies)
-        self._close_prophesies = self._historical_compare(self._close_prophesies)
+    # def set_historical(self, historical: list[HistoricEntity]):
+    #     self._historical = historical
+    #     self._open_prophesies = self._historical_compare(self._open_prophesies)
+    #     self._close_prophesies = self._historical_compare(self._close_prophesies)
 
     def handle(self):
         self._open_forecast = self._get_forecast(self._open_prophesies)
@@ -60,11 +60,13 @@ class Forecast:
             raise error
     
     def flush(self):
-        del self._historical
+        # del self._historical
         del self._open_forecast
         del self._close_forecast
+        del self._volume_forecast
         del self._open_prophesies
         del self._close_prophesies
+        del self._volume_prophesies
 
     def _get_forecast(self, data: list[ProphesyEntity]) -> list[ForecastEntity]:
         length = len(data)
@@ -174,16 +176,21 @@ class Forecast:
         forecast.min_value = start.yhat
         forecast.max_timeline = end.timeline
         forecast.min_timeline = start.timeline
-        if start.timeline.timestamp() > end.timeline.timestamp():
+        if forecast.min_timeline.datetime.timestamp() > forecast.max_timeline.datetime.timestamp():
             # evitar inversao
             return None
         if forecast.min_value > forecast.max_value:
             # evitar prejuiso
             return None
         forecast.type = start.type
-        forecast.interval = int(forecast.max_timeline.timestamp() - forecast.min_timeline.timestamp())
+        forecast.interval = int(
+            forecast.max_timeline.datetime.timestamp() - forecast.min_timeline.datetime.timestamp()
+        )
         forecast.difference = forecast.max_value - forecast.min_value
         forecast.percentage = 100 * (forecast.max_value / forecast.min_value - 1)
+        forecast.quantitative = (
+            forecast.percentage / forecast.interval
+        ) * 10000000
         if forecast.percentage > 0.0:
             return forecast
         else:
