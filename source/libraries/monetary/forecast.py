@@ -60,7 +60,6 @@ class Forecast:
             raise error
     
     def flush(self):
-        del self._period
         del self._historical
         del self._open_forecast
         del self._close_forecast
@@ -151,8 +150,6 @@ class Forecast:
             return None
         min = None
         max = None
-        min_date = None
-        max_date = None
         min_value = None
         max_value = None
         length = len(data)
@@ -163,35 +160,30 @@ class Forecast:
                     min = i - 2
                 else:
                     min = i
-                min_date = prophesy.date
                 min_value = prophesy.yhat
             if max_value is None or prophesy.yhat > max_value:
                 if (i + 2) >= length:
                     max = i
                 else:
                     max = i + 2
-                max_date = prophesy.date
                 max_value = prophesy.yhat
-        min_date = data[min].date
-        min_value = data[min].yhat
-        max_date = data[max].date
-        max_value = data[max].yhat
-        if min_date >= max_date:
+        end = data[max]
+        start = data[min]
+        forecast = ForecastEntity()
+        forecast.max_value = end.yhat
+        forecast.min_value = start.yhat
+        forecast.max_timeline = end.timeline
+        forecast.min_timeline = start.timeline
+        if start.timeline.timestamp() > end.timeline.timestamp():
             # evitar inversao
             return None
-        if min_value > max_value:
+        if forecast.min_value > forecast.max_value:
             # evitar prejuiso
             return None
-        forecast = ForecastEntity()
-        forecast.period = self._period
-        forecast.min_date = min_date
-        forecast.max_date = max_date
-        forecast.interval = int(max_date.timestamp() - min_date.timestamp())
-        forecast.historical = data[0].type
-        forecast.min_value = min_value
-        forecast.max_value = max_value
-        forecast.difference = max_value - min_value
-        forecast.percentage = 100 * (max_value / min_value - 1)
+        forecast.type = start.type
+        forecast.interval = int(forecast.max_timeline.timestamp() - forecast.min_timeline.timestamp())
+        forecast.difference = forecast.max_value - forecast.min_value
+        forecast.percentage = 100 * (forecast.max_value / forecast.min_value - 1)
         if forecast.percentage > 0.0:
             return forecast
         else:

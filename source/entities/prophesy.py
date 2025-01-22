@@ -1,6 +1,6 @@
-import datetime
 from .entity import Entity
-from .period import Period as PeriodEntity
+from .analyze import Analyze
+from .timeline import Timeline as TimelineEntity
 from ..models.prophesy import Prophesy as ProphesyModel
 from ..enumerators.historic import Historic as HistoricEnum
 
@@ -33,28 +33,20 @@ class Prophesy(Entity):
         self._model.type = value.value
 
     @property
-    def period(self) -> PeriodEntity:
-        return PeriodEntity(self._model.period)
-
-    @period.setter
-    def period(self, value: PeriodEntity):
-        self._model.period = value._model
-
-    @property
-    def increased(self) -> int:
-        return self._model.increased
-
-    @increased.setter
-    def increased(self, value: int):
-        self._model.increased = value
+    def analyze(self) -> Analyze:
+        return Analyze(self._model.analyze)
+    
+    @analyze.setter
+    def analyze(self, value: Analyze):
+        self._model.analyze = value._model
 
     @property
-    def date(self) -> datetime.datetime:
-        return datetime.datetime.fromtimestamp(self._model.date)
+    def timeline(self) -> TimelineEntity:
+        return TimelineEntity(self._model.timeline)
 
-    @date.setter
-    def date(self, value: datetime.datetime):
-        self._model.date = value.timestamp()
+    @timeline.setter
+    def timeline(self, value: TimelineEntity):
+        self._model.timeline = value._model
 
     @property
     def trend(self) -> float:

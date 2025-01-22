@@ -1,6 +1,6 @@
-import datetime
 from .entity import Entity
-from .analyze import Period as PeriodEntity
+from .analyze import Analyze
+from .timeline import Timeline
 from ..models.forecast import Forecast as ForecastModel
 from ..enumerators.historic import Historic as HistoricEnum
 
@@ -33,41 +33,32 @@ class Forecast(Entity):
         self._model.type = value.value
 
     @property
-    def period(self) -> PeriodEntity:
-        return PeriodEntity(self._model.period)
-
-    @period.setter
-    def period(self, value: PeriodEntity):
-        self._model.period = value._model
-
-    @property
-    def min_date(self) -> datetime.datetime:
-        if self._model.min_date is None:
-            return None
-        else:
-            return datetime.datetime.fromtimestamp(self._model.min_date)
-
-    @min_date.setter
-    def min_date(self, value: datetime.datetime):
-        self._model.min_date = value.timestamp()
+    def analyze(self) -> Analyze:
+        return Analyze(self._model.analyze)
+    
+    @analyze.setter
+    def analyze(self, value: Analyze):
+        self._model.analyze = value._model
 
     @property
-    def max_date(self) -> datetime.datetime:
-        if self._model.max_date is None:
-            return None
-        else:
-            return datetime.datetime.fromtimestamp(self._model.max_date)
+    def min_timeline(self) -> Timeline:
+        return Timeline(self._model.min_timeline)
 
-    @max_date.setter
-    def max_date(self, value: datetime.datetime):
-        self._model.max_date = value.timestamp()
+    @min_timeline.setter
+    def min_timeline(self, value: Timeline):
+        self._model.min_timeline = value._model
+
+    @property
+    def max_timeline(self) -> Timeline:
+        return Timeline(self._model.max_timeline)
+
+    @max_timeline.setter
+    def max_timeline(self, value: Timeline):
+        self._model.max_timeline = value._model
 
     @property
     def interval(self) -> int:
-        if self._model.interval is None:
-            return None
-        else:
-            return self._model.interval
+        return self._model.interval
 
     @interval.setter
     def interval(self, value: int):

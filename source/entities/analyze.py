@@ -1,8 +1,8 @@
 from .entity import Entity
+from ..entities.stock import Stock
+from ..entities.historic import Historic
 from ..models.analyze import Analyze as AnalyzeModel
-from ..entities.stock import Stock as StockEntity
 from ..enumerators.period import Period as PeriodEnum
-from ..entities.historic import Historic as HistoricEntity
 
 class Analyze(Entity):
 
@@ -26,7 +26,7 @@ class Analyze(Entity):
         return self._model.id
 
     @property
-    def period(self) -> StockEntity:
+    def period(self) -> Stock:
         return PeriodEnum(self._model.period)
 
     @period.setter
@@ -34,16 +34,16 @@ class Analyze(Entity):
         self._model.period = value.value
 
     @property
-    def historical(self) -> list[HistoricEntity]:
+    def historical(self) -> list[Historic]:
         if self._historical is None:
             entities = []
             for model in self._model.historical.all():
-                entities.append(StockEntity(model))
+                entities.append(Stock(model))
             return entities
         return self._historical
 
     @historical.setter
-    def historical(self, value: list[HistoricEntity]):
+    def historical(self, value: list[Historic]):
         self._historical = value
 
     def save(self):

@@ -1,159 +1,13 @@
 import gc
 import pandas
-from datetime import datetime
 from prophet import Prophet as Library
-from source.entities.period import Period as PeriodEntity
 from source.enumerators.period import Period as PeriodEnum
+from source.entities.analyze import Analyze as AnalyzeEntity
+from source.libraries.database.transaction import Transaction
 from source.entities.historic import Historic as HistoricEntity
 from source.entities.prophesy import Prophesy as ProphesyEntity
 from source.enumerators.historic import Historic as HistoricEnum
-from source.libraries.database.transaction import TransactionLib
-
-# class Result:
-
-#     @property
-#     def type(self) -> HistoricEnum:
-#         return HistoricEnum(self._type)
-
-#     @type.setter
-#     def type(self, value: HistoricEnum):
-#         self._type = value.value
-
-#     @property
-#     def increased(self) -> int:
-#         return self._increased
-
-#     @increased.setter
-#     def increased(self, value: int):
-#         self._increased = value
-
-#     @property
-#     def date(self) -> datetime:
-#         return datetime.fromtimestamp(self._date)
-
-#     @date.setter
-#     def date(self, value: datetime):
-#         self._date = value.timestamp()
-
-#     @property
-#     def trend(self) -> float:
-#         return self._trend
-
-#     @trend.setter
-#     def trend(self, value: float):
-#         self._trend = value
-
-#     @property
-#     def yhat_lower(self) -> float:
-#         return self._yhat_lower
-
-#     @yhat_lower.setter
-#     def yhat_lower(self, value: float):
-#         self._yhat_lower = value
-
-#     @property
-#     def yhat_upper(self) -> float:
-#         return self._yhat_upper
-
-#     @yhat_upper.setter
-#     def yhat_upper(self, value: float):
-#         self._yhat_upper = value
-
-#     @property
-#     def trend_lower(self) -> float:
-#         return self._trend_lower
-
-#     @trend_lower.setter
-#     def trend_lower(self, value: float):
-#         self._trend_lower = value
-
-#     @property
-#     def trend_upper(self) -> float:
-#         return self._trend_upper
-
-#     @trend_upper.setter
-#     def trend_upper(self, value: float):
-#         self._trend_upper = value
-
-#     @property
-#     def additive_terms(self) -> float:
-#         return self._additive_terms
-
-#     @additive_terms.setter
-#     def additive_terms(self, value: float):
-#         self._additive_terms = value
-
-#     @property
-#     def additive_terms_lower(self) -> float:
-#         return self._additive_terms_lower
-
-#     @additive_terms_lower.setter
-#     def additive_terms_lower(self, value: float):
-#         self._additive_terms_lower = value
-
-#     @property
-#     def additive_terms_upper(self) -> float:
-#         return self._additive_terms_upper
-
-#     @additive_terms_upper.setter
-#     def additive_terms_upper(self, value: float):
-#         self._additive_terms_upper = value
-
-#     @property
-#     def weekly(self) -> float:
-#         return self._weekly
-
-#     @weekly.setter
-#     def weekly(self, value: float):
-#         self._weekly = value
-
-#     @property
-#     def weekly_lower(self) -> float:
-#         return self._weekly_lower
-
-#     @weekly_lower.setter
-#     def weekly_lower(self, value: float):
-#         self._weekly_lower = value
-
-#     @property
-#     def weekly_upper(self) -> float:
-#         return self._weekly_upper
-
-#     @weekly_upper.setter
-#     def weekly_upper(self, value: float):
-#         self._weekly_upper = value
-
-#     @property
-#     def multiplicative_terms(self) -> float:
-#         return self._multiplicative_terms
-
-#     @multiplicative_terms.setter
-#     def multiplicative_terms(self, value: float):
-#         self._multiplicative_terms = value
-
-#     @property
-#     def multiplicative_terms_lower(self) -> float:
-#         return self._multiplicative_terms_lower
-
-#     @multiplicative_terms_lower.setter
-#     def multiplicative_terms_lower(self, value: float):
-#         self._multiplicative_terms_lower = value
-
-#     @property
-#     def multiplicative_terms_upper(self) -> float:
-#         return self._multiplicative_terms_upper
-
-#     @multiplicative_terms_upper.setter
-#     def multiplicative_terms_upper(self, value: float):
-#         self._multiplicative_terms_upper = value
-
-#     @property
-#     def yhat(self) -> float:
-#         return self._yhat
-
-#     @yhat.setter
-#     def yhat(self, value: float):
-#         self._yhat = value
+from source.services.monetary.timeline import Timeline as TimelineService
 
 # encapsulamento para manipular a biblioteca Prophet para prever valoes futuros de acoes de empresas
 class Prophet:
@@ -176,7 +30,8 @@ class Prophet:
                     self._is_open = True
                 elif result == HistoricEnum.CLOSE:
                     self._is_close = True
-        self._transaction = TransactionLib()
+        self._transaction = Transaction()
+        self._timeline_service = TimelineService()
         
     def set_historical(self, historical: list[HistoricEntity]):
         self._historical = historical
@@ -200,16 +55,17 @@ class Prophet:
             ])
         i = 0
         for historic in historical:
+            timeline = historic.timeline
             if self._is_open:
                 self._open_data.loc[i] = [
-                    historic.date,
+                    timeline.datetime,
                     historic.open,
                     historic.high,
                     historic.low,
                 ]
             if self._is_close:
                 self._close_data.loc[i] = [
-                    historic.date,
+                    timeline.datetime,
                     historic.close,
                     historic.high,
                     historic.low,
@@ -217,6 +73,9 @@ class Prophet:
             i += 1
         self._last = historical[i - 1]
         self._first = historical[0]
+        timeline = self._last.timeline
+        self._type = timeline.type
+        self._stock = timeline.stock
 
     def handle(self):
         if self._is_open:
@@ -267,7 +126,9 @@ class Prophet:
     
     def flush(self):
         del self._last
+        del self._type
         del self._first
+        del self._stock
         del self._future
         del self._prophet
         del self._open_data
@@ -293,43 +154,18 @@ class Prophet:
     def _persist(self, forecast) -> list[ProphesyEntity]:
         if forecast is None:
             return []
-        day = 0
-        end = self._last
+        end = self._last.timeline
         result = []
         for forecast in forecast.to_dict('records'):
-            if end.date.timestamp() > forecast['ds'].timestamp():
+            if end.datetime.timestamp() > forecast['ds'].timestamp():
+                continue
+            timeline = self._timeline_service.get_timeline(self._stock, self._type, forecast['ds'])
+            if timeline is None:
                 continue
             model = ProphesyEntity()
+            model.timeline = timeline
             for key, value in forecast.items():
-                if key == 'ds':
-                    key = 'date'
-                setattr(model, key, value)
-            if model.date > end.date:
-                day += 1
-                model.increased = day
-                result.append(model)
-        del day
-        del end
+                if key != 'ds':
+                    setattr(model, key, value)
+            result.append(model)
         return result
-    
-    # def _results(self, forecast) -> list[Result]:
-    #     if forecast is None:
-    #         return []
-    #     day = 0
-    #     end = self._last
-    #     results = []
-    #     for forecast in forecast.to_dict('records'):
-    #         if end.date.timestamp() > forecast['ds'].timestamp():
-    #             continue
-    #         result = Result()
-    #         for key, value in forecast.items():
-    #             if key == 'ds':
-    #                 key = 'date'
-    #             setattr(result, key, value)
-    #         if result.date > end.date:
-    #             day += 1
-    #             result.increased = day
-    #             results.append(result)
-    #     del day
-    #     del end
-    #     return results

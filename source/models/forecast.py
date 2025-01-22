@@ -6,13 +6,18 @@ class Forecast(models.Model):
     id = models.AutoField(primary_key=True)
     type = models.IntegerField(db_index=True)
     analyze = models.ForeignKey(Analyze, on_delete=models.CASCADE, db_index=True)
-    timeline = models.OneToOneField(
+    min_timeline = models.OneToOneField(
         Timeline,
         db_index=True,
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        related_name='min_timeline'
     )
-    min_date = models.IntegerField()
-    max_date = models.IntegerField()
+    max_timeline = models.OneToOneField(
+        Timeline,
+        db_index=True,
+        on_delete=models.CASCADE,
+        related_name='max_timeline'
+    )
     interval = models.IntegerField()
     min_value = models.DecimalField(max_digits=17, decimal_places=2)
     max_value = models.DecimalField(max_digits=17, decimal_places=2)
@@ -24,4 +29,4 @@ class Forecast(models.Model):
 
     class Meta:
         db_table = 'forecasts'
-        unique_together = ('type', 'analyze', 'timeline')
+        unique_together = ('type', 'analyze', 'min_timeline', 'max_timeline')

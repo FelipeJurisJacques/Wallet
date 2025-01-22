@@ -1,7 +1,6 @@
 import yfinance
 from django.conf import settings
 from source.libraries.log import Log
-from datetime import datetime, timedelta
 from source.enumerators.api import Api as ApiEnum
 from django.core.management.base import BaseCommand
 from source.services.stock import Stock as StockService

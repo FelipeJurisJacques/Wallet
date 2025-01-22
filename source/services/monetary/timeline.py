@@ -1,5 +1,6 @@
 import pytz
 from datetime import datetime, timedelta
+from source.libraries.database.fetch import Fetch
 from source.libraries.database.query import Query
 from source.entities.stock import Stock as StockEntity
 from source.enumerators.period import Period as PeriodEnum
@@ -15,6 +16,20 @@ class Timeline:
         while result.weekday() == 5 or result.weekday() == 6:
             result -= timedelta(days=1)
         return result.replace(hour=16, minute=0, second=0, microsecond=0)
+
+    def get_min_datetime(self, type: PeriodEnum) -> datetime:
+        fetch = Fetch()
+        query = Query()
+        query.limit(1)
+        query.select('datetime')
+        query.table('timelines')
+        query.order('datetime ASC')
+        query.where(f"type = {query.quote(type)}")
+        value = fetch.one(query)
+        if value is None:
+            return None
+        else:
+            return datetime.fromtimestamp(value)
 
     def get_timeline(self, stock: StockEntity, type: PeriodEnum, moment: datetime) -> TimelineEntity:
         if type == PeriodEnum.DAY:
