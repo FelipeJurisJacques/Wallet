@@ -2,7 +2,6 @@ import gc
 import pandas
 from prophet import Prophet as Library
 from source.enumerators.period import Period as PeriodEnum
-from source.libraries.database.transaction import Transaction
 from source.entities.historic import Historic as HistoricEntity
 from source.entities.prophesy import Prophesy as ProphesyEntity
 from source.enumerators.historic import Historic as HistoricEnum
@@ -29,7 +28,6 @@ class Prophet:
                     self._is_open = True
                 elif result == HistoricEnum.CLOSE:
                     self._is_close = True
-        self._transaction = Transaction()
         self._timeline_service = TimelineService()
         
     def set_historical(self, historical: list[HistoricEntity]):
@@ -94,34 +92,6 @@ class Prophet:
         for close in closes:
             close.type = HistoricEnum.CLOSE
         return opens, closes, []
-
-    def persist(self):
-        self._transaction.start()
-        try:
-            end = self._last
-            opens = self._persist(self._open_forecast)
-            closes = self._persist(self._close_forecast)
-            period = PeriodEntity()
-            period.period = self._period
-            period.historical = self._historical
-            period.save()
-            for open in opens:
-                open.type = HistoricEnum.OPEN
-                open.period = period
-                open.save()
-                del open
-            for close in closes:
-                close.type = HistoricEnum.CLOSE
-                close.period = period
-                close.save()
-                del close
-            self._transaction.commit()
-            del end
-            del opens
-            del closes
-        except Exception as error:
-            self._transaction.rollback()
-            raise error
     
     def flush(self):
         del self._last

@@ -2,7 +2,7 @@ from django.db import transaction
 
 class Transaction:
 
-    def start(self):
+    def begin(self):
         transaction.set_autocommit(False)
 
     def commit(self):

@@ -1,8 +1,6 @@
 from datetime import datetime
 from scipy.signal import find_peaks
-from source.libraries.database.transaction import Transaction
 from source.entities.forecast import Forecast as ForecastEntity
-from source.entities.historic import Historic as HistoricEntity
 from source.entities.prophesy import Prophesy as ProphesyEntity
 from source.enumerators.historic import Historic as HistoricEnum
 from source.services.monetary.analyze import Analyze as AnalyzeService
@@ -12,7 +10,6 @@ class Forecast:
 
     def __init__(self):
         self._service = AnalyzeService()
-        self._transaction = Transaction()
         
     def set_prophesies(
         self,
@@ -46,18 +43,6 @@ class Forecast:
         list[ForecastEntity], # VOLUME
     ]:
         return self._open_forecast, self._close_forecast, self._volume_forecast
-
-    def persist(self):
-        self._transaction.start()
-        try:
-            for prophesy in self._close_forecast:
-                prophesy.save()
-            for forecast in self._close_forecast:
-                forecast.save()
-            self._transaction.commit()
-        except Exception as error:
-            self._transaction.rollback()
-            raise error
     
     def flush(self):
         # del self._historical

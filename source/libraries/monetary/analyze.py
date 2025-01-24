@@ -1,11 +1,12 @@
 import logging
 from ..log import Log
+from .prophet import Prophet
 from datetime import datetime
 from .forecast import Forecast
-from .prophet import Prophet as ProphetLib
 from source.entities.stock import Stock as StockEntity
 from source.enumerators.period import Period as PeriodEnum
 from source.entities.analyze import Analyze as AnalyzeEntity
+from source.libraries.database.transaction import Transaction
 from source.enumerators.historic import Historic as HistoricEnum
 from source.services.monetary.historic import Historic as HistoricService
 
@@ -14,10 +15,11 @@ class Analyze:
     def __init__(self, output: Log):
         self._output = output
         self._historic_service = HistoricService()
-        self._prophet = ProphetLib([
+        self._prophet = Prophet([
             HistoricEnum.CLOSE,
         ], PeriodEnum.MONTH)
         self._forecast = Forecast()
+        self._transaction = Transaction()
 
     def set_stocks(
         self,
@@ -30,12 +32,16 @@ class Analyze:
         self._stocks = stocks
 
     def handle(self):
+        self._analyzes = []
         open_forecasts = []
         close_forecasts = []
         volume_forecasts = []
         self._open_forecasts = []
         self._close_forecasts = []
+        self._open_prophesies = []
+        self._close_prophesies = []
         self._volume_forecasts = []
+        self._volume_prophesies = []
 
         progress = 0
         length = len(self._stocks)
@@ -70,6 +76,19 @@ class Analyze:
             open_prophesies, close_prophesies, volume_prophesies = self._prophet.results()
             self._prophet.flush()
 
+            if len(open_prophesies) == 0 and len(close_prophesies) == 0:
+                continue
+            self._analyzes.append(analyze)
+            for prophesy in open_prophesies:
+                prophesy.analyze = analyze
+                self._open_prophesies.append(prophesy)
+            for prophesy in close_prophesies:
+                prophesy.analyze = analyze
+                self._close_prophesies.append(prophesy)
+            for prophesy in volume_prophesies:
+                prophesy.analyze = analyze
+                self._volume_prophesies.append(prophesy)
+
             self._forecast.set_prophesies(
                 open_prophesies,
                 close_prophesies,
@@ -88,7 +107,7 @@ class Analyze:
             for forecast in volume_forecast:
                 forecast.analyze = analyze
                 volume_forecasts.append(forecast)
-            
+
             progress += part
             self._output.inline(Log.percentage(progress))
         self._output.log(' COMPLETO')
@@ -113,9 +132,27 @@ class Analyze:
                 reverse=True
             )
 
-
     def persist(self):
-        pass
+        try:
+            self._transaction.begin()
+            for analyze in self._analyzes:
+                analyze.save()
+            for prophesy in self._open_prophesies:
+                prophesy.save()
+            for prophesy in self._close_prophesies:
+                prophesy.save()
+            for prophesy in self._volume_prophesies:
+                prophesy.save()
+            for forecast in self._open_forecasts:
+                forecast.save()
+            for forecast in self._close_forecasts:
+                forecast.save()
+            for forecast in self._volume_forecasts:
+                forecast.save()
+            self._transaction.commit()
+        except Exception as error:
+            self._transaction.rollback()
+            raise error
 
     def results(self) -> tuple[
         list[Forecast], # OPEN
@@ -128,6 +165,10 @@ class Analyze:
         del self._end
         del self._start
         del self._stocks
+        del self._analyzes
         del self._open_forecasts
         del self._close_forecasts
+        del self._open_prophesies
+        del self._close_prophesies
         del self._volume_forecasts
+        del self._volume_prophesies

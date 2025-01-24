@@ -37,11 +37,11 @@ class Simulation:
         self._analyze.set_stocks(stocks, start, end)
         self._analyze.handle()
         open_forecasts, close_forecasts, volume_forecasts = self._analyze.results()
-        # for forecast in close_forecasts:
-        #     print(forecast.percentage, forecast.difference, forecast.interval, forecast.quantitative)
         if len(close_forecasts) == 0:
             self._output.log('Sem opões de investimento')
             return
+        self._analyze.persist()
+        self._analyze.flush()
 
         for forecast in close_forecasts:
             self._output.log(forecast.analyze.stock.name + ' - ' + Log.date(
