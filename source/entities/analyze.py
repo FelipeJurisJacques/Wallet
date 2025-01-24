@@ -1,6 +1,6 @@
 from .entity import Entity
+from .timeline import Timeline
 from ..entities.stock import Stock
-from ..entities.historic import Historic
 from ..models.analyze import Analyze as AnalyzeModel
 from ..enumerators.period import Period as PeriodEnum
 
@@ -15,7 +15,7 @@ class Analyze(Entity):
             return None
 
     def __init__(self, model: AnalyzeModel = None):
-        self._historical = None
+        self._timelines = None
         if model is None:
             self._model = AnalyzeModel()
         else:
@@ -42,25 +42,25 @@ class Analyze(Entity):
         self._model.period = value.value
 
     @property
-    def historical(self) -> list[Historic]:
-        if self._historical is None:
+    def timelines(self) -> list[Timeline]:
+        if self._timelines is None:
             entities = []
-            for model in self._model.historical.all():
-                entities.append(Historic(model))
+            for model in self._model.timelines.all():
+                entities.append(Timeline(model))
             return entities
-        return self._historical
+        return self._timelines
 
-    @historical.setter
-    def historical(self, value: list[Historic]):
-        self._historical = value
+    @timelines.setter
+    def timelines(self, value: list[Timeline]):
+        self._timelines = value
 
     def save(self):
         super().save()
-        if self._historical is not None:
+        if self._timelines is not None:
             models = []
-            for entity in self._historical:
+            for entity in self._timelines:
                 models.append(entity._model)
-            if len(self._historical) == 0:
-                self._model.historical.clear()
+            if len(self._timelines) == 0:
+                self._model.timelines.clear()
             else:
-                self._model.historical.set(models)
+                self._model.timelines.set(models)

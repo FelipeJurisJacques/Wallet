@@ -21,5 +21,13 @@ class Log:
             return ''
         return "{:.2f}".format(value)
 
+    def percentage(value) -> str:
+        if value is None:
+            return ''
+        return "{:.2f}%".format(value)
+
     def log(self, message: str):
         self._log.write(message)
+
+    def inline(self, message: str):
+        self._log.write(f'\r{message}', ending='')

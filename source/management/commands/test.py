@@ -1,59 +1,14 @@
-from datetime import timedelta
 from source.libraries.log import Log
-from source.enumerators.api import Api as ApiEnum
 from django.core.management.base import BaseCommand
-from source.enumerators.week import Week as WeekEnum
-from source.entities.stock import Stock as StockEntity
-from source.services.stock import Stock as StockService
-from source.enumerators.period import Period as PeriodEnum
-from source.enumerators.historic import Historic as HistoricEnum
-from source.libraries.monetary.analyze import Analyze as AnalyzeLib
-from source.libraries.monetary.prophet import Prophet as ProphetLib
-from source.libraries.monetary.forecast import Forecast as ForecastLib
-from source.services.monetary.timeline import Timeline as TimelineService
-from source.services.monetary.historic import Historic as HistoricService
+from source.libraries.monetary.simulation import Simulation
 
 class Command(BaseCommand):
     help = 'Realiza teste do algoritmo'
     
     def handle(self, *args, **options):
-        days = 100
-        next_date = None
         output = Log(self.stdout, self.stderr)
-        forecast = ForecastLib()
-        timeline_service = TimelineService()
-        historic_service = HistoricService()
-
-        # obtem empresas
-        stocks = StockEntity.all()
-        if len(stocks) == 0:
-            output.log('Nenhuma empresa cadastrada')
-            return
-
-        # obtem data de inicio
-        start = timeline_service.get_min_datetime(PeriodEnum.DAY)
-        if start is None:
-            output.log('Nenhuma data de inicio')
-            return
-        end = start + timedelta(days=30)
-        output.log('Análisando ações de ' + Log.date(start) + ' até ' + Log.date(end))
-
-        # analisa acoes das empresas
-        analyze = AnalyzeLib()
-        analyze.set_stocks(stocks, start, end)
-        analyze.handle()
-        open_forecasts, close_forecasts, volume_forecasts = analyze.results()
-        # for forecast in close_forecasts:
-        #     print(forecast.percentage, forecast.difference, forecast.interval, forecast.quantitative)
-        if len(close_forecasts) == 0:
-            output.log('Sem opões de investimento')
-            return
-        forecast = close_forecasts[0]
-        historical = historic_service.get_historical(
-            forecast.analyze.stock,
-            forecast.min_timeline.datetime,
-            forecast.max_timeline.datetime
-        )
+        self._simulation = Simulation(output, 1000)
+        self._simulation.handle()
 
         # stock_service = StockService()
         # analyze_service = AnalyzeService()

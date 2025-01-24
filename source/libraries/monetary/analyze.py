@@ -1,15 +1,18 @@
 import logging
+from ..log import Log
 from datetime import datetime
 from .forecast import Forecast
 from .prophet import Prophet as ProphetLib
 from source.entities.stock import Stock as StockEntity
 from source.enumerators.period import Period as PeriodEnum
+from source.entities.analyze import Analyze as AnalyzeEntity
 from source.enumerators.historic import Historic as HistoricEnum
 from source.services.monetary.historic import Historic as HistoricService
 
 class Analyze:
 
-    def __init__(self):
+    def __init__(self, output: Log):
+        self._output = output
         self._historic_service = HistoricService()
         self._prophet = ProphetLib([
             HistoricEnum.CLOSE,
@@ -34,6 +37,11 @@ class Analyze:
         self._close_forecasts = []
         self._volume_forecasts = []
 
+        progress = 0
+        length = len(self._stocks)
+        part = 100 / length
+        self._output.log(f'Analisando {length} ações...')
+
         for stock in self._stocks:
             historical = self._historic_service.get_historical(
                 stock,
@@ -42,6 +50,14 @@ class Analyze:
             )
             if len(historical) == 0:
                 continue
+
+            timelines = []
+            for historic in historical:
+                timelines.append(historic.timeline)
+            analyze = AnalyzeEntity()
+            analyze.stock = stock
+            analyze.timelines = timelines
+            analyze.period = PeriodEnum.MONTH
 
             # suprimir logs durante a execussao do profeta
             logging.getLogger('cmdstanpy').setLevel(logging.WARNING)
@@ -64,14 +80,18 @@ class Analyze:
             open_forecast, close_forecast, volume_forecast = self._forecast.results()
             self._forecast.flush()
             for forecast in open_forecast:
-                forecast.stock = stock
+                forecast.analyze = analyze
                 open_forecasts.append(forecast)
             for forecast in close_forecast:
-                forecast.stock = stock
+                forecast.analyze = analyze
                 close_forecasts.append(forecast)
             for forecast in volume_forecast:
-                forecast.stock = stock
+                forecast.analyze = analyze
                 volume_forecasts.append(forecast)
+            
+            progress += part
+            self._output.inline(Log.percentage(progress))
+        self._output.log(' COMPLETO')
 
         # reordena os resultados por prioridade
         if len(open_forecasts) > 0:
