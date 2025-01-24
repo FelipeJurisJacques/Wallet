@@ -16,8 +16,8 @@ class Historic:
         query.table('timelines')
         query.select('timelines.datetime')
         query.order('timelines.datetime DESC')
-        query.where(f"timelines.type = {query.quote(type)}")
-        query.where(f"timelines.stock_id = {query.quote(stock.id)}")
+        query.where(f"timelines.type = {Query.quote(type)}")
+        query.where(f"timelines.stock_id = {Query.quote(stock.id)}")
         query.inner('historical', 'historical.timeline_id = timelines.id')
         value = fetch.one(query)
         if value is not None:
@@ -37,8 +37,8 @@ class Historic:
         query.select()
         query.table('historical')
         query.order('timelines.datetime ASC')
-        query.where(f"timelines.stock_id = {query.quote(stock.id)}")
-        query.where(f"timelines.type = {query.quote(PeriodEnum.DAY)}")
+        query.where(f"timelines.stock_id = {Query.quote(stock.id)}")
+        query.where(f"timelines.type = {Query.quote(PeriodEnum.DAY)}")
         query.inner('timelines', 'timelines.id = historical.timeline_id')
         models = HistoricModel.objects.raw(query.assemble())
         entities = []

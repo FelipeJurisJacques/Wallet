@@ -12,7 +12,7 @@ class PeriodService:
         query.order('historical.date DESC')
         query.inner('periods_historical', 'periods_historical.periodmodel_id = periods.id')
         query.inner('historical', 'historical.id = periods_historical.historicmodel_id')
-        query.where(f"historical.stock_id = {query.quote(stock.id)}")
+        query.where(f"historical.stock_id = {Query.quote(stock.id)}")
         list = []
         for model in PeriodModel.objects.raw(query.assemble()):
             list.append(PeriodEntity(model))

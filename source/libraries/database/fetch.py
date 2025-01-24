@@ -4,15 +4,20 @@ from django.db import connection
 class Fetch:
 
     def all(self, query: Query) -> list[dict]:
-        with connection.cursor() as cursor:
-            cursor.execute(query.assemble())
-            names = [desc[0] for desc in cursor.description]
-            rows = cursor.fetchall()
-            results = []
-            for row in rows:
-                results.append(dict(zip(names, row)))
-            return results
-        return []
+        sql = query.assemble()
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(sql)
+                names = [desc[0] for desc in cursor.description]
+                rows = cursor.fetchall()
+                results = []
+                for row in rows:
+                    results.append(dict(zip(names, row)))
+                return results
+            return []
+        except Exception as error:
+            message = f'Error executing query: {sql} - {error}'
+            raise Exception(message)
 
     def row(self, query: Query) -> dict:
         results = self.all(query)
@@ -21,13 +26,23 @@ class Fetch:
         return None
 
     def one(self, query: Query):
-        with connection.cursor() as cursor:
-            cursor.execute(query.assemble())
-            rows = cursor.fetchall()
-            for row in rows:
-                return row[0]
-        return None
+        sql = query.assemble()
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(sql)
+                rows = cursor.fetchall()
+                for row in rows:
+                    return row[0]
+            return None
+        except Exception as error:
+            message = f'Error executing query: {sql} - {error}'
+            raise Exception(message)
     
     def execute(self, query: Query):
-        with connection.cursor() as cursor:
-            cursor.execute(query.assemble())
+        sql = query.assemble()
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(sql)
+        except Exception as error:
+            message = f'Error executing query: {sql} - {error}'
+            raise Exception(message)

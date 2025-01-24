@@ -12,8 +12,8 @@ class Historic:
         query.select('historical.*')
         query.order('timelines.datetime')
         query.where(f'timelines.stock_id = {stock.id}')
-        query.where(f'timelines.datetime <= {query.quote(end)}')
-        query.where(f'timelines.datetime >= {query.quote(start)}')
+        query.where(f'timelines.datetime <= {Query.quote(end)}')
+        query.where(f'timelines.datetime >= {Query.quote(start)}')
         query.inner('timelines', 'timelines.id = historical.timeline_id')
         models = HistoricModel.objects.raw(query.assemble())
         entities = []

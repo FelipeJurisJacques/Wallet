@@ -4,6 +4,10 @@ from datetime import date, time, datetime
 
 class Serializer:
 
+    def encode(value) -> str:
+        instance = Serializer(value)
+        return instance.data
+
     def __init__(self, input = None):
         self._input = input
         self._output = self.handle()

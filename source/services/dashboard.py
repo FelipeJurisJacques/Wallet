@@ -15,10 +15,10 @@ class DashboardService:
             'date',
             'close',
         ])
-        query.where(f"stock_id = {query.quote(stock)}")
-        query.where(f"type = {query.quote(PeriodEnum.DAY)}")
-        query.where(f"date <= {query.quote(end_date.timestamp())}")
-        query.where(f"date >= {query.quote(start_date.timestamp())}")
+        query.where(f"stock_id = {Query.quote(stock)}")
+        query.where(f"type = {Query.quote(PeriodEnum.DAY)}")
+        query.where(f"date <= {Query.quote(end_date.timestamp())}")
+        query.where(f"date >= {Query.quote(start_date.timestamp())}")
         rows = fetch.all(query)
         if len(rows) == 0:
             return []
@@ -39,8 +39,8 @@ class DashboardService:
             'date',
             'yhat',
         ])
-        query.where(f"period_id = {query.quote(period)}")
-        query.where(f"type = {query.quote(HistoricEnum.CLOSE)}")
+        query.where(f"period_id = {Query.quote(period)}")
+        query.where(f"type = {Query.quote(HistoricEnum.CLOSE)}")
         rows = fetch.all(query)
         if len(rows) == 0:
             return []
@@ -68,7 +68,7 @@ class DashboardService:
         query.inner('periods_historical', 'periods_historical.periodmodel_id = periods.id')
         query.inner('historical', 'historical.id = periods_historical.historicmodel_id')
         query.left('prophesied', 'prophesied.period_id = periods.id')
-        query.where(f"historical.stock_id = {query.quote(stock)}")
+        query.where(f"historical.stock_id = {Query.quote(stock)}")
         rows = fetch.all(query)
         results = []
         for row in rows:

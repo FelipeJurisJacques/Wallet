@@ -3,6 +3,53 @@ from datetime import datetime, date, time
 
 class Query:
 
+    def operator_or(wheres: list[str]) -> str:
+        if len(wheres) == 0:
+            raise Exception('unknown where expression')
+        if len(wheres) == 1:
+            return wheres[0]
+        separator = ' OR '
+        result = separator.join(wheres)
+        return f'({result})'
+
+    def operator_and(wheres: list[str]) -> str:
+        if len(wheres) == 0:
+            raise Exception('unknown where expression')
+        if len(wheres) == 1:
+            return wheres[0]
+        separator = ' AND '
+        result = separator.join(wheres)
+        return f'({result})'
+
+    def quote(value) -> str:
+        if value is None:
+            return 'NULL'
+        if isinstance(value, str):
+            return f"'{value}'"
+        if isinstance(value, int):
+            return f"{value}"
+        if isinstance(value, bool):
+            if value:
+                return '1'
+            else:
+                return '0'
+        if isinstance(value, float):
+            return f"{value}"
+        if isinstance(value, Enum):
+            return Query.quote(value.value)
+        if isinstance(value, date):
+            return Query.quote(value.timestamp())
+        if isinstance(value, time):
+            return Query.quote(value.timestamp())
+        if isinstance(value, datetime):
+            return Query.quote(value.timestamp())
+        if isinstance(value, list):
+            result = []
+            for v in value:
+                result.append(Query.quote(v))
+            return ', '.join(result)
+        return 'NULL'
+
     def __init__(self):
         self._from = ''
         self._group = ''
@@ -61,41 +108,6 @@ class Query:
             self._group = groups
         if isinstance(groups, list):
             self._group = ', '.join(groups)
-
-    def quote(self, value) -> str:
-        if value is None:
-            return 'NULL'
-        if isinstance(value, str):
-            return f"'{value}'"
-        if isinstance(value, int):
-            return f"{value}"
-        if isinstance(value, bool):
-            if value:
-                return '1'
-            else:
-                return '0'
-        if isinstance(value, float):
-            return f"{value}"
-        if isinstance(value, Enum):
-            return self.quote(value.value)
-        if isinstance(value, date):
-            return self.quote(value.timestamp())
-        if isinstance(value, time):
-            return self.quote(value.timestamp())
-        if isinstance(value, datetime):
-            return self.quote(value.timestamp())
-        if isinstance(value, list):
-            result = []
-            for v in value:
-                result.append(self.quote(v))
-            return ', '.join(result)
-        return 'NULL'
-
-    def operator_or(self, wheres: list[str]) -> str:
-        return '(' + ' OR '.join(wheres) + ')'
-
-    def operator_and(self, wheres: list[str]) -> str:
-        return '(' + ' AND '.join(wheres) + ')'
 
     def assemble(self) -> str:
         if self._from == '':

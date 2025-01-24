@@ -29,7 +29,7 @@ class Analyze:
             query.inner('historical', 'historical.id = periods_historical.historicmodel_id')
             query.where(f'historical.stock_id = {stock.id}')
         if start is not None:
-            query.where(f'prophesied.date > {query.quote(start)}')
+            query.where(f'prophesied.date > {Query.quote(start)}')
         list = []
         models = AnalyzeModel.objects.raw(query.assemble())
         for model in models:

@@ -37,8 +37,8 @@ class ProphesyService:
         query.order('historical.date DESC')
         query.inner('periods_historical', 'periods_historical.periodmodel_id = periods.id')
         query.inner('historical', 'historical.id = periods_historical.historicmodel_id')
-        query.where(f"periods.period = {query.quote(period)}")
-        query.where(f"historical.stock_id = {query.quote(stock.id)}")
+        query.where(f"periods.period = {Query.quote(period)}")
+        query.where(f"historical.stock_id = {Query.quote(stock.id)}")
         result = PeriodModel.objects.raw(query.assemble)
         if result.exists():
             return PeriodEntity(result[0])
@@ -69,9 +69,9 @@ class ProphesyService:
         query.order('historical.date DESC')
         query.inner('periods_historical', 'periods_historical.periodmodel_id = periods.id')
         query.inner('historical', 'historical.id = periods_historical.historicmodel_id')
-        query.where(f"periods.period = {query.quote(period)}")
-        query.where(f"historical.type = {query.quote(historic)}")
-        query.where(f"historical.stock_id = {query.quote(stock.id)}")
+        query.where(f"periods.period = {Query.quote(period)}")
+        query.where(f"historical.type = {Query.quote(historic)}")
+        query.where(f"historical.stock_id = {Query.quote(stock.id)}")
         timestamp = fetch.one(query)
         if timestamp is None:
             return None
@@ -85,8 +85,8 @@ class ProphesyService:
         query.select('date')
         query.order('date DESC')
         query.table('historical')
-        query.where(f"type = {query.quote(historic)}")
-        query.where(f"stock_id = {query.quote(stock.id)}")
+        query.where(f"type = {Query.quote(historic)}")
+        query.where(f"stock_id = {Query.quote(stock.id)}")
         timestamp = fetch.one(query)
         if timestamp:
             return datetime.fromtimestamp(timestamp)
@@ -100,8 +100,8 @@ class ProphesyService:
         query.select('date')
         query.order('date ASC')
         query.table('historical')
-        query.where(f"type = {query.quote(historic)}")
-        query.where(f"stock_id = {query.quote(stock.id)}")
+        query.where(f"type = {Query.quote(historic)}")
+        query.where(f"stock_id = {Query.quote(stock.id)}")
         timestamp = fetch.one(query)
         if timestamp is None:
             return None
@@ -113,9 +113,9 @@ class ProphesyService:
         query.limit(1)
         query.select('date')
         query.table('historical')
-        query.where(f"date >= {query.quote(max.timestamp())}")
-        query.where(f"type = {query.quote(historic)}")
-        query.where(f"stock_id = {query.quote(stock.id)}")
+        query.where(f"date >= {Query.quote(max.timestamp())}")
+        query.where(f"type = {Query.quote(historic)}")
+        query.where(f"stock_id = {Query.quote(stock.id)}")
         fetch = FetchLib()
         timestamp = fetch.one(query)
         if timestamp is None:
@@ -126,10 +126,10 @@ class ProphesyService:
             query.select()
             query.order('date ASC')
             query.table('historical')
-            query.where(f"date >= {query.quote(min.timestamp())}")
-            query.where(f"date <= {query.quote(max.timestamp())}")
-            query.where(f"type = {query.quote(historic)}")
-            query.where(f"stock_id = {query.quote(stock.id)}")
+            query.where(f"date >= {Query.quote(min.timestamp())}")
+            query.where(f"date <= {Query.quote(max.timestamp())}")
+            query.where(f"type = {Query.quote(historic)}")
+            query.where(f"stock_id = {Query.quote(stock.id)}")
             for model in HistoricModel.objects.raw(query.assemble()):
                 list.append(HistoricEntity(model))
             return list

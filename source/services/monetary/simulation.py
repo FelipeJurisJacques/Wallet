@@ -15,7 +15,7 @@ class Simulation:
         query.select('date')
         query.order('date ASC')
         query.table('historical')
-        query.where(f"type = {query.quote(PeriodEnum.DAY)}")
+        query.where(f"type = {Query.quote(PeriodEnum.DAY)}")
         value = fetch.one(query)
         if value is None:
             return None
@@ -27,10 +27,10 @@ class Simulation:
         query.select()
         query.order('date ASC')
         query.table('historical')
-        query.where(f"date <= {query.quote(end)}")
-        query.where(f"date >= {query.quote(start)}")
-        query.where(f"stock_id = {query.quote(stock.id)}")
-        query.where(f"type = {query.quote(PeriodEnum.DAY)}")
+        query.where(f"date <= {Query.quote(end)}")
+        query.where(f"date >= {Query.quote(start)}")
+        query.where(f"stock_id = {Query.quote(stock.id)}")
+        query.where(f"type = {Query.quote(PeriodEnum.DAY)}")
         entities = []
         for model in HistoricModel.objects.raw(query.assemble()):
             entities.append(HistoricEntity(model))

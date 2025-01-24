@@ -17,7 +17,7 @@ class StrategyService:
     def get_forecasts(self, start: datetime = None, limit: int = None) -> list[ForecastEntity]:
         query = self._query_forecasts()
         if start is not None:
-            query.where(f'min_date > {query.quote(start)}')
+            query.where(f'min_date > {Query.quote(start)}')
         if limit is not None:
             query.limit(limit)
         result = []
@@ -30,7 +30,7 @@ class StrategyService:
         query.where('corrected_difference IS NOT NULL')
         query.where('corrected_percentage IS NOT NULL')
         if start is not None:
-            query.where(f'min_date > {query.quote(start)}')
+            query.where(f'min_date > {Query.quote(start)}')
         if limit is not None:
             query.limit(limit)
         result = []

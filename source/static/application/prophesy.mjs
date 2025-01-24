@@ -47,35 +47,17 @@ function is_equal_date(date1, date2) {
     return comparator >= start && comparator <= end
 }
 
-function get_data(period) {
+function get_data(analyze) {
     return new Promise(async (resolve, reject) => {
+        const response = await fetch(`/api/timeline/?AnalyzeId=${analyze}`)
+        const json = await response.json()
         const result = []
-        const prophesied = await get_prophesied(period)
-        const historical = await get_historical(prophesied)
-        for (let historic of historical) {
-            let date = new Date(historic.date)
+        for (let item of json.timeline) {
+            let date = new Date(item.at)
             result[result.length] = {
                 date: date,
-                historic_close: historic.close,
-                prophesy_close: 0.0,
-            }
-        }
-        for (let prophesy of prophesied) {
-            let date = new Date(prophesy.date)
-            let contains = false
-            for (let item of result) {
-                if (is_equal_date(item.date, date)) {
-                    item.prophesy_close = prophesy.close
-                    contains = true
-                    break
-                }
-            }
-            if (!contains && date.getTime() > result[result.length - 1].date.getTime()) {
-                result[result.length] = {
-                    date: date,
-                    historic_close: 0.0,
-                    prophesy_close: prophesy.close,
-                }
+                historic_close: item.historic_close,
+                prophesy_close: item.prophesy_close,
             }
         }
         resolve(result)
@@ -145,15 +127,15 @@ function set_period(period) {
 }
 
 const stock = location.search.split('=')[1]
-fetch(`/api/dashboard/periods/${stock}/`).then(async response => {
+fetch(`/api/analyzes/${stock}/`).then(async response => {
     const json = await response.json()
     const periods = document.body.querySelector('select#periods')
     let id = null
-    for (let item of json) {
+    for (let item of json.analyzes) {
         if (!id) {
             id = item.id
         }
-        let date = new Date(item.max_prophesied_date)
+        let date = new Date(item.prophesied_start_at)
         let element = document.createElement('option')
         element.value = item.id
         element.innerHTML = `${item.period} - ${date.getDay()}/${date.getMonth() + 1}/${date.getFullYear()}`

@@ -24,7 +24,7 @@ class Timeline:
         query.select('datetime')
         query.table('timelines')
         query.order('datetime ASC')
-        query.where(f"type = {query.quote(type)}")
+        query.where(f"type = {Query.quote(type)}")
         value = fetch.one(query)
         if value is None:
             return None
@@ -46,9 +46,9 @@ class Timeline:
         query.select()
         query.table('timelines')
         query.order('datetime ASC')
-        query.where(f"datetime = {query.quote(at)}")
-        query.where(f"stock_id = {query.quote(stock.id)}")
-        query.where(f"type = {query.quote(PeriodEnum.DAY)}")
+        query.where(f"datetime = {Query.quote(at)}")
+        query.where(f"stock_id = {Query.quote(stock.id)}")
+        query.where(f"type = {Query.quote(PeriodEnum.DAY)}")
         for model in TimelineModel.objects.raw(query.assemble()):
             return TimelineEntity(model)
         if at.weekday() == 5 and at.weekday() == 6:
