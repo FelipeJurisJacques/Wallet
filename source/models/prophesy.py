@@ -6,7 +6,7 @@ class Prophesy(models.Model):
     id = models.AutoField(primary_key=True)
     type = models.IntegerField(db_index=True)
     analyze = models.ForeignKey(Analyze, on_delete=models.CASCADE, db_index=True)
-    timeline = models.OneToOneField(
+    timeline = models.ForeignKey(
         Timeline,
         db_index=True,
         on_delete=models.CASCADE

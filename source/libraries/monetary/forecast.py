@@ -59,10 +59,9 @@ class Forecast:
         return result
 
     def _generate_forecast(self, data: list[ProphesyEntity]) -> ForecastEntity:
-        if len(data) < 3:
-            # avaliar periodo superior de 2 dias
+        if len(data) < 2:
             return None
-        last = data[-2]
+        last = data[-1]
         first = data[0]
         if last.timeline is None:
             raise ValueError('timeline is None')

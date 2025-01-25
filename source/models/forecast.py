@@ -6,13 +6,13 @@ class Forecast(models.Model):
     id = models.AutoField(primary_key=True)
     type = models.IntegerField(db_index=True)
     analyze = models.ForeignKey(Analyze, on_delete=models.CASCADE, db_index=True)
-    min_timeline = models.OneToOneField(
+    min_timeline = models.ForeignKey(
         Timeline,
         db_index=True,
         on_delete=models.CASCADE,
         related_name='min_timeline'
     )
-    max_timeline = models.OneToOneField(
+    max_timeline = models.ForeignKey(
         Timeline,
         db_index=True,
         on_delete=models.CASCADE,
