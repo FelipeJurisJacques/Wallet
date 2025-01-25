@@ -29,4 +29,3 @@ class Forecast(models.Model):
 
     class Meta:
         db_table = 'forecasts'
-        unique_together = ('type', 'analyze', 'min_timeline', 'max_timeline')

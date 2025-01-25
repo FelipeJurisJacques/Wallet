@@ -24,6 +24,7 @@ class Simulation:
         if len(stocks) == 0:
             self._output.log('Nenhuma empresa cadastrada')
             return
+        stocks = stocks[:1]
 
         # obtem data de inicio e fim
         start = self._timeline_service.get_min_datetime(PeriodEnum.DAY)
@@ -43,6 +44,7 @@ class Simulation:
         self._analyze.persist()
         self._analyze.flush()
 
+        self._output.log('Opções de investimento')
         for forecast in close_forecasts:
             self._output.log(forecast.analyze.stock.name + ' - ' + Log.date(
                     forecast.min_timeline.datetime
@@ -53,7 +55,7 @@ class Simulation:
                 )
             )
 
-        # aplica simulacao
+        self._output.log('Iniciando simulação')
         forecast = close_forecasts[0]
         stock = forecast.analyze.stock
         historical = self._historic_service.get_historical(

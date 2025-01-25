@@ -31,5 +31,4 @@ class Prophesy(models.Model):
 
     class Meta:
         db_table = 'prophesied'
-        unique_together = ('type', 'analyze', 'timeline')
 
