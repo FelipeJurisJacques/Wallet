@@ -59,7 +59,7 @@ class Forecast:
         return result
 
     def _generate_forecast(self, data: list[ProphesyEntity]) -> ForecastEntity:
-        if len(data) < 2:
+        if len(data) < 4:
             return None
         last = data[-1]
         first = data[0]

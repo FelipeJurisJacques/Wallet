@@ -24,7 +24,7 @@ class Simulation:
         if len(stocks) == 0:
             self._output.log('Nenhuma empresa cadastrada')
             return
-        stocks = stocks[:1]
+        stocks = stocks[:10]
 
         # obtem data de inicio e fim
         start = self._timeline_service.get_min_datetime(PeriodEnum.DAY)
