@@ -12,8 +12,8 @@ class Simulation:
     def __init__(self, log: Log, money: float):
         self._decay = 3
         self._output = log
+        self._money = money
         self._analyze = Analyze(log)
-        self._wallet = Wallet(money)
         self._timeline_service = TimelineService()
         self._historic_service = HistoricService()
 
@@ -24,7 +24,7 @@ class Simulation:
         if len(stocks) == 0:
             self._output.log('Nenhuma empresa cadastrada')
             return
-        stocks = stocks[:10]
+        # stocks = stocks[:10]
 
         # obtem data de inicio e fim
         start = self._timeline_service.get_min_datetime(PeriodEnum.DAY)
@@ -55,29 +55,40 @@ class Simulation:
                 )
             )
 
+        fails = 0
+        success = 0
+        total = len(close_forecasts)
         self._output.log('Iniciando simulação')
-        forecast = close_forecasts[0]
-        stock = forecast.analyze.stock
-        historical = self._historic_service.get_historical(
-            forecast.analyze.stock,
-            forecast.min_timeline.datetime,
-            forecast.max_timeline.datetime
-        )
-        if len(historical) == 0:
-            self._output.log('Fim da simulação')
-            return
-        for i in range(0, len(historical)):
-            historic = historical[i]
-            timeline = historic.timeline
-            log = stock.name + '(' + Log.date(timeline.datetime) + '): ' + Log.money(historic.close)
-            if i == 0:
-                self._wallet.buy(historic.close)
-                self._output.log(log + ' / 0.00%')
-            elif i == len(historical) - 1:
-                percentage = self._wallet.sell(historic.close)
-                self._output.log(log + ' / ' + Log.percentage(percentage))
-            else:
-                self._output.log(log + ' / ' + Log.percentage(self._wallet.validate_percentage(historic.close)))
+        for forecast in close_forecasts:
+            self._wallet = Wallet(self._money)
+            stock = forecast.analyze.stock
+            historical = self._historic_service.get_historical(
+                forecast.analyze.stock,
+                forecast.min_timeline.datetime,
+                forecast.max_timeline.datetime
+            )
+            if len(historical) == 0:
+                self._output.log('Fim da simulação')
+                return
+            self._output.log('Simulando ' + stock.name)
+            for i in range(0, len(historical)):
+                historic = historical[i]
+                timeline = historic.timeline
+                log = Log.date(timeline.datetime) + ': ' + Log.money(historic.close)
+                if i == 0:
+                    self._wallet.buy(historic.close)
+                    self._output.log(log + ' / 0.00%')
+                elif i == len(historical) - 1:
+                    percentage = self._wallet.sell(historic.close)
+                    self._output.log(log + ' / ' + Log.percentage(percentage))
+                    if percentage > 0:
+                        success += 1
+                    else:
+                        fails += 1
+                else:
+                    self._output.log(log + ' / ' + Log.percentage(self._wallet.validate_percentage(historic.close)))
+        percentage = (success / total) * 100
+        self._output.log(f'Sucesso: {success} / Falhas: {fails} / Total: {total} / Porcentagem: {Log.percentage(percentage)}')
         return
 
 

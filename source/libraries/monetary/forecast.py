@@ -51,11 +51,18 @@ class Forecast:
         if len(data) == 0:
             return []
         result = []
+        # realiza previsoes
         peaks = self._get_peaks(data, 1)
         for peak in peaks:
             forecast = self._generate_forecast(peak)
             if forecast is not None:
                 result.append(forecast)
+        # qualifica previsoes
+        start = data[0].timeline.datetime.timestamp()
+        for forecast in result:
+            end = forecast.max_timeline.datetime.timestamp()
+            interval = int(end - start)
+            forecast.quantitative = (forecast.percentage / interval) * 1000000000
         return result
 
     def _generate_forecast(self, data: list[ProphesyEntity]) -> ForecastEntity:
@@ -84,9 +91,6 @@ class Forecast:
         )
         forecast.difference = forecast.max_value - forecast.min_value
         forecast.percentage = 100 * (forecast.max_value / forecast.min_value - 1)
-        forecast.quantitative = (
-            forecast.percentage / forecast.interval
-        ) * 10000000
         if forecast.percentage > 0.0:
             return forecast
         else:
@@ -101,6 +105,10 @@ class Forecast:
         for prophesy in data:
             values.append(prophesy.yhat * multiply)
         peaks, _ = find_peaks(values)
+        if len(peaks) == 0:
+            return [
+                self._trim(data),
+            ]
 
         # organiza indices em grupos
         group = []
