@@ -62,7 +62,7 @@ class Forecast:
         for forecast in result:
             end = forecast.max_timeline.datetime.timestamp()
             interval = int(end - start)
-            forecast.quantitative = (forecast.percentage / interval) * 1000000000
+            forecast.quantitative = (forecast.quantitative / interval) * 1000000000
         return result
 
     def _generate_forecast(self, data: list[ProphesyEntity]) -> ForecastEntity:
@@ -74,6 +74,8 @@ class Forecast:
             raise ValueError('timeline is None')
         if first.timeline is None:
             raise ValueError('timeline is None')
+        if first.yhat > last.yhat:
+            return None
         forecast = ForecastEntity()
         forecast.max_value = last.yhat
         forecast.min_value = first.yhat
@@ -82,15 +84,13 @@ class Forecast:
         if forecast.min_timeline.datetime.timestamp() > forecast.max_timeline.datetime.timestamp():
             # evitar inversao
             return None
-        if forecast.min_value > forecast.max_value:
-            # evitar prejuiso
-            return None
         forecast.type = first.type
         forecast.interval = int(
             forecast.max_timeline.datetime.timestamp() - forecast.min_timeline.datetime.timestamp()
         )
         forecast.difference = forecast.max_value - forecast.min_value
         forecast.percentage = 100 * (forecast.max_value / forecast.min_value - 1)
+        forecast.quantitative = 100 * (last.yhat_lower / first.yhat_upper - 1)
         if forecast.percentage > 0.0:
             return forecast
         else:
