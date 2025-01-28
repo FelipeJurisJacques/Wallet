@@ -36,13 +36,14 @@ class Timeline:
             return self._get_timeline_day(stock, moment)
         raise Exception('Period not implemented')
 
+    def is_working(self, moment: datetime) -> bool:
+        return moment.weekday() != 5 and moment.weekday() != 6
+
     # momento fixado com 16 horas para tipo diario
     def _get_timeline_day(self, stock: StockEntity, moment: datetime) -> TimelineEntity:
         at = datetime.now(pytz.timezone(stock.timezone))
         at = at.replace(hour=16, minute=0, second=0, microsecond=0)
         at = at.replace(year=moment.year, month=moment.month, day=moment.day)
-        if at.weekday() == 5 or at.weekday() == 6:
-            return None
         query = Query()
         query.limit(1)
         query.select()
@@ -56,6 +57,7 @@ class Timeline:
         entity = TimelineEntity()
         entity.type = PeriodEnum.DAY
         entity.stock = stock
+        entity.working = self.is_working(at)
         entity.datetime = at
         entity.save()
         return entity

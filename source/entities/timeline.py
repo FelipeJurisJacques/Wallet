@@ -40,6 +40,17 @@ class Timeline:
         self._model.type = value.value
 
     @property
+    def working(self) -> bool:
+        return self._model.working == 1
+
+    @working.setter
+    def working(self, value: bool):
+        if value:
+            self._model.working = 1
+        else:
+            self._model.working = 0
+
+    @property
     def datetime(self) -> datetime:
         return datetime.fromtimestamp(self._model.datetime)
 

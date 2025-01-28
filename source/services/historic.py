@@ -23,7 +23,7 @@ class Historic:
         if value is not None:
             return datetime.fromtimestamp(value)
         else:
-            return datetime.now() - timedelta(days=5*365)
+            return datetime.now() - timedelta(days=6*365)
     
     def get_historic(self, timeline: TimelineEntity) -> HistoricEntity:
         result = HistoricModel.objects.filter(timeline_id=timeline.id)[:1]

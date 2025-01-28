@@ -17,6 +17,7 @@ class Prophet:
         # floor: limite inferior
         # holiday: datas de feriados ou eventos
         self._period = period
+        self._is_volume = False
         if len(results) == 0:
             self._is_open = True
             self._is_close = True
@@ -34,38 +35,54 @@ class Prophet:
         self._historical = historical
         self._open_data = None
         self._close_data = None
+        self._volume_data = None
         self._open_forecast = None
         self._close_forecast = None
+        self._volume_forecast = None
+        columns = [
+            'ds',
+            'y',
+            'cap',
+            'floor',
+        ]
+        if self._is_volume:
+            columns.append('v')
         if self._is_open:
-            self._open_data = pandas.DataFrame(columns=[
-                'ds',
-                'y',
-                'cap',
-                'floor',
-            ])
+            self._open_data = pandas.DataFrame(columns=columns)
         if self._is_close:
-            self._close_data = pandas.DataFrame(columns=[
+            self._close_data = pandas.DataFrame(columns=columns)
+        if self._is_volume:
+            self._volume_data = pandas.DataFrame(columns=[
                 'ds',
                 'y',
-                'cap',
-                'floor',
             ])
         i = 0
         for historic in historical:
             timeline = historic.timeline
             if self._is_open:
-                self._open_data.loc[i] = [
+                data = [
                     timeline.datetime,
                     historic.open,
                     historic.high,
                     historic.low,
                 ]
+                if self._is_volume:
+                    data.append(historic.volume)
+                self._open_data.loc[i] = data
             if self._is_close:
-                self._close_data.loc[i] = [
+                data = [
                     timeline.datetime,
                     historic.close,
                     historic.high,
                     historic.low,
+                ]
+                if self._is_volume:
+                    data.append(historic.volume)
+                self._close_data.loc[i] = data
+            if self._is_volume:
+                self._volume_data.loc[i] = [
+                    timeline.datetime,
+                    historic.volume,
                 ]
             i += 1
         self._last = historical[i - 1]
@@ -75,6 +92,23 @@ class Prophet:
         self._stock = timeline.stock
 
     def handle(self):
+        if len(self._historical) == 0:
+            return
+        if self._is_volume:
+            model = Library(
+                daily_seasonality=True,
+                yearly_seasonality=False,
+                weekly_seasonality=True,
+                changepoint_prior_scale=0.01,
+                seasonality_prior_scale=1.0,
+                seasonality_mode='multiplicative',
+            )
+            self._volume_forecast = []
+            model.fit(self._volume_data)
+            future = model.make_future_dataframe(periods=self._period.value)
+            forecast = model.predict(future)
+            for row in forecast.to_dict('records'):
+                self._volume_forecast.append(row['yhat'])
         if self._is_open:
             self._open_forecast = self._get_forecast(self._open_data)
         if self._is_close:
@@ -103,6 +137,7 @@ class Prophet:
         del self._open_data
         del self._close_data
         del self._historical
+        del self._volume_data
         del self._open_forecast
         del self._close_forecast
         gc.collect()
@@ -116,8 +151,12 @@ class Prophet:
             seasonality_prior_scale=1.0,
             seasonality_mode='multiplicative',
         )
+        if self._is_volume:
+            self._prophet.add_regressor('v')
         self._prophet.fit(data)
         self._future = self._prophet.make_future_dataframe(periods=self._period.value)
+        if self._is_volume:
+            self._future['v'] = self._volume_forecast
         return self._prophet.predict(self._future)
     
     def _persist(self, forecast) -> list[ProphesyEntity]:

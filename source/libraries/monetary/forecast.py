@@ -51,22 +51,31 @@ class Forecast:
         if len(data) == 0:
             return []
         result = []
+
         # realiza previsoes
-        peaks = self._get_peaks(data, 1)
-        for peak in peaks:
-            forecast = self._generate_forecast(peak)
-            if forecast is not None:
-                result.append(forecast)
+        # peaks = self._get_peaks(data, 1)
+        # for peak in peaks:
+        #     forecast = self._generate_forecast(peak)
+        #     if forecast is not None:
+        #         result.append(forecast)
+
+        forecast = self._generate_forecast(self._trim(data))
+        if forecast is not None:
+            result.append(forecast)
+
         # qualifica previsoes
-        start = data[0].timeline.datetime.timestamp()
-        for forecast in result:
-            end = forecast.max_timeline.datetime.timestamp()
-            interval = int(end - start)
-            forecast.quantitative = (forecast.quantitative / interval) * 1000000000
+        # start = data[0].timeline.datetime.timestamp()
+        # for forecast in result:
+        #     end = forecast.max_timeline.datetime.timestamp()
+        #     interval = int(end - start)
+        #     print(forecast.quantitative)
+        #     raise Error('teste')
+        #     forecast.quantitative = (forecast.quantitative / interval) * 1000000000
+
         return result
 
     def _generate_forecast(self, data: list[ProphesyEntity]) -> ForecastEntity:
-        if len(data) < 4:
+        if len(data) < 7:
             return None
         last = data[-1]
         first = data[0]
@@ -89,8 +98,8 @@ class Forecast:
             forecast.max_timeline.datetime.timestamp() - forecast.min_timeline.datetime.timestamp()
         )
         forecast.difference = forecast.max_value - forecast.min_value
-        forecast.percentage = 100 * (forecast.max_value / forecast.min_value - 1)
-        forecast.quantitative = 100 * (last.yhat_lower / first.yhat_upper - 1)
+        forecast.percentage = 100 * (forecast.max_value / forecast.min_value - 1.0)
+        forecast.quantitative = (last.yhat_lower / first.yhat_upper) * 10.0
         if forecast.percentage > 0.0:
             return forecast
         else:
