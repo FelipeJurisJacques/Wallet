@@ -17,7 +17,7 @@ class Simulation:
         self._success = 0
         self._output = log
         self._money = money
-        self._rampant = True
+        self._rampant = False
         self._analyze = Analyze(log)
         self._timeline_service = TimelineService()
         self._historic_service = HistoricService()

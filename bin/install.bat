@@ -1,11 +1,11 @@
-cd ..\
+@echo off
 
-python -m venv virtualized
+set "CURRENT_DIR=%~dp0"
 
-call .\virtualized\Scripts\activate.bat
+cd /d "%CURRENT_DIR%"
+call .\_install.bat
 
-pip install -r .\bin\requirements.txt
+cd /d "%CURRENT_DIR%"
+call .\_fix.bat
 
-copy /y .\bin\fix\forecaster.py virtualized\Lib\site-packages\prophet\
-
-deactivate
+pause
