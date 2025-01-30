@@ -1,5 +1,4 @@
 from ..log import Log
-from .analyze import Analyze
 from .prophet import Prophet
 from datetime import timedelta
 from source.entities.stock import Stock as StockEntity
@@ -14,19 +13,18 @@ from source.services.monetary.timeline import Timeline as TimelineService
 class TrainProphesy:
 
     def __init__(self, log: Log):
-        self._fails = 0
-        self._total = 0
         self._days = 100
-        self._decay = 2.0
         self._cycles = 10
-        self._success = 0
         self._output = log
         self._rampant = True
-        self._analyze = Analyze(log)
         self._transaction = Transaction()
         self._timeline_service = TimelineService()
         self._historic_service = HistoricService()
-        self._prophet = Prophet(HistoricEnum.CLOSE, PeriodEnum.DAY)
+        self._prophet = Prophet(
+            type=HistoricEnum.CLOSE,
+            input_period=PeriodEnum.DAY,
+            output_period=PeriodEnum.MONTH
+        )
 
     def handle(self):
 
@@ -85,6 +83,7 @@ class TrainProphesy:
                     # exibe percentual de processamento
                     progress += part
                     self._output.inline(Log.percentage(progress))
+
                 self._output.log(' COMPLETO')
                 self._transaction.commit()
             except Exception as error:

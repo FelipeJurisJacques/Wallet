@@ -11,14 +11,15 @@ from source.services.monetary.timeline import Timeline as TimelineService
 # encapsulamento para manipular a biblioteca Prophet para prever valoes futuros de acoes de empresas
 class Prophet:
 
-    def __init__(self, type: HistoricEnum, period: PeriodEnum):
+    def __init__(self, type: HistoricEnum, input_period: PeriodEnum, output_period: PeriodEnum):
         # y: dados
         # ds: data
         # cap: limite superior
         # floor: limite inferior
         # holiday: datas de feriados ou eventos
         self._type = type
-        self._period = period
+        self._input_period = input_period
+        self._output_period = output_period
         self._timeline_service = TimelineService()
         
     def set_historical(self, historical: list[HistoricEntity]):
@@ -82,7 +83,7 @@ class Prophet:
         # )
         # self._volume_forecast = []
         # model.fit(self._volume_data)
-        # future = model.make_future_dataframe(periods=self._period.value)
+        # future = model.make_future_dataframe(periods=self._output_period.value)
         # forecast = model.predict(future)
         # for row in forecast.to_dict('records'):
         #     self._volume_forecast.append(row['yhat'])
@@ -118,7 +119,7 @@ class Prophet:
         )
         # self._prophet.add_regressor('v')
         self._prophet.fit(data)
-        self._future = self._prophet.make_future_dataframe(periods=self._period.value)
+        self._future = self._prophet.make_future_dataframe(periods=self._output_period.value)
         # self._future['v'] = self._volume_forecast
         return self._prophet.predict(self._future)
     
@@ -130,7 +131,7 @@ class Prophet:
         for forecast in forecast.to_dict('records'):
             if end.datetime.timestamp() > forecast['ds'].timestamp():
                 continue
-            timeline = self._timeline_service.get_timeline(self._stock, self._period, forecast['ds'])
+            timeline = self._timeline_service.get_timeline(self._stock, self._input_period, forecast['ds'])
             if timeline is None:
                 continue
             model = ProphesyEntity()
