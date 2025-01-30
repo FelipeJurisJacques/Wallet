@@ -1,5 +1,6 @@
 import gc
 import pandas
+import logging
 from prophet import Prophet as Library
 from source.enumerators.period import Period as PeriodEnum
 from source.entities.historic import Historic as HistoricEntity
@@ -92,6 +93,8 @@ class Prophet:
         self._stock = timeline.stock
 
     def handle(self):
+        logging.getLogger('cmdstanpy').setLevel(logging.WARNING)
+        logging.getLogger('prophet').setLevel(logging.WARNING)
         if len(self._historical) == 0:
             return
         if self._is_volume:
@@ -113,6 +116,8 @@ class Prophet:
             self._open_forecast = self._get_forecast(self._open_data)
         if self._is_close:
             self._close_forecast = self._get_forecast(self._close_data)
+        logging.getLogger('cmdstanpy').setLevel(logging.INFO)
+        logging.getLogger('prophet').setLevel(logging.INFO)
 
     def results(self) -> tuple[
         list[ProphesyEntity], # OPEN

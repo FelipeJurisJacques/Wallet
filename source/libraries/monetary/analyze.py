@@ -1,4 +1,3 @@
-import logging
 from ..log import Log
 from .prophet import Prophet
 from datetime import datetime
@@ -66,12 +65,8 @@ class Analyze:
             analyze.period = PeriodEnum.MONTH
 
             # suprimir logs durante a execussao do profeta
-            logging.getLogger('cmdstanpy').setLevel(logging.WARNING)
-            logging.getLogger('prophet').setLevel(logging.WARNING)
             self._prophet.set_historical(historical)
             self._prophet.handle()
-            logging.getLogger('cmdstanpy').setLevel(logging.INFO)
-            logging.getLogger('prophet').setLevel(logging.INFO)
 
             open_prophesies, close_prophesies, volume_prophesies = self._prophet.results()
             self._prophet.flush()
