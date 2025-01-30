@@ -99,10 +99,8 @@ class Prophet:
     def flush(self):
         del self._last
         del self._data
-        del self._type
         del self._first
         del self._stock
-        del self._period
         del self._future
         del self._prophet
         del self._forecast
