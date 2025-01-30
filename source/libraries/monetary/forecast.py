@@ -1,4 +1,6 @@
+import numpy
 from scipy.signal import find_peaks
+from sklearn.linear_model import Ridge
 from source.entities.forecast import Forecast as ForecastEntity
 from source.entities.prophesy import Prophesy as ProphesyEntity
 from source.enumerators.historic import Historic as HistoricEnum

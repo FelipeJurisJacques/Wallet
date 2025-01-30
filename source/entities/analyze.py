@@ -3,6 +3,7 @@ from .timeline import Timeline
 from ..entities.stock import Stock
 from ..models.analyze import Analyze as AnalyzeModel
 from ..enumerators.period import Period as PeriodEnum
+from ..enumerators.context import Context as ContextEnum
 
 class Analyze(Entity):
 
@@ -40,6 +41,14 @@ class Analyze(Entity):
     @period.setter
     def period(self, value: PeriodEnum):
         self._model.period = value.value
+
+    @property
+    def context(self) -> ContextEnum:
+        return ContextEnum(self._model.context)
+
+    @context.setter
+    def context(self, value: ContextEnum):
+        self._model.context = value.value
 
     @property
     def timelines(self) -> list[Timeline]:
