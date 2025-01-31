@@ -16,15 +16,8 @@ class TrainProphesy:
         self._days = 100
         self._cycles = 10
         self._output = log
-        self._rampant = True
-        self._transaction = Transaction()
         self._timeline_service = TimelineService()
         self._historic_service = HistoricService()
-        self._prophet = Prophet(
-            type=HistoricEnum.CLOSE,
-            input_period=PeriodEnum.DAY,
-            output_period=PeriodEnum.MONTH
-        )
 
     def handle(self):
 
@@ -35,64 +28,66 @@ class TrainProphesy:
             return
         # stocks = stocks[:2]
 
-        period = PeriodEnum.MONTH
         start = self._timeline_service.get_min_datetime(PeriodEnum.DAY)
         if start is None:
             self._output.log('Nenhum registro a ser processado')
             return
         end = start + timedelta(days=self._days)
 
-        next = True
         cycles = 0
-        while next:
+        transaction = Transaction()
+        delta = timedelta(days=PeriodEnum.MONTH.value)
+        while self._cycles > cycles:
             cycles += 1
             self._output.log('Análisando ações de ' + Log.date(start) + ' até ' + Log.date(end))
 
             progress = 0
             length = len(stocks)
             part = 100 / length
-            self._transaction.begin()
+            transaction.begin()
             try:
                 for stock in stocks:
 
                     # obtem historico
                     historical = self._historic_service.get_historical(stock, start, end)
                     timelines = []
-                    if len(historical) < period.value:
-                        next = False
+                    if len(historical) < PeriodEnum.MONTH.value:
                         break
                     for historic in historical:
                         timelines.append(historic.timeline)
 
                     # realiza professias
-                    self._prophet.set_historical(historical)
-                    self._prophet.handle()
-                    prophesies = self._prophet.results()
+                    prophet = Prophet(
+                        type=HistoricEnum.CLOSE,
+                        input_period=PeriodEnum.DAY,
+                        output_period=PeriodEnum.MONTH
+                    )
+                    prophet.set_historical(historical)
+                    prophet.handle()
+                    prophesies = prophet.results()
                     if len(prophesies) > 0:
                         analyze = AnalyzeEntity()
                         analyze.stock = stock
-                        analyze.period = period
+                        analyze.period = PeriodEnum.MONTH
                         analyze.context = ContextEnum.TRAINING
                         analyze.timelines = timelines
                         analyze.save()
                         for prophesy in prophesies:
                             prophesy.analyze = analyze
                             prophesy.save()
-                    self._prophet.flush()
+                    prophet.flush()
 
                     # exibe percentual de processamento
                     progress += part
                     self._output.inline(Log.percentage(progress))
 
                 self._output.log(' COMPLETO')
-                self._transaction.commit()
+                transaction.commit()
             except Exception as error:
-                self._transaction.rollback()
+                transaction.rollback()
                 raise error
 
-            if self._rampant and self._cycles > cycles:
-                end = end + timedelta(days=period.value)
-                start = start + timedelta(days=period.value)
-            else:
-                next = False
+            end = end + delta
+            start = start + delta
+
         self._output.log('Fim da análise dos dados.')

@@ -110,12 +110,12 @@ class Prophet:
 
     def _get_forecast(self, data):
         self._prophet = Library(
-            daily_seasonality=True,
-            yearly_seasonality=False,
-            weekly_seasonality=True,
-            changepoint_prior_scale=0.01,
-            seasonality_prior_scale=1.0,
-            seasonality_mode='multiplicative',
+            # daily_seasonality=True,
+            # yearly_seasonality=False,
+            # weekly_seasonality=True,
+            # changepoint_prior_scale=0.01,
+            # seasonality_prior_scale=1.0,
+            # seasonality_mode='multiplicative',
         )
         # self._prophet.add_regressor('v')
         self._prophet.fit(data)

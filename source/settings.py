@@ -133,3 +133,5 @@ CACHES = {
 # Diretório para o cache do yfinance
 
 YFINANCE_CACHE_DIR = BASE_DIR / 'storage' / 'yfinance_cache'
+
+AI_MODELS_DIR = BASE_DIR / 'storage' / 'ai'

@@ -1,6 +1,6 @@
 import numpy
-from scipy.signal import find_peaks
-from sklearn.linear_model import Ridge
+import joblib
+from django.conf import settings
 from source.entities.forecast import Forecast as ForecastEntity
 from source.entities.prophesy import Prophesy as ProphesyEntity
 from source.enumerators.historic import Historic as HistoricEnum
@@ -11,161 +11,62 @@ class Forecast:
 
     def __init__(self):
         self._service = AnalyzeService()
+        self._open_prophesies = []
+        self._close_prophesies = []
+        self._volume_prophesies = []
+        self._close_quantitative_model = joblib.load(
+            settings.AI_MODELS_DIR / 'ridge_model_prophesy_close_month_quantitative.joblib'
+        )
         
-    def set_prophesies(
-        self,
-        open: list[ProphesyEntity],
-        close: list[ProphesyEntity],
-        volume: list[ProphesyEntity]
-    ):
-        self._open_prophesies = open
-        self._close_prophesies = close
-        self._volume_prophesies = volume
+    def set_close_prophesies(self, prophesies: list[ProphesyEntity]):
+        self._close_prophesies = prophesies
 
     def handle(self):
-        self._open_forecasts = self._get_forecasts(self._open_prophesies)
-        for forecast in self._open_forecasts:
+        self._open_forecast = []
+        self._close_forecasts = []
+        forecast = self._get_forecast(self._open_prophesies)
+        if forecast is not None:
             forecast.type = HistoricEnum.OPEN
-        self._close_forecasts = self._get_forecasts(self._close_prophesies)
-        for forecast in self._close_forecasts:
+            self._open_forecast.append(forecast)
+        forecast = self._get_forecast(self._close_prophesies)
+        if forecast is not None:
             forecast.type = HistoricEnum.CLOSE
-        self._volume_forecasts = self._get_forecasts(self._volume_prophesies)
-        for forecast in self._volume_forecasts:
-            forecast.type = HistoricEnum.VOLUME
+            self._close_forecasts.append(forecast)
 
     def results(self) -> tuple[
         list[ForecastEntity], # OPEN
         list[ForecastEntity], # CLOSE
-        list[ForecastEntity], # VOLUME
     ]:
-        return self._open_forecasts, self._close_forecasts, self._volume_forecasts
+        return self._open_forecast, self._close_forecasts
     
     def flush(self):
-        # del self._historical
-        del self._open_forecasts
+        self._open_prophesies = []
+        self._close_prophesies = []
+        self._volume_prophesies = []
+        del self._open_forecast
         del self._close_forecasts
-        del self._volume_forecasts
-        del self._open_prophesies
-        del self._close_prophesies
-        del self._volume_prophesies
 
-    def _get_forecasts(self, data: list[ProphesyEntity]) -> list[ForecastEntity]:
+    def _get_forecast(self, data: list[ProphesyEntity]) -> ForecastEntity:
         if len(data) == 0:
-            return []
-        result = []
-
-        # realiza previsoes
-        # peaks = self._get_peaks(data, 1)
-        # for peak in peaks:
-        #     forecast = self._generate_forecast(peak)
-        #     if forecast is not None:
-        #         result.append(forecast)
-
-        forecast = self._generate_forecast(self._trim(data))
-        if forecast is not None:
-            result.append(forecast)
-
-        # qualifica previsoes
-        # start = data[0].timeline.datetime.timestamp()
-        # for forecast in result:
-        #     end = forecast.max_timeline.datetime.timestamp()
-        #     interval = int(end - start)
-        #     print(forecast.quantitative)
-        #     raise Error('teste')
-        #     forecast.quantitative = (forecast.quantitative / interval) * 1000000000
-
-        return result
-
-    def _generate_forecast(self, data: list[ProphesyEntity]) -> ForecastEntity:
-        if len(data) < 7:
             return None
-        last = data[-1]
-        first = data[0]
-        if last.timeline is None:
-            raise ValueError('timeline is None')
-        if first.timeline is None:
-            raise ValueError('timeline is None')
-        if first.yhat > last.yhat:
-            return None
-        forecast = ForecastEntity()
-        forecast.max_value = last.yhat
-        forecast.min_value = first.yhat
-        forecast.max_timeline = last.timeline
-        forecast.min_timeline = first.timeline
-        if forecast.min_timeline.datetime.timestamp() > forecast.max_timeline.datetime.timestamp():
-            # evitar inversao
-            return None
-        forecast.type = first.type
-        forecast.interval = int(
-            forecast.max_timeline.datetime.timestamp() - forecast.min_timeline.datetime.timestamp()
-        )
-        forecast.difference = forecast.max_value - forecast.min_value
-        forecast.percentage = 100 * (forecast.max_value / forecast.min_value - 1.0)
-        forecast.quantitative = (last.yhat_lower / first.yhat_upper) * 10.0
-        if forecast.percentage > 0.0:
-            return forecast
-        else:
-            return None
-
-    def _get_peaks(self, data: list[ProphesyEntity], multiply: int = 1) -> list[list[ProphesyEntity]]:
-        if len(data) == 0:
-            return []
-
-        # processa valores
         values = []
         for prophesy in data:
-            values.append(prophesy.yhat * multiply)
-        peaks, _ = find_peaks(values)
-        if len(peaks) == 0:
-            return [
-                self._trim(data),
-            ]
-
-        # organiza indices em grupos
-        group = []
-        index = 0
-        groups = []
-        for i in range(0, len(data)):
-            group.append(i)
-            if i == peaks[index]:
-                groups.append(group)
-                group = []
-                if index < len(peaks) - 1:
-                    index += 1
-        if len(group) > 0:
-            groups.append(group)
-
-        # gera novos grupos maiores
-        for i in range(0, len(groups) - 1):
-            group = groups[i]
-            groups.append(groups[i] + groups[i + 1])
-
-        # transforma indices e entidades
-        results = []
-        for group in groups:
-            result = []
-            for index in group:
-                result.append(data[index])
-            result = self._ltrim(result)
-            if len(result) > 1:
-                results.append(result)
-
-        return results
-    
-    def _trim(self, data: list[ProphesyEntity]) -> list[ProphesyEntity]:
-        return self._rtrim(self._ltrim(data))
-
-    def _ltrim(self, data: list[ProphesyEntity]) -> list[ProphesyEntity]:
-        length = len(data)
-        if length > 1:
-            if data[0].yhat > data[1].yhat:
-                return self._ltrim(data[1:length])
-        return data
-
-    def _rtrim(self, data: list[ProphesyEntity]) -> list[ProphesyEntity]:
-        length = len(data)
-        if length > 1:
-            if data[-2].yhat > data[-1].yhat:
-                length -= 1
-                return self._rtrim(data[0:length])
-        return data
+            values.append(prophesy.yhat)
+        x = numpy.array([
+            values,
+        ])
+        quantitative = self._close_quantitative_model.predict(x)[0]
+        if quantitative < 0.0:
+            return None
+        entity = ForecastEntity()
+        entity.min_value = data[0].yhat
+        entity.max_value = data[-1].yhat
+        entity.min_timeline = data[0].timeline
+        entity.max_timeline = data[-1].timeline
+        entity.percentage = quantitative
+        entity.difference = entity.max_value - entity.min_value
+        entity.quantitative = quantitative
+        entity.interval = int(
+            entity.max_timeline.datetime.timestamp() - entity.min_timeline.datetime.timestamp()
+        )
+        return entity

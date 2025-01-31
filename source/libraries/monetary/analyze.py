@@ -5,18 +5,17 @@ from .forecast import Forecast
 from source.entities.stock import Stock as StockEntity
 from source.enumerators.period import Period as PeriodEnum
 from source.entities.analyze import Analyze as AnalyzeEntity
+from source.enumerators.context import Context as ContextEnum
 from source.libraries.database.transaction import Transaction
 from source.enumerators.historic import Historic as HistoricEnum
 from source.services.monetary.historic import Historic as HistoricService
 
 class Analyze:
 
-    def __init__(self, output: Log):
+    def __init__(self, output: Log, context: ContextEnum):
         self._output = output
+        self._context = context
         self._historic_service = HistoricService()
-        self._prophet = Prophet([
-            HistoricEnum.CLOSE,
-        ], PeriodEnum.MONTH)
         self._forecast = Forecast()
         self._transaction = Transaction()
 
@@ -34,12 +33,10 @@ class Analyze:
         self._analyzes = []
         open_forecasts = []
         close_forecasts = []
-        volume_forecasts = []
         self._open_forecasts = []
         self._close_forecasts = []
         self._open_prophesies = []
         self._close_prophesies = []
-        self._volume_forecasts = []
         self._volume_prophesies = []
 
         progress = 0
@@ -56,42 +53,37 @@ class Analyze:
             if len(historical) == 0:
                 continue
 
+            # suprimir logs durante a execussao do profeta
+            prophet = Prophet(
+                type=HistoricEnum.CLOSE,
+                input_period=PeriodEnum.DAY,
+                output_period=PeriodEnum.MONTH
+            )
+            prophet.set_historical(historical)
+            prophet.handle()
+            prophesies = prophet.results()
+            prophet.flush()
+            if len(prophesies) == 0:
+                continue
+            
+            # analize
             timelines = []
             for historic in historical:
                 timelines.append(historic.timeline)
             analyze = AnalyzeEntity()
             analyze.stock = stock
             analyze.timelines = timelines
+            analyze.context = self._context
             analyze.period = PeriodEnum.MONTH
-
-            # suprimir logs durante a execussao do profeta
-            self._prophet.set_historical(historical)
-            self._prophet.handle()
-
-            open_prophesies, close_prophesies, volume_prophesies = self._prophet.results()
-            self._prophet.flush()
-
-            if len(open_prophesies) == 0 and len(close_prophesies) == 0:
-                continue
             self._analyzes.append(analyze)
-            for prophesy in open_prophesies:
-                prophesy.analyze = analyze
-                self._open_prophesies.append(prophesy)
-            for prophesy in close_prophesies:
+            for prophesy in prophesies:
                 prophesy.analyze = analyze
                 self._close_prophesies.append(prophesy)
-            for prophesy in volume_prophesies:
-                prophesy.analyze = analyze
-                self._volume_prophesies.append(prophesy)
 
-            self._forecast.set_prophesies(
-                open_prophesies,
-                close_prophesies,
-                volume_prophesies
-            )
+            self._forecast.set_close_prophesies(prophesies)
             self._forecast.handle()
 
-            open_forecast, close_forecast, volume_forecast = self._forecast.results()
+            open_forecast, close_forecast = self._forecast.results()
             self._forecast.flush()
             for forecast in open_forecast:
                 forecast.analyze = analyze
@@ -99,9 +91,6 @@ class Analyze:
             for forecast in close_forecast:
                 forecast.analyze = analyze
                 close_forecasts.append(forecast)
-            for forecast in volume_forecast:
-                forecast.analyze = analyze
-                volume_forecasts.append(forecast)
 
             progress += part
             self._output.inline(Log.percentage(progress))
@@ -117,12 +106,6 @@ class Analyze:
         if len(close_forecasts) > 0:
             self._close_forecasts = sorted(
                 close_forecasts,
-                key=lambda forecast: forecast.quantitative,
-                reverse=True
-            )
-        if len(volume_forecasts) > 0:
-            self._volume_forecasts = sorted(
-                volume_forecasts,
                 key=lambda forecast: forecast.quantitative,
                 reverse=True
             )
@@ -142,8 +125,6 @@ class Analyze:
                 forecast.save()
             for forecast in self._close_forecasts:
                 forecast.save()
-            for forecast in self._volume_forecasts:
-                forecast.save()
             self._transaction.commit()
         except Exception as error:
             self._transaction.rollback()
@@ -152,9 +133,8 @@ class Analyze:
     def results(self) -> tuple[
         list[Forecast], # OPEN
         list[Forecast], # CLOSE
-        list[Forecast], # VOLUME
     ]:
-        return self._open_forecasts, self._close_forecasts, self._volume_forecasts
+        return self._open_forecasts, self._close_forecasts
     
     def flush(self):
         del self._end
@@ -165,5 +145,4 @@ class Analyze:
         del self._close_forecasts
         del self._open_prophesies
         del self._close_prophesies
-        del self._volume_forecasts
         del self._volume_prophesies
